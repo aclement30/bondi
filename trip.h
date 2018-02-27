@@ -6,13 +6,13 @@
 class Trip {
     public:
         const int initialDirection;
-        const RailPoint *startPoint;
-        const RailPoint *endPoint;
+        const RailPoint startPoint;
+        const RailPoint endPoint;
 
         Trip(
             int tripInitialDirection, 
-            RailPoint *tripStartPoint, 
-            RailPoint *tripEndPoint
+            RailPoint tripStartPoint, 
+            RailPoint tripEndPoint
         ) : 
             initialDirection(tripInitialDirection),
             startPoint(tripStartPoint),

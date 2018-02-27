@@ -8,25 +8,16 @@
     Released under the MIT License(http://opensource.org/licenses/MIT)
 */
 
+#include <Arduino.h>
+#include <ArduinoSTL.h>
+
+#include "feeder.h"
 #include "meal.h"
 #include "rail_point.h"
+#include "rail_motor.h"
 #include "trip.h"
 
-// STATES
-const int STATE_IDLE = 0;
-const int STATE_MOVING = 1;
-const int STATE_REFILLING = 2;
-const int STATE_SAFETY_STOP = 3;
-const int STATE_EMERGENCY_STOP = 4;
-
-int currentState = STATE_IDLE;
-int previousState = STATE_IDLE;
-
-// MOVING DIRECTIONS
-const int MOVING_FORWARD = 0;
-const int MOVING_BACKWARD = 1;
-
-int movingDirection = MOVING_FORWARD;
+//#include "conveyor_motor.h"
 
 // INPUTS
 const int POWER_BUTTON = A0;
@@ -50,23 +41,38 @@ const int RED_LIGHT = A8;
 const int MAIN_MOTOR_OUT1 = A9;
 const int MAIN_MOTOR_OUT2 = A10;
 
+const RailMotor mainMotor = RailMotor(
+    MAIN_MOTOR_OUT1,
+    MAIN_MOTOR_OUT2
+);
+
 const int CONVEYOR_MOTOR_FRONT_PWM = A11;
 const int CONVEYOR_MOTOR_FRONT_REVERSE = A12;
-
 const int CONVEYOR_MOTOR_BACK_PWM = A11;
 const int CONVEYOR_MOTOR_BACK_REVERSE = A12;
 
-const int OUTPUTS[8] = {
-    GREEN_LIGHT,
-    RED_LIGHT,
-    MAIN_MOTOR_OUT1,
-    MAIN_MOTOR_OUT2,
+const ConveyorMotor conveyorFront = ConveyorMotor(
     CONVEYOR_MOTOR_FRONT_PWM,
-    CONVEYOR_MOTOR_FRONT_REVERSE,
+    CONVEYOR_MOTOR_FRONT_REVERSE
+);
+const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_PWM,
-    CONVEYOR_MOTOR_BACK_REVERSE,
+    CONVEYOR_MOTOR_BACK_REVERSE
+);
+
+Feeder feeder = Feeder(mainMotor, conveyorFront, conveyorBack, GREEN_LIGHT, RED_LIGHT);
+
+const int OUTPUTS[0] = {
+    // GREEN_LIGHT,
+    // RED_LIGHT,
+    // MAIN_MOTOR_OUT1,
+    // MAIN_MOTOR_OUT2,
+    // CONVEYOR_MOTOR_FRONT_PWM,
+    // CONVEYOR_MOTOR_FRONT_REVERSE,
+    // CONVEYOR_MOTOR_BACK_PWM,
+    // CONVEYOR_MOTOR_BACK_REVERSE,
 };
-const int OUTPUTS_COUNT = 8;
+const int OUTPUTS_COUNT = 0;
 
 const int CONVEYORS[4] = {
     CONVEYOR_MOTOR_FRONT_PWM,
@@ -75,39 +81,30 @@ const int CONVEYORS[4] = {
     CONVEYOR_MOTOR_BACK_REVERSE,
 };
 
-int conveyorFrontSpeed = 0;
-int conveyorBackSpeed = 0;
-
 //// POINTS
 RailPoint dockPoint(1, "DOCK");
 RailPoint groupe1Debut(2, "Groupe1/Debut");
 RailPoint groupe1Fin(3, "Groupe1/Fin");
 
-RailPoint currentRailPoint = dockPoint;
+RailPoint& currentRailPoint = dockPoint;
 
 //// TRIPS
-Trip trajet1(MOVING_FORWARD, &dockPoint, &dockPoint);
+Trip trajet1(MOVING_FORWARD, dockPoint, dockPoint);
 
 // //// MEALS
-MealSequence sequence1("G1", &groupe1Debut, &groupe1Fin, 500, 600);
+MealSequence sequence1("G1", groupe1Debut, groupe1Fin, 500, 600);
 
-MealSequence *repasMatin1Sequences[] = {
-    &sequence1
+std::vector<MealSequence> repasMatin1Sequences = {
+    sequence1
 };
 
-Meal repasMatin1(7, 0, &trajet1, repasMatin1Sequences, 1);
+Meal repasMatin1(7, 0, trajet1, repasMatin1Sequences, 1);
 
 void setup() {
     Serial.begin(9600);   // open serial over USB
 
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
-    }
-
-    for (int n = 0; n < OUTPUTS_COUNT; n++) {
-        pinMode(OUTPUTS[n], OUTPUT);
-        // Set to LOW so no power is flowing through the output
-        digitalWrite(OUTPUTS[n], LOW);
     }
 
     Serial.print("Setup completed");
@@ -123,12 +120,12 @@ void loop() {
     checkSafetyState();
 
     // Check current rail point
-    currentRailPoint = getCurrentRailPoint();
+    //currentRailPoint = getCurrentRailPoint();
 
     distributeMeal(repasMatin1);
 
     // Stop here if emergency button or safety bar is pressed
-    if (currentState == STATE_EMERGENCY_STOP || currentState == STATE_SAFETY_STOP) {
+    if (feeder.state == STATE_SAFETY_STOP) {
         delay(1000);
         return;
     }
@@ -151,93 +148,41 @@ bool isPowerON() {
 // }
 
 bool isSafetyBarPressed() {
-    return (movingDirection == MOVING_FORWARD && digitalRead(SAFETY_SENSOR_FRONT) == LOW) 
-        || (movingDirection == MOVING_BACKWARD && digitalRead(SAFETY_SENSOR_BACK) == LOW);
-}
-
-void emergencyStop() {
-    stopMoving();
-
-    // Shutdown all motors
-    for (int n = 0; n < 4; n++) {
-        digitalWrite(CONVEYORS[n], LOW);
-    }
-
-    // Turn off green light
-    digitalWrite(GREEN_LIGHT, LOW);
-
-    // Turn on red light
-    digitalWrite(RED_LIGHT, HIGH);
-}
-
-void moveForward() {
-    digitalWrite(MAIN_MOTOR_OUT1, HIGH);
-    digitalWrite(MAIN_MOTOR_OUT2, LOW);
-
-    movingDirection = MOVING_FORWARD;
-    currentState = STATE_MOVING;
-}
-
-void moveBackward() {
-    digitalWrite(MAIN_MOTOR_OUT1, LOW);
-    digitalWrite(MAIN_MOTOR_OUT2, HIGH);
-    
-    movingDirection = MOVING_BACKWARD;
-    currentState = STATE_MOVING;
-}
-
-void stopMoving() {
-    digitalWrite(MAIN_MOTOR_OUT1, HIGH);
-    digitalWrite(MAIN_MOTOR_OUT2, HIGH);
-
-    currentState = STATE_IDLE;
-}
-
-void inverseMovingDirection() {
-    stopMoving();
-
-    if (movingDirection == MOVING_FORWARD) {
-        moveBackward();
-    } else {
-        moveForward();
-    }
+    return (feeder.getMovingDirection() == MOVING_FORWARD && digitalRead(SAFETY_SENSOR_FRONT) == LOW) 
+        || (feeder.getMovingDirection() == MOVING_BACKWARD && digitalRead(SAFETY_SENSOR_BACK) == LOW);
 }
 
 void checkSafetyState() {
-    if (currentState != STATE_SAFETY_STOP && isSafetyBarPressed()) {
-        currentState = STATE_SAFETY_STOP;
-
+    if (feeder.state != STATE_SAFETY_STOP && isSafetyBarPressed()) {
         // Shutdown everything immediately
-        emergencyStop();
-    } else if (currentState == STATE_SAFETY_STOP && !isSafetyBarPressed()) {
+        feeder.safetyStop();
+    } else if (feeder.state == STATE_SAFETY_STOP && !isSafetyBarPressed()) {
         // Note: we should wait for manual reactivation or a timeout before reactivating automatically
         // TODO: Reactivate robot
     }
 }
 
-RailPoint getCurrentRailPoint() {
+RailPoint& getCurrentRailPoint() {
     // Read data from RFID reader
     return groupe1Debut;
 }
 
-MealSequence getCurrentMealSequence(Meal meal) {
-    for(int n = 0; n < meal.sequencesCount; n++) {
-        MealSequence *sequence = meal.sequences[n];
-        if (sequence->startPoint->id == currentRailPoint.id) {
-            return sequence;
-        }
-    }
-}
-
 void distributeMeal(Meal meal) {
     // Move feeder in corresponding direction
-    if (currentState == STATE_IDLE) {
-        if (meal.trip->initialDirection == MOVING_FORWARD) {
-            moveForward();
+    if (feeder.state == STATE_IDLE) {
+        if (meal.trip.initialDirection == MOVING_FORWARD) {
+            feeder.moveForward();
         } else {
-            moveBackward();
+            feeder.moveBackward();
         }
     }
 
-    MealSequence currentSequence = getCurrentMealSequence(meal);
+    const MealSequence* sequencePtr = meal.getMealSequenceAt(currentRailPoint);
+    if (sequencePtr) {
+        MealSequence sequence = MealSequence(* sequencePtr);
+    } else {
+        // Make sure all feed conveyors are stopped
+        feeder.conveyorFront.stop();
+        feeder.conveyorBack.stop();
+    }
 }
