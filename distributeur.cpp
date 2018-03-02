@@ -8,16 +8,17 @@
     Released under the MIT License(http://opensource.org/licenses/MIT)
 */
 
-#include <Arduino.h>
-#include <ArduinoSTL.h>
+//#include <Arduino.h>
+//#include <ArduinoSTL.h>
 
+#include "arduino_simulator.h"
+
+#include "conveyor_motor.h"
 #include "feeder.h"
 #include "meal.h"
 #include "rail_point.h"
 #include "rail_motor.h"
 #include "trip.h"
-
-//#include "conveyor_motor.h"
 
 // INPUTS
 const int POWER_BUTTON = A0;
@@ -26,13 +27,13 @@ const int RFID_READER = A3;
 const int SAFETY_SENSOR_FRONT = A5;
 const int SAFETY_SENSOR_BACK = A6;
 
-const int INPUTS[4] = {
+const int INPUTS[2] = {
     POWER_BUTTON,
-    RFID_READER,
-    SAFETY_SENSOR_FRONT,
-    SAFETY_SENSOR_BACK,
+    RFID_READER
+    // SAFETY_SENSOR_FRONT,
+    // SAFETY_SENSOR_BACK,
 };
-const int INPUTS_COUNT = 4;
+const int INPUTS_COUNT = 2;
 
 // OUTPUTS
 const int GREEN_LIGHT = A7;
@@ -60,7 +61,15 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-Feeder feeder = Feeder(mainMotor, conveyorFront, conveyorBack, GREEN_LIGHT, RED_LIGHT);
+Feeder feeder = Feeder(
+    mainMotor, 
+    conveyorFront, 
+    conveyorBack, 
+    GREEN_LIGHT, 
+    RED_LIGHT,
+    SAFETY_SENSOR_FRONT,
+    SAFETY_SENSOR_BACK
+);
 
 const int OUTPUTS[0] = {
     // GREEN_LIGHT,
@@ -78,7 +87,7 @@ const int CONVEYORS[4] = {
     CONVEYOR_MOTOR_FRONT_PWM,
     CONVEYOR_MOTOR_FRONT_REVERSE,
     CONVEYOR_MOTOR_BACK_PWM,
-    CONVEYOR_MOTOR_BACK_REVERSE,
+    CONVEYOR_MOTOR_BACK_REVERSE
 };
 
 //// POINTS
@@ -100,66 +109,8 @@ std::vector<MealSequence> repasMatin1Sequences = {
 
 Meal repasMatin1(7, 0, trajet1, repasMatin1Sequences, 1);
 
-void setup() {
-    Serial.begin(9600);   // open serial over USB
-
-    for (int n = 0; n < INPUTS_COUNT; n++) {
-        pinMode(INPUTS[n], INPUT);
-    }
-
-    Serial.print("Setup completed");
-}
-
-void loop() {
-    // Stop right here if power is OFF
-    if (!isPowerON()) {
-        delay(1000);
-        return;
-    }
-
-    checkSafetyState();
-
-    // Check current rail point
-    //currentRailPoint = getCurrentRailPoint();
-
-    distributeMeal(repasMatin1);
-
-    // Stop here if emergency button or safety bar is pressed
-    if (feeder.state == STATE_SAFETY_STOP) {
-        delay(1000);
-        return;
-    }
-
-    Serial.print("Start loop");
-    
-    //get soil moisture value from the function below and print it
-    //Serial.println(readSoil());
-
-    //This 1 second timefrme is used so you can test the sensor and see it change in real-time.
-    delay(1000);
-}
-
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
-}
-
-// bool isEmergencyPressed() {
-//     return digitalRead(EMERGENCY_BUTTON) == LOW;
-// }
-
-bool isSafetyBarPressed() {
-    return (feeder.getMovingDirection() == MOVING_FORWARD && digitalRead(SAFETY_SENSOR_FRONT) == LOW) 
-        || (feeder.getMovingDirection() == MOVING_BACKWARD && digitalRead(SAFETY_SENSOR_BACK) == LOW);
-}
-
-void checkSafetyState() {
-    if (feeder.state != STATE_SAFETY_STOP && isSafetyBarPressed()) {
-        // Shutdown everything immediately
-        feeder.safetyStop();
-    } else if (feeder.state == STATE_SAFETY_STOP && !isSafetyBarPressed()) {
-        // Note: we should wait for manual reactivation or a timeout before reactivating automatically
-        // TODO: Reactivate robot
-    }
 }
 
 RailPoint& getCurrentRailPoint() {
@@ -180,9 +131,57 @@ void distributeMeal(Meal meal) {
     const MealSequence* sequencePtr = meal.getMealSequenceAt(currentRailPoint);
     if (sequencePtr) {
         MealSequence sequence = MealSequence(* sequencePtr);
+
+        int feedingSide = ((feeder.getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
+        if (sequence.feed1Flow > 0) {
+            feeder.conveyorFront.move(feedingSide, sequence.feed1Flow);
+        }
+        if (sequence.feed2Flow > 0) {
+            feeder.conveyorBack.move(feedingSide, sequence.feed2Flow);
+        }
     } else {
         // Make sure all feed conveyors are stopped
-        feeder.conveyorFront.stop();
-        feeder.conveyorBack.stop();
+        feeder.stopFeeding();
     }
+}
+
+void setup() {
+    Serial.begin(9600);   // open serial over USB
+
+    for (int n = 0; n < INPUTS_COUNT; n++) {
+        pinMode(INPUTS[n], INPUT);
+    }
+
+    Serial.print("Setup completed");
+}
+
+void loop() {
+    // Stop right here if power is OFF
+    if (!isPowerON()) {
+        delay(1000);
+        return;
+    }
+
+    feeder.checkSafetyState();
+
+    // Stop here if emergency button or safety bar is pressed
+    if (feeder.state == STATE_SAFETY_STOP) {
+        delay(1000);
+        return;
+    }
+
+    // Check current rail point
+    //currentRailPoint = getCurrentRailPoint();
+
+    distributeMeal(repasMatin1);
+
+    feeder.checkMovingDirectionState();
+
+    Serial.print("Start loop");
+    
+    //get soil moisture value from the function below and print it
+    //Serial.println(readSoil());
+
+    //This 1 second timefrme is used so you can test the sensor and see it change in real-time.
+    delay(1000);
 }

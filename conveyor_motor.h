@@ -1,16 +1,16 @@
 #ifndef CONVEYORMOTOR_H
 #define CONVEYORMOTOR_H
 
-const int DIRECTION_IDLE = 0;
-const int DIRECTION_LEFT = 1;
-const int DIRECTION_RIGHT = 2;
+const int CONVEYOR_IDLE = 0;
+const int CONVEYOR_SIDE_LEFT = 1;
+const int CONVEYOR_SIDE_RIGHT = 2;
 
 class ConveyorMotor {
     public:
         const int pwm;
         const int reverse;
 
-        int movingDirection = DIRECTION_IDLE;
+        int feedingSide = CONVEYOR_IDLE;
         int speed = 0;
 
         ConveyorMotor(
@@ -27,8 +27,8 @@ class ConveyorMotor {
             digitalWrite(reverse, LOW);
         }
 
-        void move(int direction, int motorSpeed) {
-            if (direction == DIRECTION_LEFT) {
+        void start(int side, int motorSpeed) {
+            if (side == CONVEYOR_SIDE_LEFT) {
                 digitalWrite(reverse, HIGH);
             } else {
                 digitalWrite(reverse, LOW);
@@ -36,7 +36,7 @@ class ConveyorMotor {
 
             analogWrite(pwm, motorSpeed);
 
-            movingDirection = direction;
+            feedingSide = side;
             speed = motorSpeed;
         }
 
@@ -44,7 +44,7 @@ class ConveyorMotor {
             analogWrite(pwm, 0);
             digitalWrite(reverse, LOW);
 
-            movingDirection = DIRECTION_IDLE;
+            feedingSide = CONVEYOR_IDLE;
             speed = 0;
         }
 };

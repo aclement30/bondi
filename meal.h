@@ -1,4 +1,5 @@
-#include "ArduinoSTL.h"
+//#include "ArduinoSTL.h"
+
 #include "trip.h"
 #include "rail_point.h"
 
