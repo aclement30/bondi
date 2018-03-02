@@ -1,17 +1,9 @@
-#include <unistd.h>
-#include <stdio.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <vector>
 #include <emscripten.h>
 
-#include "config.h"
-
-void pinMode(uint8_t pinNumber, uint8_t mode);
+void pinMode(uint8_t pinNumber, uint8_t mode) {}
 void digitalWrite(uint8_t pinNumber, uint8_t value) {
     switch(pinNumber) {
-    case MAIN_MOTOR_OUT2:
+    case MAIN_MOTOR_OUT2: {
         const int movingDirection = feeder.getMovingDirection();
         if (movingDirection == MOVING_FORWARD) {
             EM_ASM({
@@ -33,6 +25,7 @@ void digitalWrite(uint8_t pinNumber, uint8_t value) {
             });
         }
         break;
+    }
     case GREEN_LIGHT:
         if (value == HIGH) {
             EM_ASM({
@@ -88,43 +81,45 @@ int digitalRead(uint8_t pinNumber) {
     }
 }
 
-void analogWrite(uint8_t pinNumber, uint8_t value) {}
+void analogWrite(uint8_t pinNumber, uint8_t value) {
+    switch(pinNumber) {
+    case CONVEYOR_MOTOR_FRONT_PWM: {
+        const char *feedingSide = (conveyorFront.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
+        if (value == 0) {
+            EM_ASM({
+                window.simulator.zone.run(() => {
+                    window.simulator.service.startConveyor('front', $0, $1);
+                });
+            }, value, feedingSide);
+        } else {
+            EM_ASM({
+                window.simulator.zone.run(() => {
+                    window.simulator.service.stopConveyor('front');
+                });
+            });
+        }
+        break;
+    }
+    case CONVEYOR_MOTOR_BACK_PWM: {
+        const char *feedingSide = (conveyorBack.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
+        if (value == 0) {
+            EM_ASM({
+                window.simulator.zone.run(() => {
+                    window.simulator.service.startConveyor('back', $0, $1);
+                });
+            }, value, feedingSide);
+        } else {
+            EM_ASM({
+                window.simulator.zone.run(() => {
+                    window.simulator.service.stopConveyor('back');
+                });
+            });
+        }
+        break;
+    }
+    }
+}
 
 void delay(unsigned long microseconds) {
     sleep(microseconds);
 }
-
-class Serial_ {
-public:
-	Serial_() {};
-	void begin(unsigned long);
-	void end(void);
-    
-    // size_t print(const __FlashStringHelper *);
-    size_t print(const std::string &);
-    size_t print(const char[]);
-    size_t print(char);
-    // size_t print(unsigned char, int = DEC);
-    // size_t print(int, int = DEC);
-    // size_t print(unsigned int, int = DEC);
-    // size_t print(long, int = DEC);
-    // size_t print(unsigned long, int = DEC);
-    size_t print(double, int = 2);
-    // size_t print(const Printable&);
-
-    // size_t println(const __FlashStringHelper *);
-    size_t println(const std::string &s);
-    size_t println(const char[]);
-    size_t println(char);
-    // size_t println(unsigned char, int = DEC);
-    // size_t println(int, int = DEC);
-    // size_t println(unsigned int, int = DEC);
-    // size_t println(long, int = DEC);
-    // size_t println(unsigned long, int = DEC);
-    size_t println(double, int = 2);
-    // size_t println(const Printable&);
-    size_t println(void);
-};
-
-Serial_ Serial = Serial_();
-

@@ -1,18 +1,9 @@
+#include "config.h"
 #include "conveyor_motor.h"
 #include "rail_motor.h"
 
 #ifndef FEEDER_H
 #define FEEDER_H
-
-// STATES
-const int STATE_IDLE = 0;
-const int STATE_MOVING = 1;
-const int STATE_REFILLING = 2;
-const int STATE_SAFETY_STOP = 3;
-
-// LIGHT COLORS
-const int LIGHT_GREEN = 1;
-const int LIGHT_RED = 2;
 
 class Feeder {
     public:

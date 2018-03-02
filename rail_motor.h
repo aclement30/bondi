@@ -1,10 +1,7 @@
+#include "config.h"
+
 #ifndef RAILMOTOR_H
 #define RAILMOTOR_H
-
-// MOVING DIRECTIONS
-const int MOVING_IDLE = 0;
-const int MOVING_FORWARD = 1;
-const int MOVING_BACKWARD = 2;
 
 class RailMotor {
     public:

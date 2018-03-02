@@ -1,7 +1,7 @@
 //#include "ArduinoSTL.h"
 
-#include "trip.h"
 #include "rail_point.h"
+#include "route.h"
 
 #ifndef MEAL_H
 #define MEAL_H
@@ -31,22 +31,25 @@ class MealSequence {
 
 class Meal {
     public:
+        const char *name;
         const int startHour;
         const int startMinutes;
-        const Trip trip;
+        const Route route;
         const std::vector<MealSequence> sequences;
         const int sequencesCount;
 
         Meal(
+            const char *mealName,
             int mealStartHour, 
             int mealStartMinutes, 
-            Trip mealTrip,
+            Route mealRoute,
             const std::vector<MealSequence> mealSequences, 
             int mealSequencesCount
         ) : 
+            name(mealName),
             startHour(mealStartHour), 
             startMinutes(mealStartMinutes),
-            trip(mealTrip),
+            route(mealRoute),
             sequences(mealSequences),
             sequencesCount(mealSequencesCount)
         {}

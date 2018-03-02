@@ -11,22 +11,19 @@
 //#include <Arduino.h>
 //#include <ArduinoSTL.h>
 
-#include "arduino_simulator.h"
+#ifdef __EMSCRIPTEN__
+#include "simulator.h"
+#endif
 
+#include "config.h"
 #include "conveyor_motor.h"
 #include "feeder.h"
 #include "meal.h"
 #include "rail_point.h"
 #include "rail_motor.h"
-#include "trip.h"
+#include "route.h"
 
 // INPUTS
-const int POWER_BUTTON = A0;
-
-const int RFID_READER = A3;
-const int SAFETY_SENSOR_FRONT = A5;
-const int SAFETY_SENSOR_BACK = A6;
-
 const int INPUTS[2] = {
     POWER_BUTTON,
     RFID_READER
@@ -35,22 +32,10 @@ const int INPUTS[2] = {
 };
 const int INPUTS_COUNT = 2;
 
-// OUTPUTS
-const int GREEN_LIGHT = A7;
-const int RED_LIGHT = A8;
-
-const int MAIN_MOTOR_OUT1 = A9;
-const int MAIN_MOTOR_OUT2 = A10;
-
 const RailMotor mainMotor = RailMotor(
     MAIN_MOTOR_OUT1,
     MAIN_MOTOR_OUT2
 );
-
-const int CONVEYOR_MOTOR_FRONT_PWM = A11;
-const int CONVEYOR_MOTOR_FRONT_REVERSE = A12;
-const int CONVEYOR_MOTOR_BACK_PWM = A11;
-const int CONVEYOR_MOTOR_BACK_REVERSE = A12;
 
 const ConveyorMotor conveyorFront = ConveyorMotor(
     CONVEYOR_MOTOR_FRONT_PWM,
@@ -71,25 +56,6 @@ Feeder feeder = Feeder(
     SAFETY_SENSOR_BACK
 );
 
-const int OUTPUTS[0] = {
-    // GREEN_LIGHT,
-    // RED_LIGHT,
-    // MAIN_MOTOR_OUT1,
-    // MAIN_MOTOR_OUT2,
-    // CONVEYOR_MOTOR_FRONT_PWM,
-    // CONVEYOR_MOTOR_FRONT_REVERSE,
-    // CONVEYOR_MOTOR_BACK_PWM,
-    // CONVEYOR_MOTOR_BACK_REVERSE,
-};
-const int OUTPUTS_COUNT = 0;
-
-const int CONVEYORS[4] = {
-    CONVEYOR_MOTOR_FRONT_PWM,
-    CONVEYOR_MOTOR_FRONT_REVERSE,
-    CONVEYOR_MOTOR_BACK_PWM,
-    CONVEYOR_MOTOR_BACK_REVERSE
-};
-
 //// POINTS
 RailPoint dockPoint(1, "DOCK");
 RailPoint groupe1Debut(2, "Groupe1/Debut");
@@ -97,8 +63,8 @@ RailPoint groupe1Fin(3, "Groupe1/Fin");
 
 RailPoint& currentRailPoint = dockPoint;
 
-//// TRIPS
-Trip trajet1(MOVING_FORWARD, dockPoint, dockPoint);
+//// ROUTES
+Route trajet1(MOVING_FORWARD, dockPoint, dockPoint);
 
 // //// MEALS
 MealSequence sequence1("G1", groupe1Debut, groupe1Fin, 500, 600);
@@ -107,7 +73,7 @@ std::vector<MealSequence> repasMatin1Sequences = {
     sequence1
 };
 
-Meal repasMatin1(7, 0, trajet1, repasMatin1Sequences, 1);
+Meal repasMatin1("Repas matin - GE", 7, 0, trajet1, repasMatin1Sequences, 1);
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
@@ -121,7 +87,7 @@ RailPoint& getCurrentRailPoint() {
 void distributeMeal(Meal meal) {
     // Move feeder in corresponding direction
     if (feeder.state == STATE_IDLE) {
-        if (meal.trip.initialDirection == MOVING_FORWARD) {
+        if (meal.route.initialDirection == MOVING_FORWARD) {
             feeder.moveForward();
         } else {
             feeder.moveBackward();
@@ -134,10 +100,10 @@ void distributeMeal(Meal meal) {
 
         int feedingSide = ((feeder.getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
         if (sequence.feed1Flow > 0) {
-            feeder.conveyorFront.move(feedingSide, sequence.feed1Flow);
+            feeder.conveyorFront.start(feedingSide, sequence.feed1Flow);
         }
         if (sequence.feed2Flow > 0) {
-            feeder.conveyorBack.move(feedingSide, sequence.feed2Flow);
+            feeder.conveyorBack.start(feedingSide, sequence.feed2Flow);
         }
     } else {
         // Make sure all feed conveyors are stopped
@@ -177,7 +143,7 @@ void loop() {
 
     feeder.checkMovingDirectionState();
 
-    Serial.print("Start loop");
+    //Serial.print("Start loop");
     
     //get soil moisture value from the function below and print it
     //Serial.println(readSoil());
@@ -185,3 +151,13 @@ void loop() {
     //This 1 second timefrme is used so you can test the sensor and see it change in real-time.
     delay(1000);
 }
+
+#ifdef __EMSCRIPTEN__
+
+#include "simulator.cpp"
+
+int main() {
+    emscripten_set_main_loop(loop, 60, 1);
+}
+
+#endif
