@@ -13,14 +13,20 @@
 
 #ifdef __EMSCRIPTEN__
 #include "simulator.h"
+#else
+#include <SD.h>
 #endif
 
-#include "config.h"
+//#include "config.h"
+#include "constants.h"
 #include "conveyor_motor.h"
 #include "feeder.h"
+#include "location_service.h"
 #include "meal.h"
+#include "meal_service.h"
 #include "rail_point.h"
 #include "rail_motor.h"
+#include "rfid_reader.h"
 #include "route.h"
 
 // INPUTS
@@ -46,6 +52,13 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
+const RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
+
+Config config = loadConfiguration();
+
+LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
+MealService mealService = MealService(config.meals);
+
 Feeder feeder = Feeder(
     mainMotor, 
     conveyorFront, 
@@ -56,32 +69,8 @@ Feeder feeder = Feeder(
     SAFETY_SENSOR_BACK
 );
 
-//// POINTS
-RailPoint dockPoint(1, "DOCK");
-RailPoint groupe1Debut(2, "Groupe1/Debut");
-RailPoint groupe1Fin(3, "Groupe1/Fin");
-
-RailPoint& currentRailPoint = dockPoint;
-
-//// ROUTES
-Route trajet1(MOVING_FORWARD, dockPoint, dockPoint);
-
-// //// MEALS
-MealSequence sequence1("G1", groupe1Debut, groupe1Fin, 500, 600);
-
-std::vector<MealSequence> repasMatin1Sequences = {
-    sequence1
-};
-
-Meal repasMatin1("Repas matin - GE", 7, 0, trajet1, repasMatin1Sequences, 1);
-
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
-}
-
-RailPoint& getCurrentRailPoint() {
-    // Read data from RFID reader
-    return groupe1Debut;
 }
 
 void distributeMeal(Meal meal) {
@@ -94,7 +83,9 @@ void distributeMeal(Meal meal) {
         }
     }
 
-    const MealSequence* sequencePtr = meal.getMealSequenceAt(currentRailPoint);
+    RailPoint activeRailPoint = locationService.getActiveRailPoint();
+
+    const MealSequence* sequencePtr = meal.getMealSequenceAt(activeRailPoint);
     if (sequencePtr) {
         MealSequence sequence = MealSequence(* sequencePtr);
 
@@ -118,6 +109,16 @@ void setup() {
         pinMode(INPUTS[n], INPUT);
     }
 
+    #ifndef __EMSCRIPTEN__
+
+    if (!SD.begin(SD_CARD_CS)) {
+        Serial.println("Card failed, or not present");
+        // don't do anything more:
+        while (1);
+    }
+
+    #endif
+
     Serial.print("Setup completed");
 }
 
@@ -136,13 +137,17 @@ void loop() {
         return;
     }
 
-    // Check current rail point
-    //currentRailPoint = getCurrentRailPoint();
+    locationService.refreshActivePoint();
+    RailPoint activeRailPoint = locationService.getActiveRailPoint();
 
-    distributeMeal(repasMatin1);
+    feeder.checkMovingDirectionState(activeRailPoint);
 
-    feeder.checkMovingDirectionState();
-
+    mealService.refreshCurrentMeal();
+    if (mealService.hasCurrentMeal()) {
+        Meal currentMeal = mealService.getCurrentMeal();
+        distributeMeal(currentMeal);
+    }
+    
     //Serial.print("Start loop");
     
     //get soil moisture value from the function below and print it

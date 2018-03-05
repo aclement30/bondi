@@ -9,10 +9,10 @@
 class MealSequence {
     public:
         const char *name;
-        const RailPoint startPoint;
-        const RailPoint endPoint;
-        const int feed1Flow;
-        const int feed2Flow;
+        RailPoint startPoint;
+        RailPoint endPoint;
+        int feed1Flow;
+        int feed2Flow;
 
         MealSequence(
             const char *sequenceName, 
@@ -31,24 +31,24 @@ class MealSequence {
 
 class Meal {
     public:
+        int id;
         const char *name;
-        const int startHour;
-        const int startMinutes;
-        const Route route;
-        const std::vector<MealSequence> sequences;
-        const int sequencesCount;
+        int startMoment;
+        Route route;
+        std::vector<MealSequence> sequences;
+        int sequencesCount;
 
         Meal(
+            int mealId,
             const char *mealName,
-            int mealStartHour, 
-            int mealStartMinutes, 
+            int mealStartMoment, 
             Route mealRoute,
-            const std::vector<MealSequence> mealSequences, 
+            std::vector<MealSequence> mealSequences, 
             int mealSequencesCount
         ) : 
+            id(mealId),
             name(mealName),
-            startHour(mealStartHour), 
-            startMinutes(mealStartMinutes),
+            startMoment(mealStartMoment), 
             route(mealRoute),
             sequences(mealSequences),
             sequencesCount(mealSequencesCount)
@@ -65,5 +65,13 @@ class Meal {
             return NULL;
         }
 };
+
+Meal getMealById(std::vector<Meal> meals, int mealId) {
+    std::vector<Meal>::iterator iterator = std::find_if (meals.begin(), meals.end(), [&](const Meal & meal) {
+        return meal.id == mealId;
+    });
+
+    return *iterator;
+}
 
 #endif

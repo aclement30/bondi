@@ -1,4 +1,8 @@
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
+
+#include "rail_point.h"
 
 void pinMode(uint8_t pinNumber, uint8_t mode) {}
 void digitalWrite(uint8_t pinNumber, uint8_t value) {
@@ -83,40 +87,40 @@ int digitalRead(uint8_t pinNumber) {
 
 void analogWrite(uint8_t pinNumber, uint8_t value) {
     switch(pinNumber) {
-    case CONVEYOR_MOTOR_FRONT_PWM: {
-        const char *feedingSide = (conveyorFront.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
-        if (value == 0) {
-            EM_ASM({
-                window.simulator.zone.run(() => {
-                    window.simulator.service.startConveyor('front', $0, $1);
+        case CONVEYOR_MOTOR_FRONT_PWM: {
+            const char *feedingSide = (conveyorFront.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
+            if (value == 0) {
+                EM_ASM({
+                    window.simulator.zone.run(() => {
+                        window.simulator.service.startConveyor('front', $0, $1);
+                    });
+                }, value, feedingSide);
+            } else {
+                EM_ASM({
+                    window.simulator.zone.run(() => {
+                        window.simulator.service.stopConveyor('front');
+                    });
                 });
-            }, value, feedingSide);
-        } else {
-            EM_ASM({
-                window.simulator.zone.run(() => {
-                    window.simulator.service.stopConveyor('front');
-                });
-            });
+            }
+            break;
         }
-        break;
-    }
-    case CONVEYOR_MOTOR_BACK_PWM: {
-        const char *feedingSide = (conveyorBack.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
-        if (value == 0) {
-            EM_ASM({
-                window.simulator.zone.run(() => {
-                    window.simulator.service.startConveyor('back', $0, $1);
+        case CONVEYOR_MOTOR_BACK_PWM: {
+            const char *feedingSide = (conveyorBack.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
+            if (value == 0) {
+                EM_ASM({
+                    window.simulator.zone.run(() => {
+                        window.simulator.service.startConveyor('back', $0, $1);
+                    });
+                }, value, feedingSide);
+            } else {
+                EM_ASM({
+                    window.simulator.zone.run(() => {
+                        window.simulator.service.stopConveyor('back');
+                    });
                 });
-            }, value, feedingSide);
-        } else {
-            EM_ASM({
-                window.simulator.zone.run(() => {
-                    window.simulator.service.stopConveyor('back');
-                });
-            });
+            }
+            break;
         }
-        break;
-    }
     }
 }
 

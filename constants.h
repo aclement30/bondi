@@ -1,0 +1,52 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+// INPUTS
+const int POWER_BUTTON = A0;
+
+const int RFID_READER = A3;
+const int SAFETY_SENSOR_FRONT = A5;
+const int SAFETY_SENSOR_BACK = A6;
+
+// OUTPUTS
+const int GREEN_LIGHT = A7;
+const int RED_LIGHT = A8;
+
+const int MAIN_MOTOR_OUT1 = A9;
+const int MAIN_MOTOR_OUT2 = A10;
+
+const int CONVEYOR_MOTOR_FRONT_PWM = A11;
+const int CONVEYOR_MOTOR_FRONT_REVERSE = A12;
+const int CONVEYOR_MOTOR_BACK_PWM = A13;
+const int CONVEYOR_MOTOR_BACK_REVERSE = A12;
+
+const int CONVEYORS[4] = {
+    CONVEYOR_MOTOR_FRONT_PWM,
+    CONVEYOR_MOTOR_FRONT_REVERSE,
+    CONVEYOR_MOTOR_BACK_PWM,
+    CONVEYOR_MOTOR_BACK_REVERSE
+};
+
+// SD CARD
+const int SD_CARD_CS = 4;
+
+// RFID
+const int RFID_RSA_PIN = 10;
+const int RFID_RST_PIN = 9;
+
+// FEEDER STATES
+const int STATE_IDLE = 0;
+const int STATE_MOVING = 1;
+const int STATE_REFILLING = 2;
+const int STATE_SAFETY_STOP = 3;
+
+// LIGHT COLORS
+const int LIGHT_GREEN = 1;
+const int LIGHT_RED = 2;
+
+// MOVING DIRECTIONS
+const int MOVING_IDLE = 0;
+const int MOVING_FORWARD = 1;
+const int MOVING_BACKWARD = 2;
+
+#endif

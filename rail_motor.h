@@ -1,4 +1,4 @@
-#include "config.h"
+#include "constants.h"
 
 #ifndef RAILMOTOR_H
 #define RAILMOTOR_H

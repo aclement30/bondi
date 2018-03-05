@@ -1,9 +1,16 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#include "rail_point.h"
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
@@ -36,6 +43,8 @@ void digitalWrite(uint8_t pinNumber, uint8_t value);
 int digitalRead(uint8_t pinNumber);
 void analogWrite(uint8_t pinNumber, uint8_t value);
 void delay(unsigned long microseconds);
+
+RailPoint getRailPointById(int pointId);
 
 class Serial_ {
 public:
@@ -70,5 +79,72 @@ public:
 };
 
 Serial_ Serial = Serial_();
+
+class RFID {
+    public:
+        int serNum[5];
+
+        RFID(
+            int rsaPin,
+            int rstPin
+        ) {}
+
+        void init() {}
+        void halt() {}
+
+        bool isCard() {
+            currentPointId = getCurrentPointId();
+            return currentPointId != 0;
+        }
+
+        bool readCardSerial() {
+            if (currentPointId != 0) {
+                RailPoint railpoint = getRailPointById(currentPointId);
+
+                // Split RFID UID into serial number array
+                std::string number;
+                std::string::size_type size;
+                int i = 0;
+                std::istringstream tokenStream(railpoint.rfidUid);
+                while (std::getline(tokenStream, number, '.')) {
+                    serNum[i] = std::stoi(number, &size);
+                    i++;
+                }
+                
+                return true;
+            }
+
+            return false;
+        }
+    
+    private:
+        int currentPointId = 0;
+
+        int getCurrentPointId() {
+            return EM_ASM_INT({
+                const currentPoint = window.simulator.service.getCurrentRailPoint();
+                if (currentPoint) {
+                    return currentPoint.id;
+                }
+                return 0;
+            });
+        }
+};
+
+class SPI_ {
+    public:
+        void begin() {}
+};
+
+SPI_ SPI = SPI_();
+
+class SD_ {
+    public:
+        bool begin(int chipSelect) {
+            return true;
+        }
+};
+
+SD_ SD = SD_();
 
 #endif

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "constants.h"
 #include "conveyor_motor.h"
 #include "rail_motor.h"
 
@@ -10,7 +10,7 @@ class Feeder {
         int state = STATE_IDLE;
         ConveyorMotor conveyorFront;
         ConveyorMotor conveyorBack;
-
+        
         Feeder(
             RailMotor motor,
             ConveyorMotor feederConveyorFront,
@@ -52,7 +52,7 @@ class Feeder {
             changeState(STATE_IDLE);
         }
 
-        void checkMovingDirectionState() {
+        void checkMovingDirectionState(RailPoint activeRailPoint) {
             if (1 == 1) {
                 stopFeeding();
                 mainMotor.inverseMovingDirection();

@@ -1,18 +1,41 @@
+#ifndef __EMSCRIPTEN__
+#include <ArduinoSTL.h>
+#endif
+
 #ifndef RAILPOINT_H
 #define RAILPOINT_H
 
 class RailPoint {
     public:
-        const int id;
+        int id;
         const char *name;
+        const char *rfidUid;
 
         RailPoint(
             int pointId, 
-            const char *pointName
+            const char *pointName,
+            const char *pointRfidUid
         ) : 
             id(pointId),
-            name(pointName)
-        {}  
+            name(pointName),
+            rfidUid(pointRfidUid)
+        {}
 };
+
+RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
+        return point.id == pointId;
+    });
+
+    return *iterator;
+}
+
+RailPoint getRailPointByRfidUId(std::vector<RailPoint> railPoints, const char *rfidUid) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
+        return point.rfidUid == rfidUid;
+    });
+
+    return *iterator;
+}
 
 #endif
