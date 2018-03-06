@@ -10,6 +10,7 @@
 #include <emscripten.h>
 #endif
 
+#include "location_service.h"
 #include "rail_point.h"
 
 #ifndef SIMULATOR_H
@@ -43,8 +44,10 @@ void digitalWrite(uint8_t pinNumber, uint8_t value);
 int digitalRead(uint8_t pinNumber);
 void analogWrite(uint8_t pinNumber, uint8_t value);
 void delay(unsigned long microseconds);
+int hour();
+int minute();
 
-RailPoint getRailPointById(int pointId);
+LocationService locationService;
 
 class Serial_ {
 public:
@@ -99,7 +102,7 @@ class RFID {
 
         bool readCardSerial() {
             if (currentPointId != 0) {
-                RailPoint railpoint = getRailPointById(currentPointId);
+                RailPoint railpoint = getRailPointById(locationService.railPoints, currentPointId);
 
                 // Split RFID UID into serial number array
                 std::string number;

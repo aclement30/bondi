@@ -1,6 +1,9 @@
 #include "meal.h"
 #include "route.h"
+
+#ifndef __EMSCRIPTEN__
 #include <TimeLib.h>
+#endif
 
 #ifndef MEALSERVICE_H
 #define MEALSERVICE_H

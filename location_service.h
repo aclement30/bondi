@@ -30,7 +30,7 @@ class LocationService {
         void refreshActivePoint() {
             const char *uid = rfidReader.read();
 
-            if (uid != "") {
+            if (strlen(uid) != 0) {
                 // New rail point detected: match RFID uid with corresponding rail point
                 RailPoint railPoint = getRailPointByRfidUId(railPoints, uid);
                 activeRailPointPtr = &railPoint;

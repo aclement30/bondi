@@ -17,7 +17,7 @@
 #include <SD.h>
 #endif
 
-//#include "config.h"
+#include "config.h"
 #include "constants.h"
 #include "conveyor_motor.h"
 #include "feeder.h"

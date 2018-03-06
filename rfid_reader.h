@@ -33,18 +33,10 @@ class RfidReader {
                         charUid << rfid.serNum[n] << ".";
                     }
 
-                    return charUid.str();
-
-                    // std::string const UID = std::to_string(rfid.serNum[0]) + "." + 
-                    //                         std::to_string(rfid.serNum[1]) + "." + 
-                    //                         std::to_string(rfid.serNum[2]) + "." + 
-                    //                         std::to_string(rfid.serNum[3]) + "." + 
-                    //                         std::to_string(rfid.serNum[4]);
-
-                    // std::vector<char> rfidUid(UID.begin(), UID.end());
-                    // rfidUid.push_back('\0');
-
-                    // return rfidUid;
+                    const std::string& tmpUid = charUid.str();   
+                    const char* cstr = tmpUid.c_str();
+                    
+                    return cstr;
                 }
 
                 rfid.halt();
