@@ -11,19 +11,22 @@ void digitalWrite(uint8_t pinNumber, uint8_t value) {
         const int movingDirection = feeder.getMovingDirection();
         if (movingDirection == MOVING_FORWARD) {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('moveMainMotor(forward)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.moveMainMotor('forward');
                 });
             });
         } else if (movingDirection == MOVING_BACKWARD) {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('moveMainMotor(backward)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.moveMainMotor('backward');
                 });
             });
         } else {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('stopMainMotor()');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.stopMainMotor();
                 });
             });
@@ -33,13 +36,15 @@ void digitalWrite(uint8_t pinNumber, uint8_t value) {
     case GREEN_LIGHT:
         if (value == HIGH) {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('turnOnLight(green)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.turnOnLight('green');
                 });
             });
         } else {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('turnOffLight(green)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.turnOffLight('green');
                 });
             });
@@ -48,13 +53,15 @@ void digitalWrite(uint8_t pinNumber, uint8_t value) {
     case RED_LIGHT:
         if (value == HIGH) {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('turnOnLight(red)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.turnOnLight('red');
                 });
             });
         } else {
             EM_ASM({
-                window.simulator.zone.run(() => {
+                console.log('turnOffLight(red)');
+                window.simulator && window.simulator.zone.run(() => {
                     window.simulator.service.turnOffLight('red');
                 });
             });
@@ -67,17 +74,20 @@ int digitalRead(uint8_t pinNumber) {
     switch(pinNumber) {
     case POWER_BUTTON:
         return EM_ASM_INT({
-            return +window.simulator.service.getPowerStatus();
+            console.log('getPowerStatus()');
+            return window.simulator && +window.simulator.service.getPowerStatus();
         });
         break; 
     case SAFETY_SENSOR_FRONT:
         return EM_ASM_INT({
-            return +window.simulator.service.getSafetySensorStatus('front');
+            console.log('getSafetySensorStatus(front)');
+            return window.simulator && +window.simulator.service.getSafetySensorStatus('front');
         });
         break;
     case SAFETY_SENSOR_BACK:
         return EM_ASM_INT({
-            return +window.simulator.service.getSafetySensorStatus('back');
+            console.log('getSafetySensorStatus(back)');
+            return window.simulator && +window.simulator.service.getSafetySensorStatus('back');
         });
         break;
     default:
@@ -91,13 +101,15 @@ void analogWrite(uint8_t pinNumber, uint8_t value) {
             const char *feedingSide = (conveyorFront.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
             if (value == 0) {
                 EM_ASM({
-                    window.simulator.zone.run(() => {
+                    console.log('startConveyor(front)');
+                    window.simulator && window.simulator.zone.run(() => {
                         window.simulator.service.startConveyor('front', $0, $1);
                     });
                 }, value, feedingSide);
             } else {
                 EM_ASM({
-                    window.simulator.zone.run(() => {
+                    console.log('stopConveyor(front)');
+                    window.simulator && window.simulator.zone.run(() => {
                         window.simulator.service.stopConveyor('front');
                     });
                 });
@@ -108,13 +120,15 @@ void analogWrite(uint8_t pinNumber, uint8_t value) {
             const char *feedingSide = (conveyorBack.feedingSide == CONVEYOR_SIDE_LEFT) ? "left" : "right";
             if (value == 0) {
                 EM_ASM({
-                    window.simulator.zone.run(() => {
+                    console.log('startConveyor(back)');
+                    window.simulator && window.simulator.zone.run(() => {
                         window.simulator.service.startConveyor('back', $0, $1);
                     });
                 }, value, feedingSide);
             } else {
                 EM_ASM({
-                    window.simulator.zone.run(() => {
+                    console.log('stopConveyor(back)');
+                    window.simulator && window.simulator.zone.run(() => {
                         window.simulator.service.stopConveyor('back');
                     });
                 });

@@ -1,6 +1,7 @@
 #include "constants.h"
 #include "conveyor_motor.h"
 #include "rail_motor.h"
+#include "rail_point.h"
 
 #ifndef FEEDER_H
 #define FEEDER_H

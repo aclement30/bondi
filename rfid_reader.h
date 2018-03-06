@@ -1,7 +1,7 @@
 #ifndef __EMSCRIPTEN__
 #include <ArduinoSTL.h>
 #include <string.h>
-//#include <sstream>
+#include <sstream>
 #include <SPI.h>
 #include <RFID.h>
 #endif
@@ -26,7 +26,7 @@ class RfidReader {
         const char* read() {
             if (rfid.isCard()) {  
                 if (rfid.readCardSerial()) {
-                    Serial.print("L'UID est: ");
+                    //Serial.print("L'UID est: ");
                     std::stringstream charUid;
 
                     for(int n = 0; n < 5; n++) {

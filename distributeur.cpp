@@ -8,13 +8,11 @@
     Released under the MIT License(http://opensource.org/licenses/MIT)
 */
 
-//#include <Arduino.h>
-//#include <ArduinoSTL.h>
-
 #ifdef __EMSCRIPTEN__
-#include "simulator.h"
+#include "simulator/simulator.h"
 #else
 #include <SD.h>
+#include <ArduinoSTL.h>
 #endif
 
 #include "config.h"
@@ -119,7 +117,7 @@ void setup() {
 
     #endif
 
-    Serial.print("Setup completed");
+    //Serial.print("Setup completed");
 }
 
 void loop() {
@@ -137,7 +135,7 @@ void loop() {
         return;
     }
 
-    locationService.refreshActivePoint();
+    // locationService.refreshActivePoint();
     RailPoint activeRailPoint = locationService.getActiveRailPoint();
 
     feeder.checkMovingDirectionState(activeRailPoint);
@@ -159,7 +157,7 @@ void loop() {
 
 #ifdef __EMSCRIPTEN__
 
-#include "simulator.cpp"
+#include "simulator/simulator.cpp"
 
 int main() {
     emscripten_set_main_loop(loop, 60, 1);

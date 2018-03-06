@@ -13,6 +13,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+struct Config {
+    std::vector<RailPoint> railPoints;
+    std::vector<Route> routes;
+    std::vector<Meal> meals;
+};
+
 std::vector<RailPoint> loadRailPoints(JsonArray &data) {
     std::vector<RailPoint> points;
 
@@ -79,12 +85,6 @@ std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vec
 
     return meals;
 }
-
-struct Config {
-    std::vector<RailPoint> railPoints;
-    std::vector<Route> routes;
-    std::vector<Meal> meals;
-};
 
 #ifndef __EMSCRIPTEN__
 
