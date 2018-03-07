@@ -133,34 +133,6 @@ class Feeder {
             }
         }
 
-        // DIAGNOSTICS
-
-        void mapRoutes(std::vector<Route> routes) {
-            if (state != STATE_IDLE) {
-                stop();
-            }
-
-            for (Route &route : routes) {  
-                stop();
-
-                if (route.initialDirection == MOVING_FORWARD) {
-                    moveForward();
-                } else {
-                    moveBackward();
-                }
-            }
-            // std::for_each(routes.begin(), routes.end(),
-            //     [](Route * route) {
-            //         stop();
-
-            //         if (route.initialDirection == MOVING_FORWARD) {
-            //             moveForward();
-            //         } else {
-            //             moveBackward();
-            //         }
-            // });
-        }
-
     private:
         RailMotor mainMotor;
         const int greenLight;

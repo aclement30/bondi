@@ -18,6 +18,7 @@
 #include "config.h"
 #include "constants.h"
 #include "conveyor_motor.h"
+#include "diagnostic_service.h"
 #include "feeder.h"
 #include "location_service.h"
 #include "meal.h"
@@ -50,12 +51,14 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-const RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
+RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
 
 Config config = loadStaticConfiguration();
 
 LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
 MealService mealService = MealService(config.meals);
+
+DiagnosticService diagnosticService = DiagnosticService();
 
 Feeder feeder = Feeder(
     mainMotor, 

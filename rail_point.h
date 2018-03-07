@@ -20,6 +20,14 @@ class RailPoint {
             name(pointName),
             rfidUid(pointRfidUid)
         {}
+
+        bool isDock() {
+            return id == 1000;
+        }
+
+        bool isReverse() {
+            return id >= 100 && id < 200;
+        }
 };
 
 RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
