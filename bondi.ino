@@ -52,7 +52,7 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
 
 const RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
 
-Config config = loadConfiguration();
+Config config = loadStaticConfiguration();
 
 LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
 MealService mealService = MealService(config.meals);
@@ -102,30 +102,35 @@ void distributeMeal(Meal meal) {
 
 void setup() {
     Serial.begin(9600);   // open serial over USB
-
+    
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
     }
 
     #ifndef __EMSCRIPTEN__
 
-    if (!SD.begin(SD_CARD_CS)) {
-        Serial.println("Card failed, or not present");
-        // don't do anything more:
-        while (1);
-    }
+    //if (!SD.begin(SD_CARD_CS)) {
+    //    Serial.println("Card failed, or not present");
+    //    // don't do anything more:
+    //    while (1);
+    //}
 
     #endif
 
-    //Serial.print("Setup completed");
+    feeder.setup();
+    rfidReader.setup();
+    
+    Serial.println("Setup completed");
 }
 
 void loop() {
+    //Serial.println("Start loop");
+
     // Stop right here if power is OFF
-    if (!isPowerON()) {
-        delay(1000);
-        return;
-    }
+    // if (!isPowerON()) {
+    //     delay(1000);
+    //     return;
+    // }
 
     feeder.checkSafetyState();
 
@@ -141,10 +146,16 @@ void loop() {
     feeder.checkMovingDirectionState(activeRailPoint);
 
     mealService.refreshCurrentMeal();
-    if (mealService.hasCurrentMeal()) {
-        Meal currentMeal = mealService.getCurrentMeal();
-        distributeMeal(currentMeal);
-    }
+    // if (mealService.hasCurrentMeal()) {
+    //     Meal currentMeal = mealService.getCurrentMeal();
+    //     distributeMeal(currentMeal);
+    //     String message = "Distributing meal";
+    //     Serial.println(message + currentMeal.name);
+    // } else {
+    //     Serial.println("Waiting...");
+    // }
+
+    feeder.mapRoutes(locationService.routes);
     
     //Serial.print("Start loop");
     

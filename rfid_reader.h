@@ -16,13 +16,14 @@ class RfidReader {
             int rstPin
         ) : 
             rfid(RFID(rsaPin, rstPin))
-        {
+        {}
+    
+        void setup() {
             // Init SPI bus
             SPI.begin();
-
             rfid.init();
         }
-    
+
         const char* read() {
             if (rfid.isCard()) {  
                 if (rfid.readCardSerial()) {
@@ -36,6 +37,10 @@ class RfidReader {
                     const std::string& tmpUid = charUid.str();   
                     const char* cstr = tmpUid.c_str();
                     
+                    // String message = "RFID point detected: ";
+                    // String uid = charUid.str();
+                    // Serial.println(String(message + uid));
+
                     return cstr;
                 }
 

@@ -19,12 +19,16 @@ class ConveyorMotor {
         ) : 
             pwm(motorPwm),
             reverse(motorReverse)
-        {
+        {}
+
+        void setup() {
             pinMode(pwm, OUTPUT);
             pinMode(reverse, OUTPUT);
             // Set to LOW so no power is flowing through the output
             digitalWrite(pwm, LOW);
             digitalWrite(reverse, LOW);
+
+            Serial.println("Conveyor setup completed");
         }
 
         void start(int side, int motorSpeed) {

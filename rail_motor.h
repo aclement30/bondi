@@ -16,12 +16,16 @@ class RailMotor {
         ) : 
             out1(motorOut1),
             out2(motorOut2)
-        {
+        {}
+
+        void setup() {
             pinMode(out1, OUTPUT);
             pinMode(out2, OUTPUT);
             // Set to LOW so no power is flowing through the output
             digitalWrite(out1, LOW);
             digitalWrite(out2, LOW);
+
+            Serial.println("Rail motor setup completed");
         }
 
         void moveForward() {

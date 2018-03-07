@@ -1,4 +1,6 @@
 {
-    "board": "arduino:avr:megaADK",
-    "sketch": "distributeur.cpp"
+    "board": "arduino:avr:mega",
+    "sketch": "bondi.ino",
+    "port": "/dev/cu.usbmodem1411",
+    "configuration": "cpu=atmega2560"
 }

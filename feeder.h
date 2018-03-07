@@ -2,6 +2,7 @@
 #include "conveyor_motor.h"
 #include "rail_motor.h"
 #include "rail_point.h"
+#include "route.h"
 
 #ifndef FEEDER_H
 #define FEEDER_H
@@ -28,7 +29,9 @@ class Feeder {
             redLight(feederRedLight),
             safetySensorFront(feederSafetySensorFront),
             safetySensorBack(feederSafetySensorBack)
-        {
+        {}
+
+        void setup() {
             pinMode(greenLight, OUTPUT);
             pinMode(redLight, OUTPUT);
             pinMode(safetySensorFront, INPUT);
@@ -36,37 +39,48 @@ class Feeder {
             // Set to LOW so no power is flowing through the output
             digitalWrite(greenLight, LOW);
             digitalWrite(redLight, LOW);
+
+            mainMotor.setup();
+            conveyorFront.setup();
+            conveyorBack.setup();
+
+            Serial.println("Feeder setup completed");
         }
 
         void moveForward() {
             mainMotor.moveForward();
             changeState(STATE_MOVING);
+            Serial.println("Main motor: move forward");
         }
 
         void moveBackward() {
             mainMotor.moveBackward();
             changeState(STATE_MOVING);
+            Serial.println("Main motor: move backward");
         }
 
         void stop() {
             mainMotor.stop();
             changeState(STATE_IDLE);
+            Serial.println("Main motor: stop");
         }
 
         void checkMovingDirectionState(RailPoint activeRailPoint) {
-            if (1 == 1) {
-                stopFeeding();
-                mainMotor.inverseMovingDirection();
-            }
+            // if (1 == 1) {
+            //     stopFeeding();
+            //     mainMotor.inverseMovingDirection();
+            // }
         }
 
         bool isSafetyBarPressed() {
-            return (mainMotor.state == MOVING_FORWARD && digitalRead(safetySensorFront) == LOW) 
-                || (mainMotor.state == MOVING_BACKWARD && digitalRead(safetySensorBack) == LOW);
+            return (mainMotor.state == MOVING_FORWARD && digitalRead(safetySensorFront) == HIGH) 
+                || (mainMotor.state == MOVING_BACKWARD && digitalRead(safetySensorBack) == HIGH);
         }
 
         void checkSafetyState() {
             if (state != STATE_SAFETY_STOP && isSafetyBarPressed()) {
+                Serial.println("Safety bar pressed");
+
                 // Shutdown everything immediately
                 safetyStop();
             } else if (state == STATE_SAFETY_STOP && !isSafetyBarPressed()) {
@@ -80,6 +94,8 @@ class Feeder {
             stopFeeding();
             
             changeState(STATE_SAFETY_STOP);
+
+            Serial.println("(!) Safety stop");
         }
 
         void emergencyStop() {
@@ -87,6 +103,8 @@ class Feeder {
             stopFeeding();
             
             changeState(STATE_SAFETY_STOP);
+
+            Serial.println("(!) Emergency stop");
         }
 
         int getMovingDirection() {
@@ -97,16 +115,50 @@ class Feeder {
             // Shutdown conveyors motor
             conveyorFront.stop();
             conveyorBack.stop();
+
+            Serial.println("Stop all conveyors");
         }
 
         void setLight(int lightColor, bool blinking) {
             if (lightColor == LIGHT_GREEN) {
-                digitalWrite(greenLight, LOW);
-                digitalWrite(redLight, HIGH);
-            } else {
                 digitalWrite(greenLight, HIGH);
                 digitalWrite(redLight, LOW);
+                
+                Serial.println("Turn on GREEN light");
+            } else {
+                digitalWrite(greenLight, LOW);
+                digitalWrite(redLight, HIGH);
+
+                Serial.println("Turn on RED light");
             }
+        }
+
+        // DIAGNOSTICS
+
+        void mapRoutes(std::vector<Route> routes) {
+            if (state != STATE_IDLE) {
+                stop();
+            }
+
+            for (Route &route : routes) {  
+                stop();
+
+                if (route.initialDirection == MOVING_FORWARD) {
+                    moveForward();
+                } else {
+                    moveBackward();
+                }
+            }
+            // std::for_each(routes.begin(), routes.end(),
+            //     [](Route * route) {
+            //         stop();
+
+            //         if (route.initialDirection == MOVING_FORWARD) {
+            //             moveForward();
+            //         } else {
+            //             moveBackward();
+            //         }
+            // });
         }
 
     private:

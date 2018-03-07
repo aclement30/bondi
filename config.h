@@ -88,7 +88,63 @@ std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vec
 
 #ifndef __EMSCRIPTEN__
 
-Config loadConfiguration() {
+Config loadStaticConfiguration() {
+    std::vector<RailPoint> railPoints = {
+        RailPoint(1000, "DOCK",  "0.0.0.1.1"),
+        RailPoint(2, "G-2", "0.0.0.0.1"),
+        RailPoint(4, "G-4", "0.0.0.0.2"),
+        RailPoint(6, "G-6", "0.0.0.0.3"),
+        RailPoint(101, "REV", "0.0.0.0.4"),
+        RailPoint(1, "G-1", "0.0.0.0.5"),
+        RailPoint(3, "G-3", "0.0.0.0.6"),
+        RailPoint(5, "P-5",  "0.0.0.0.7"),
+        RailPoint(7, "P-7", "0.0.0.0.8"),
+        RailPoint(9, "P-9", "0.0.0.0.9"),
+        RailPoint(11, "P-11", "0.0.0.0.10"),
+        RailPoint(102, "REV", "0.0.0.0.11"),
+        RailPoint(8, "P-8", "0.0.0.0.12"),
+        RailPoint(10, "P-10", "0.0.0.0.13"),
+        RailPoint(12, "P-12", "0.0.0.0.14"),
+        RailPoint(14, "P-14", "0.0.0.0.15")
+    };
+
+    std::vector<Route> routes = {
+        Route(1, MOVING_FORWARD, getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1000)),
+        Route(2, MOVING_BACKWARD, getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1000))
+    };
+
+    std::vector<MealSequence> sequence1 = {
+        MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 500, 600),
+        MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 6), 300, 600),
+        MealSequence("G3", getRailPointById(railPoints, 6), getRailPointById(railPoints, 1), 300, 600),
+        MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 500, 600)
+    };
+
+    std::vector<MealSequence> sequence2 = {
+        MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 500, 200),
+        MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 100, 0),
+        MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 11), 500, 0),
+        MealSequence("P4", getRailPointById(railPoints, 11), getRailPointById(railPoints, 8), 100, 0),
+        MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 200, 300),
+        MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 500, 300),
+        MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 500, 200)
+    };
+
+    std::vector<Meal> meals = {
+        Meal(1, "Repas matin - GE", 420, getRouteById(routes, 1), sequence1, 4),
+        Meal(2, "Repas matin - PE", 450, getRouteById(routes, 2), sequence2, 7)
+    };
+
+    Config config = {
+        railPoints,
+        routes,
+        meals
+    };
+
+    return config;
+}
+
+Config loadSDCardConfiguration() {
     const char *filename = "/config.json";  // <- SD library uses 8.3 filenames
 
     // Open file for reading

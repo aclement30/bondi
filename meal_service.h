@@ -38,6 +38,10 @@ class MealService {
 
             if (iterator != meals.end()) {
                 currentMealPtr = &*iterator;
+
+                Meal currentMeal = Meal(* currentMealPtr);
+                String message = "Current meal: ";
+                Serial.println(message + currentMeal.name);
             }
         }
     
@@ -46,6 +50,9 @@ class MealService {
             Meal selectedMeal = getMealById(meals, mealId);
 
             currentMealPtr = &selectedMeal;
+            
+            String message = "Meal selected: ";
+            Serial.println(message + selectedMeal.name);
         }
 
         void completeDistribution() {
@@ -55,6 +62,9 @@ class MealService {
             if (!isMealDistributed(currentMeal.id)) {
                 distributedMealIds.push_back(currentMeal.id);
             }
+
+            String message = "Complete meal distribution: ";
+            Serial.println(message + currentMeal.name);
 
             currentMealPtr = NULL;
         }
@@ -66,6 +76,8 @@ class MealService {
         // TODO: Execute daily
         void resetDistributedMeals() {
             distributedMealIds.clear();
+            
+            Serial.println("Reset distributed meals");
         }
 
     private:
