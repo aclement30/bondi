@@ -10,7 +10,7 @@
 #include <emscripten.h>
 #endif
 
-#include "rail_point.h"
+#include "../rail_point.h"
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H

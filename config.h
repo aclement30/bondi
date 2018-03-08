@@ -86,8 +86,6 @@ std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vec
     return meals;
 }
 
-#ifndef __EMSCRIPTEN__
-
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
         RailPoint(1000, "DOCK",  "0.0.0.1.1"),
@@ -142,6 +140,8 @@ Config loadStaticConfiguration() {
     return config;
 }
 
+#ifndef __EMSCRIPTEN__
+
 Config loadSDCardConfiguration() {
     const char *filename = "/config.json";  // <- SD library uses 8.3 filenames
 
@@ -173,8 +173,6 @@ Config loadSDCardConfiguration() {
 
     return config;
 }
-
-#else
 
 Config loadConfiguration() {    
     // POINTS

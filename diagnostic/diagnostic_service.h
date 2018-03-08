@@ -108,8 +108,13 @@ class DiagnosticService {
     //     DiagnosticMode _diagnosticMode = None;
     //     Route *currentMappedRoutePtr = NULL;
 
+        bool isCompleted() {
+            return completed;
+        }
+
     protected:
         //DiagnosticAware &observer;
+        bool completed = false;
 };
 
 #endif

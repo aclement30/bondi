@@ -2,7 +2,7 @@
 #include <emscripten.h>
 #endif
 
-#include "rail_point.h"
+#include "../rail_point.h"
 
 void pinMode(uint8_t pinNumber, uint8_t mode) {}
 void digitalWrite(uint8_t pinNumber, uint8_t value) {

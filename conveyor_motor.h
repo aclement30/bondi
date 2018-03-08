@@ -28,7 +28,7 @@ class ConveyorMotor {
             digitalWrite(pwm, LOW);
             digitalWrite(reverse, LOW);
 
-            Serial.println("Conveyor setup completed");
+            Serial.println("Configuration du convoyeur complétée");
         }
 
         void start(int side, int motorSpeed) {

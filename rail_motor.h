@@ -25,7 +25,7 @@ class RailMotor {
             digitalWrite(out1, LOW);
             digitalWrite(out2, LOW);
 
-            Serial.println("Rail motor setup completed");
+            Serial.println("Configuration du moteur principal complétée");
         }
 
         void moveForward() {

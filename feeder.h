@@ -8,9 +8,16 @@
 #ifndef FEEDER_H
 #define FEEDER_H
 
+enum FeederState {
+    FEEDER_IDLE,
+    FEEDER_MOVING,
+    FEEDER_REFILLING,
+    FEEDER_SAFETY_STOP
+};
+
 class Feeder: public LocationAware {
     public:
-        int state = STATE_IDLE;
+        FeederState state = FEEDER_IDLE;
         ConveyorMotor conveyorFront;
         ConveyorMotor conveyorBack;
         LocationService locationService;
@@ -50,25 +57,25 @@ class Feeder: public LocationAware {
             conveyorFront.setup();
             conveyorBack.setup();
 
-            Serial.println("Feeder setup completed");
+            Serial.println("Configuration du robot complétée");
         }
 
         void moveForward() {
             mainMotor.moveForward();
-            changeState(STATE_MOVING);
-            Serial.println("Main motor: move forward");
+            changeState(FEEDER_MOVING);
+            Serial.println("Moteur principal: rotation avant");
         }
 
         void moveBackward() {
             mainMotor.moveBackward();
-            changeState(STATE_MOVING);
-            Serial.println("Main motor: move backward");
+            changeState(FEEDER_MOVING);
+            Serial.println("Moteur principal: rotation arrière");
         }
 
         void stop() {
             mainMotor.stop();
-            changeState(STATE_IDLE);
-            Serial.println("Main motor: stop");
+            changeState(FEEDER_MOVING);
+            Serial.println("Moteur principal: arrêt");
         }
 
         void followRoute(Route route) {
@@ -81,7 +88,7 @@ class Feeder: public LocationAware {
                     moveBackward();
                 }
             } else {
-                Serial.println("Error: cannot follow route starting away from docking station");
+                Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
             }
         }
 
@@ -110,7 +117,7 @@ class Feeder: public LocationAware {
 
         bool isDocked() {
             RailPoint activePoint = locationService.getActiveRailPoint();
-            return state == STATE_IDLE && activePoint.isDock();
+            return state == FEEDER_IDLE && activePoint.isDock();
         }
 
         bool hasCurrentRoute() {
@@ -118,12 +125,12 @@ class Feeder: public LocationAware {
         }
 
         void checkSafetyState() {
-            if (state != STATE_SAFETY_STOP && isSafetyBarPressed()) {
-                Serial.println("Safety bar pressed");
+            if (state != FEEDER_SAFETY_STOP && isSafetyBarPressed()) {
+                Serial.println("Barre de sécurité enclenchée");
 
                 // Shutdown everything immediately
                 safetyStop();
-            } else if (state == STATE_SAFETY_STOP && !isSafetyBarPressed()) {
+            } else if (state == FEEDER_SAFETY_STOP && !isSafetyBarPressed()) {
                 // Note: we should wait for manual reactivation or a timeout before reactivating automatically
                 // TODO: Reactivate robot
             }
@@ -133,18 +140,18 @@ class Feeder: public LocationAware {
             mainMotor.stop();
             stopFeeding();
             
-            changeState(STATE_SAFETY_STOP);
+            changeState(FEEDER_SAFETY_STOP);
 
-            Serial.println("(!) Safety stop");
+            Serial.println("(!) Arrêt d'urgence");
         }
 
         void emergencyStop() {
             mainMotor.stop();
             stopFeeding();
             
-            changeState(STATE_SAFETY_STOP);
+            changeState(FEEDER_SAFETY_STOP);
 
-            Serial.println("(!) Emergency stop");
+            Serial.println("(!) Arrêt d'urgence");
         }
 
         int getMovingDirection() {
@@ -156,7 +163,7 @@ class Feeder: public LocationAware {
             conveyorFront.stop();
             conveyorBack.stop();
 
-            Serial.println("Stop all conveyors");
+            Serial.println("Convoyeurs: arrêt");
         }
 
         void setLight(int lightColor, bool blinking) {
@@ -164,12 +171,12 @@ class Feeder: public LocationAware {
                 digitalWrite(greenLight, HIGH);
                 digitalWrite(redLight, LOW);
                 
-                Serial.println("Turn on GREEN light");
+                Serial.println("Lumière VERTE allumée");
             } else {
                 digitalWrite(greenLight, LOW);
                 digitalWrite(redLight, HIGH);
 
-                Serial.println("Turn on RED light");
+                Serial.println("Lumière ROUGE allumée");
             }
         }
 
@@ -179,17 +186,17 @@ class Feeder: public LocationAware {
         const int redLight;
         const int safetySensorFront;
         const int safetySensorBack;
-        int previousState = STATE_IDLE;
+        FeederState previousState = FEEDER_IDLE;
         Route *currentRoutePtr = NULL;
         RailPoint *lastPointPtr = NULL;
 
-        void changeState(int newState) {
+        void changeState(FeederState newState) {
             previousState = state;
             state = newState;
 
-            if (state == STATE_MOVING || state == STATE_REFILLING || state == STATE_DIAGNOSTIC) {
+            if (state == FEEDER_MOVING || state == FEEDER_REFILLING) {
                 setLight(LIGHT_GREEN, false);
-            } else if (state == STATE_SAFETY_STOP) {
+            } else if (state == FEEDER_SAFETY_STOP) {
                 setLight(LIGHT_RED, true);
             }
         }

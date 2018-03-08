@@ -10,52 +10,45 @@ using namespace std;
 class RouteMappingDiagnosticService: public DiagnosticService {
     public:
         RouteMappingDiagnosticService(
-            Feeder diagnosticFeeder,
-            vector<Route> diagnosticRoutes
+            Feeder &diagnosticFeeder,
+            vector<Route> &diagnosticRoutes
         ) : 
             feeder(diagnosticFeeder),
             routes(diagnosticRoutes),
-            currentRoute(diagnosticRoutes.front())
+            routeIterator(diagnosticRoutes.begin())
         {}
 
+        void startDiagnostic() {
+            //observer = observer;
 
-    void startDiagnostic() {
-        //observer = observer;
+            if (!feeder.isDocked()) {
+                Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer le diagnostic !");
+                return;
+            }
 
-        if (!feeder.isDocked()) {
-            Serial.println("Error: feeder must be stopped at dock station before starting diagnostic!");
-            return;
+            feeder.followRoute(routes.front());
         }
 
-        feeder.followRoute(currentRoute);
-    }
+        void continueDiagnostic() {
+            // Let feeder continue on its current route
+            if (feeder.hasCurrentRoute()) {
+                return;
+            }
 
-    void continueDiagnostic() {
-        // Let feeder continue on its current route
-        if (feeder.hasCurrentRoute()) {
-            return;
+            advance(routeIterator, 1);
+
+            if (routeIterator != routes.end()) {
+                Route currentRoute = Route(*routeIterator);
+                feeder.followRoute(currentRoute);
+            } else {
+                completed = true;
+            }
         }
-
-        int index = distance(routes.begin(), find(routes.begin(), routes.end(), [&](const Route & route) {
-            return route.id == currentRoute.id;
-        }));
-
-        if (index < routes.size()) {
-            currentRoute = routes.at(index + 1);
-            feeder.followRoute(currentRoute);
-        } else {
-            Serial.println("Diagnostic completed!");
-        }
-    }
-
-    // void completeDiagnostic() {
-    //     observer.didCompleteDiagnostic();
-    // }
 
     private:
         Feeder &feeder;
         vector<Route> &routes;
-        Route &currentRoute;
+        Route *routeIterator;
 };
 
 #endif

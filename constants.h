@@ -39,7 +39,6 @@ const int STATE_IDLE = 0;
 const int STATE_MOVING = 1;
 const int STATE_REFILLING = 2;
 const int STATE_SAFETY_STOP = 3;
-const int STATE_DIAGNOSTIC = 10;
 
 // LIGHT COLORS
 const int LIGHT_GREEN = 1;

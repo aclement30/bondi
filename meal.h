@@ -1,4 +1,7 @@
+#ifndef __EMSCRIPTEN__
 #include "ArduinoSTL.h"
+#endif
+
 #include "rail_point.h"
 #include "route.h"
 
@@ -53,7 +56,7 @@ class Meal {
             sequencesCount(mealSequencesCount)
         {}
 
-        const MealSequence* getMealSequenceAt(RailPoint currentRailPoint) {
+        MealSequence* getMealSequenceAt(RailPoint currentRailPoint) {
             for(int n = 0; n < sequencesCount; n++) {
                 const MealSequence sequence = sequences[n];
                 if (sequence.startPoint.id == currentRailPoint.id) {

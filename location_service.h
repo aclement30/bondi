@@ -42,8 +42,8 @@ class LocationService {
                 RailPoint railPoint = getRailPointByRfidUId(railPoints, uid);
                 activeRailPointPtr = &railPoint;
 
-                String message = "Active rail point: ";
-                Serial.println(message + railPoint.name);
+                char message[] = "Point actif: ";
+                Serial.println(strcat(message, railPoint.name));
             }
 
             // If UID is empty, no new RFID tag has been scanned, so we keep the active one

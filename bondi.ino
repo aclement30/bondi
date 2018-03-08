@@ -27,6 +27,7 @@
 #include "rail_motor.h"
 #include "rfid_reader.h"
 #include "route.h"
+#include "state_manager.h"
 
 // INPUTS
 const int INPUTS[2] = {
@@ -51,9 +52,9 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
-
 Config config = loadStaticConfiguration();
+
+RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
 
 LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
 
@@ -68,45 +69,19 @@ Feeder feeder = Feeder(
     locationService
 );
 
-MealService mealService = MealService(config.meals);
+MealService mealService = MealService(config.meals, feeder, locationService);
 
 DiagnosticService *diagnosticPtr = NULL;
+
+StateManager stateManager = StateManager();
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
 }
 
-void distributeMeal(Meal meal) {
-    // Move feeder in corresponding direction
-    if (feeder.state == STATE_IDLE) {
-        if (meal.route.initialDirection == MOVING_FORWARD) {
-            feeder.moveForward();
-        } else {
-            feeder.moveBackward();
-        }
-    }
-
-    RailPoint activeRailPoint = locationService.getActiveRailPoint();
-
-    const MealSequence* sequencePtr = meal.getMealSequenceAt(activeRailPoint);
-    if (sequencePtr) {
-        MealSequence sequence = MealSequence(* sequencePtr);
-
-        int feedingSide = ((feeder.getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
-        if (sequence.feed1Flow > 0) {
-            feeder.conveyorFront.start(feedingSide, sequence.feed1Flow);
-        }
-        if (sequence.feed2Flow > 0) {
-            feeder.conveyorBack.start(feedingSide, sequence.feed2Flow);
-        }
-    } else {
-        // Make sure all feed conveyors are stopped
-        feeder.stopFeeding();
-    }
-}
-
 void setup() {
     Serial.begin(9600);   // open serial over USB
+    Serial.println("Configuration initiale...");
     
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
@@ -124,13 +99,12 @@ void setup() {
 
     feeder.setup();
     rfidReader.setup();
-    
-    Serial.println("Setup completed");
+    stateManager.changeState(Idle);
+
+    Serial.println("Configuration initiale terminée");
 }
 
 void loop() {
-    //Serial.println("Start loop");
-
     // Stop right here if power is OFF
     // if (!isPowerON()) {
     //     delay(1000);
@@ -145,39 +119,48 @@ void loop() {
         return;
     }
 
-    // locationService.refreshActivePoint();
-    RailPoint activeRailPoint = locationService.getActiveRailPoint();
+    locationService.refreshActivePoint();
 
-    // if (!diagosticService.isDiagnosticMode()) {
-    //     mealService.refreshCurrentMeal();
-    //     // if (mealService.hasCurrentMeal()) {
-    //     //     Meal currentMeal = mealService.getCurrentMeal();
-    //     //     distributeMeal(currentMeal);
-    //     //     String message = "Distributing meal";
-    //     //     Serial.println(message + currentMeal.name);
-    //     // } else {
-    //     //     Serial.println("Waiting...");
-    //     // }
-    // }
+    MachineState currentState = stateManager.getState();
+    switch(currentState) {
+        case Automatic:
+            mealService.refreshCurrentMeal();
 
-    if (diagnosticPtr == NULL) {
-        //mealService.refreshCurrentMeal();
+            if (mealService.hasCurrentMeal()) {
+                Meal currentMeal = mealService.getCurrentMeal();
+                mealService.distributeMeal(currentMeal);
 
-        RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(feeder, locationService.routes);
-        diagnosticPtr = &routeMappingDiagnostic;
+                char message[] = "Distribution du repas: ";
+                Serial.println(strcat(message, currentMeal.name));
+            } else {
+                Serial.println("Attente...");
+                delay(1000);
+            }
+            break;
+        case Manual:
+            delay(1000);
+            break;
+        case Diagnostic:
+            if (diagnosticPtr == NULL) {
+                RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(feeder, locationService.routes);
+                diagnosticPtr = &routeMappingDiagnostic;
 
-        routeMappingDiagnostic.startDiagnostic();
-    } else {
-        diagnosticPtr->continueDiagnostic();
+                Serial.println("Début du diagnostic: Routes");
+                routeMappingDiagnostic.startDiagnostic();
+                delay(1000);
+            } else {
+                if (diagnosticPtr->isCompleted()) {
+                    Serial.println("Fin du diagnostic");
+                    diagnosticPtr = NULL;
+                    stateManager.changeState(Manual);
+                } else {
+                    diagnosticPtr->continueDiagnostic();
+                    delay(1000);
+                }
+            }
+        default:
+            break;
     }
-    
-    //Serial.print("Start loop");
-    
-    //get soil moisture value from the function below and print it
-    //Serial.println(readSoil());
-
-    //This 1 second timefrme is used so you can test the sensor and see it change in real-time.
-    delay(1000);
 }
 
 #ifdef __EMSCRIPTEN__
