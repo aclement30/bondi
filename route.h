@@ -3,6 +3,8 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
+using namespace std;
+
 class Route {
     public:
         int id;
@@ -23,8 +25,8 @@ class Route {
         {}  
 };
 
-Route getRouteById(std::vector<Route> routes, int routeId) {
-    std::vector<Route>::iterator iterator = std::find_if (routes.begin(), routes.end(), [&](const Route & route) {
+Route getRouteById(vector<Route> routes, int routeId) {
+    vector<Route>::iterator iterator = find_if (routes.begin(), routes.end(), [&](const Route & route) {
         return route.id == routeId;
     });
 

@@ -18,7 +18,7 @@
 #include "config.h"
 #include "constants.h"
 #include "conveyor_motor.h"
-#include "diagnostic_service.h"
+#include "diagnostic/route_mapping.h"
 #include "feeder.h"
 #include "location_service.h"
 #include "meal.h"
@@ -56,9 +56,6 @@ RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
 Config config = loadStaticConfiguration();
 
 LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
-MealService mealService = MealService(config.meals);
-
-DiagnosticService diagnosticService = DiagnosticService();
 
 Feeder feeder = Feeder(
     mainMotor, 
@@ -67,8 +64,13 @@ Feeder feeder = Feeder(
     GREEN_LIGHT, 
     RED_LIGHT,
     SAFETY_SENSOR_FRONT,
-    SAFETY_SENSOR_BACK
+    SAFETY_SENSOR_BACK,
+    locationService
 );
+
+MealService mealService = MealService(config.meals);
+
+DiagnosticService *diagnosticPtr = NULL;
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
@@ -146,19 +148,28 @@ void loop() {
     // locationService.refreshActivePoint();
     RailPoint activeRailPoint = locationService.getActiveRailPoint();
 
-    feeder.checkMovingDirectionState(activeRailPoint);
-
-    mealService.refreshCurrentMeal();
-    // if (mealService.hasCurrentMeal()) {
-    //     Meal currentMeal = mealService.getCurrentMeal();
-    //     distributeMeal(currentMeal);
-    //     String message = "Distributing meal";
-    //     Serial.println(message + currentMeal.name);
-    // } else {
-    //     Serial.println("Waiting...");
+    // if (!diagosticService.isDiagnosticMode()) {
+    //     mealService.refreshCurrentMeal();
+    //     // if (mealService.hasCurrentMeal()) {
+    //     //     Meal currentMeal = mealService.getCurrentMeal();
+    //     //     distributeMeal(currentMeal);
+    //     //     String message = "Distributing meal";
+    //     //     Serial.println(message + currentMeal.name);
+    //     // } else {
+    //     //     Serial.println("Waiting...");
+    //     // }
     // }
 
-    feeder.mapRoutes(locationService.routes);
+    if (diagnosticPtr == NULL) {
+        //mealService.refreshCurrentMeal();
+
+        RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(feeder, locationService.routes);
+        diagnosticPtr = &routeMappingDiagnostic;
+
+        routeMappingDiagnostic.startDiagnostic();
+    } else {
+        diagnosticPtr->continueDiagnostic();
+    }
     
     //Serial.print("Start loop");
     

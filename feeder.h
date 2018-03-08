@@ -1,5 +1,6 @@
 #include "constants.h"
 #include "conveyor_motor.h"
+#include "location_service.h"
 #include "rail_motor.h"
 #include "rail_point.h"
 #include "route.h"
@@ -7,11 +8,12 @@
 #ifndef FEEDER_H
 #define FEEDER_H
 
-class Feeder {
+class Feeder: public LocationAware {
     public:
         int state = STATE_IDLE;
         ConveyorMotor conveyorFront;
         ConveyorMotor conveyorBack;
+        LocationService locationService;
         
         Feeder(
             RailMotor motor,
@@ -20,7 +22,8 @@ class Feeder {
             int feederGreenLight,
             int feederRedLight,
             int feederSafetySensorFront,
-            int feederSafetySensorBack
+            int feederSafetySensorBack,
+            LocationService feederLocationService
         ) : 
             mainMotor(motor),
             conveyorFront(feederConveyorFront),
@@ -28,8 +31,11 @@ class Feeder {
             greenLight(feederGreenLight),
             redLight(feederRedLight),
             safetySensorFront(feederSafetySensorFront),
-            safetySensorBack(feederSafetySensorBack)
-        {}
+            safetySensorBack(feederSafetySensorBack),
+            locationService(feederLocationService)
+        {
+            locationService.subscribe(this);
+        }
 
         void setup() {
             pinMode(greenLight, OUTPUT);
@@ -65,16 +71,50 @@ class Feeder {
             Serial.println("Main motor: stop");
         }
 
-        void checkMovingDirectionState(RailPoint activeRailPoint) {
-            // if (1 == 1) {
-            //     stopFeeding();
-            //     mainMotor.inverseMovingDirection();
-            // }
+        void followRoute(Route route) {
+            currentRoutePtr = &route;
+
+            if (isDocked()) {
+                if (route.initialDirection == MOVING_FORWARD) {
+                    moveForward();
+                } else {
+                    moveBackward();
+                }
+            } else {
+                Serial.println("Error: cannot follow route starting away from docking station");
+            }
+        }
+
+        void didUpdateLocation(RailPoint railPoint) {
+            if (railPoint.isReverse()) {
+                stopFeeding();
+                mainMotor.inverseMovingDirection();
+            }
+
+            if (currentRoutePtr != NULL) {
+                Route currentRoute = Route(* currentRoutePtr);
+                RailPoint lastPoint = RailPoint(* lastPointPtr);
+
+                if (railPoint.id == currentRoute.endPoint.id && railPoint.id != lastPoint.id) {
+                    completeRoute();
+                }
+            }
+
+            lastPointPtr = &railPoint;
         }
 
         bool isSafetyBarPressed() {
             return (mainMotor.state == MOVING_FORWARD && digitalRead(safetySensorFront) == HIGH) 
                 || (mainMotor.state == MOVING_BACKWARD && digitalRead(safetySensorBack) == HIGH);
+        }
+
+        bool isDocked() {
+            RailPoint activePoint = locationService.getActiveRailPoint();
+            return state == STATE_IDLE && activePoint.isDock();
+        }
+
+        bool hasCurrentRoute() {
+            return currentRoutePtr != NULL;
         }
 
         void checkSafetyState() {
@@ -140,16 +180,23 @@ class Feeder {
         const int safetySensorFront;
         const int safetySensorBack;
         int previousState = STATE_IDLE;
+        Route *currentRoutePtr = NULL;
+        RailPoint *lastPointPtr = NULL;
 
         void changeState(int newState) {
             previousState = state;
             state = newState;
 
-            if (state == STATE_MOVING || state == STATE_REFILLING) {
+            if (state == STATE_MOVING || state == STATE_REFILLING || state == STATE_DIAGNOSTIC) {
                 setLight(LIGHT_GREEN, false);
             } else if (state == STATE_SAFETY_STOP) {
                 setLight(LIGHT_RED, true);
             }
+        }
+
+        void completeRoute() {
+            currentRoutePtr = NULL;
+            stop();
         }
 };
 
