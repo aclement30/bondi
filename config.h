@@ -88,8 +88,8 @@ std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vec
 
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
-        RailPoint(1000, "DOCK",  "0.0.0.1.1"),
-        RailPoint(2, "G-2", "0.0.0.0.1"),
+        RailPoint(1000, "DOCK",  "155.198.195.233.119"),
+        RailPoint(2, "G-2", "197.8.161.185.213"),
         RailPoint(4, "G-4", "0.0.0.0.2"),
         RailPoint(101, "REV", "0.0.0.0.4"),
         RailPoint(1, "G-1", "0.0.0.0.5"),

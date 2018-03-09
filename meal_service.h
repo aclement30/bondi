@@ -14,21 +14,18 @@ class MealService: public LocationAware {
     public:
         vector<Meal> &meals;
         Feeder &feeder;
-        LocationService &locationService;
 
         Meal *currentMealPtr = NULL;
         MealSequence *currentSequencePtr = NULL;
 
         MealService(
             vector<Meal> &availableMeals,
-            Feeder &feederRef,
-            LocationService &locationServiceRef
+            Feeder &feederRef
         ) : 
             meals(availableMeals),
-            feeder(feederRef),
-            locationService(locationServiceRef)
+            feeder(feederRef)
         {
-            locationService.subscribe(this);
+            feeder.subscribeToLocation(this);
         }
 
         Meal getCurrentMeal() {

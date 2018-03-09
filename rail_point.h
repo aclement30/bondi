@@ -38,6 +38,14 @@ RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
     return *iterator;
 }
 
+RailPoint getDockPoint(std::vector<RailPoint> railPoints) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
+        return point.isDock();
+    });
+
+    return *iterator;
+}
+
 RailPoint getRailPointByRfidUId(std::vector<RailPoint> railPoints, const char *rfidUid) {
     std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
         return point.rfidUid == rfidUid;

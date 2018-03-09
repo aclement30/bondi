@@ -57,7 +57,7 @@ class Feeder: public LocationAware {
             conveyorFront.setup();
             conveyorBack.setup();
 
-            Serial.println("Configuration du robot complétée");
+            Serial.println("Configuration du robot");
         }
 
         void moveForward() {
@@ -98,6 +98,12 @@ class Feeder: public LocationAware {
                 mainMotor.inverseMovingDirection();
             }
 
+            // Ignore rail points in opposite direction
+            if (mainMotor.state == MOVING_FORWARD && railPoint.id % 2 != 0 
+             || mainMotor.state == MOVING_BACKWARD && railPoint.id % 2 == 0) {
+                return;
+            }
+
             if (currentRoutePtr != NULL) {
                 Route currentRoute = Route(* currentRoutePtr);
                 RailPoint lastPoint = RailPoint(* lastPointPtr);
@@ -108,6 +114,8 @@ class Feeder: public LocationAware {
             }
 
             lastPointPtr = &railPoint;
+
+            notifyLocationObservers(railPoint);
         }
 
         bool isSafetyBarPressed() {
@@ -180,6 +188,16 @@ class Feeder: public LocationAware {
             }
         }
 
+        void notifyLocationObservers(RailPoint railPoint) {
+            for (int i = 0; i < observers.size(); i++) {
+                observers[i]->didUpdateLocation(railPoint);
+            }
+        }
+
+        void subscribeToLocation(LocationAware *observer) {
+            observers.push_back(observer);
+        }
+
     private:
         RailMotor mainMotor;
         const int greenLight;
@@ -189,6 +207,7 @@ class Feeder: public LocationAware {
         FeederState previousState = FEEDER_IDLE;
         Route *currentRoutePtr = NULL;
         RailPoint *lastPointPtr = NULL;
+        vector <class LocationAware *> observers;
 
         void changeState(FeederState newState) {
             previousState = state;

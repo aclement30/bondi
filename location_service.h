@@ -28,7 +28,10 @@ class LocationService {
             rfidReader(feederRfidReader),
             railPoints(feederRailPoints),
             routes(feederRoutes)
-        {}
+        {
+            RailPoint railPoint = getDockPoint(railPoints);
+            activeRailPointPtr = &railPoint;
+        }
 
         RailPoint getActiveRailPoint() {
             return RailPoint(* activeRailPointPtr);
@@ -44,16 +47,16 @@ class LocationService {
 
                 char message[] = "Point actif: ";
                 Serial.println(strcat(message, railPoint.name));
+
+                notifyObservers(railPoint);
             }
 
             // If UID is empty, no new RFID tag has been scanned, so we keep the active one
         }
 
-        void notifyObservers() {
-            RailPoint activeRailPoint = getActiveRailPoint();
-
+        void notifyObservers(RailPoint railPoint) {
             for (int i = 0; i < observers.size(); i++) {
-                observers[i]->didUpdateLocation(activeRailPoint);
+                observers[i]->didUpdateLocation(railPoint);
             }
         }
 

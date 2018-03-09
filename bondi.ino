@@ -69,7 +69,7 @@ Feeder feeder = Feeder(
     locationService
 );
 
-MealService mealService = MealService(config.meals, feeder, locationService);
+MealService mealService = MealService(config.meals, feeder);
 
 DiagnosticService *diagnosticPtr = NULL;
 
@@ -99,9 +99,13 @@ void setup() {
 
     feeder.setup();
     rfidReader.setup();
-    stateManager.changeState(Idle);
 
     Serial.println("Configuration initiale terminée");
+
+    stateManager.changeState(Idle);
+
+    // TEMPORARY
+    stateManager.changeState(Diagnostic);
 }
 
 void loop() {
