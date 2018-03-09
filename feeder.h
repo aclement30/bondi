@@ -8,13 +8,6 @@
 #ifndef FEEDER_H
 #define FEEDER_H
 
-enum FeederState {
-    FEEDER_IDLE,
-    FEEDER_MOVING,
-    FEEDER_REFILLING,
-    FEEDER_SAFETY_STOP
-};
-
 class Feeder: public LocationAware {
     public:
         FeederState state = FEEDER_IDLE;
@@ -26,10 +19,10 @@ class Feeder: public LocationAware {
             RailMotor motor,
             ConveyorMotor feederConveyorFront,
             ConveyorMotor feederConveyorBack,
-            int feederGreenLight,
-            int feederRedLight,
-            int feederSafetySensorFront,
-            int feederSafetySensorBack,
+            PinConfig feederGreenLight,
+            PinConfig feederRedLight,
+            PinConfig feederSafetySensorFront,
+            PinConfig feederSafetySensorBack,
             LocationService feederLocationService
         ) : 
             mainMotor(motor),
@@ -174,8 +167,8 @@ class Feeder: public LocationAware {
             Serial.println("Convoyeurs: arrêt");
         }
 
-        void setLight(int lightColor, bool blinking) {
-            if (lightColor == LIGHT_GREEN) {
+        void setLight(LightColor lightColor, bool blinking) {
+            if (lightColor == GREEN) {
                 digitalWrite(greenLight, HIGH);
                 digitalWrite(redLight, LOW);
                 
@@ -200,10 +193,10 @@ class Feeder: public LocationAware {
 
     private:
         RailMotor mainMotor;
-        const int greenLight;
-        const int redLight;
-        const int safetySensorFront;
-        const int safetySensorBack;
+        PinConfig greenLight;
+        PinConfig redLight;
+        PinConfig safetySensorFront;
+        PinConfig safetySensorBack;
         FeederState previousState = FEEDER_IDLE;
         Route *currentRoutePtr = NULL;
         RailPoint *lastPointPtr = NULL;
@@ -214,9 +207,9 @@ class Feeder: public LocationAware {
             state = newState;
 
             if (state == FEEDER_MOVING || state == FEEDER_REFILLING) {
-                setLight(LIGHT_GREEN, false);
+                setLight(GREEN, false);
             } else if (state == FEEDER_SAFETY_STOP) {
-                setLight(LIGHT_RED, true);
+                setLight(RED, true);
             }
         }
 

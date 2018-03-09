@@ -39,7 +39,7 @@ std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints
 
     for (auto& routeData : data) {
         int id = routeData["id"];
-        int initialDirection = (routeData["initialDirection"] == "forward") ? MOVING_FORWARD : MOVING_BACKWARD;
+        MovingDirection initialDirection = (routeData["initialDirection"] == "forward") ? MOVING_FORWARD : MOVING_BACKWARD;
         int startPointId = routeData["startPointId"];
         int endPointId = routeData["endPointId"];
         

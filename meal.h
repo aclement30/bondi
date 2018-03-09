@@ -10,14 +10,14 @@
 
 class MealSequence {
     public:
-        const char *name;
+        const char name[11];
         RailPoint startPoint;
         RailPoint endPoint;
         int feed1Flow;
         int feed2Flow;
 
         MealSequence(
-            const char *sequenceName, 
+            const char sequenceName[11], 
             RailPoint sequenceStartPoint, 
             RailPoint sequenceEndPoint, 
             int sequenceFeed1Flow, 
@@ -34,7 +34,7 @@ class MealSequence {
 class Meal {
     public:
         int id;
-        const char *name;
+        const char name[11];
         int startMoment;
         Route route;
         std::vector<MealSequence> sequences;
@@ -42,7 +42,7 @@ class Meal {
 
         Meal(
             int mealId,
-            const char *mealName,
+            const char mealName[11],
             int mealStartMoment, 
             Route mealRoute,
             std::vector<MealSequence> mealSequences, 

@@ -5,14 +5,14 @@
 
 class RailMotor {
     public:
-        const int out1;
-        const int out2;
+        PinConfig out1;
+        PinConfig out2;
 
-        int state = MOVING_IDLE;
+        MovingDirection state = MOVING_IDLE;
 
         RailMotor(
-            int motorOut1, 
-            int motorOut2
+            PinConfig motorOut1, 
+            PinConfig motorOut2
         ) : 
             out1(motorOut1),
             out2(motorOut2)
@@ -60,9 +60,9 @@ class RailMotor {
         }
 
     private:
-        int previousState = MOVING_IDLE;
+        MovingDirection previousState = MOVING_IDLE;
 
-        void changeState(int newState) {
+        void changeState(MovingDirection newState) {
             previousState = state;
             state = newState;
         }

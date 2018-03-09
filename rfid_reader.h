@@ -12,8 +12,8 @@
 class RfidReader {
     public:
         RfidReader(
-            int rsaPin,
-            int rstPin
+            PinConfig rsaPin,
+            PinConfig rstPin
         ) : 
             rfid(RFID(rsaPin, rstPin))
         {}

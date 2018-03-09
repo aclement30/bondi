@@ -1,52 +1,51 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-// INPUTS
-const int POWER_BUTTON = A0;
+enum PinConfig {
+    // INPUTS
+    POWER_BUTTON = A0,
+    SAFETY_SENSOR_FRONT = A5,
+    SAFETY_SENSOR_BACK = A6,
+    SD_CARD_CS = 4,
+    RFID_RSA_PIN = 10,
+    RFID_RST_PIN = 9,
 
-const int RFID_READER = A3;
-const int SAFETY_SENSOR_FRONT = A5;
-const int SAFETY_SENSOR_BACK = A6;
+    // OUTPUTS
+    GREEN_LIGHT = 22,
+    RED_LIGHT = 24,
 
-// OUTPUTS
-const int GREEN_LIGHT = 22;
-const int RED_LIGHT = 24;
+    // RAIL MOTOR
+    MAIN_MOTOR_OUT1 = A9,
+    MAIN_MOTOR_OUT2 = A10,
 
-const int MAIN_MOTOR_OUT1 = A9;
-const int MAIN_MOTOR_OUT2 = A10;
-
-const int CONVEYOR_MOTOR_FRONT_PWM = A11;
-const int CONVEYOR_MOTOR_FRONT_REVERSE = A12;
-const int CONVEYOR_MOTOR_BACK_PWM = A13;
-const int CONVEYOR_MOTOR_BACK_REVERSE = A12;
-
-const int CONVEYORS[4] = {
-    CONVEYOR_MOTOR_FRONT_PWM,
-    CONVEYOR_MOTOR_FRONT_REVERSE,
-    CONVEYOR_MOTOR_BACK_PWM,
-    CONVEYOR_MOTOR_BACK_REVERSE
+    // CONVEYOR MOTORS
+    CONVEYOR_MOTOR_FRONT_PWM = A11,
+    CONVEYOR_MOTOR_FRONT_REVERSE = A12,
+    CONVEYOR_MOTOR_BACK_PWM = A13,
+    CONVEYOR_MOTOR_BACK_REVERSE = A12,
 };
 
-// SD CARD
-const int SD_CARD_CS = 4;
+enum MovingDirection {
+    MOVING_IDLE,
+    MOVING_FORWARD,
+    MOVING_BACKWARD
+};
 
-// RFID
-const int RFID_RSA_PIN = 10;
-const int RFID_RST_PIN = 9;
+enum FeederState {
+    FEEDER_IDLE,
+    FEEDER_MOVING,
+    FEEDER_REFILLING,
+    FEEDER_SAFETY_STOP
+};
 
-// FEEDER STATES
-const int STATE_IDLE = 0;
-const int STATE_MOVING = 1;
-const int STATE_REFILLING = 2;
-const int STATE_SAFETY_STOP = 3;
+enum LightColor {
+    GREEN,
+    RED
+};
 
-// LIGHT COLORS
-const int LIGHT_GREEN = 1;
-const int LIGHT_RED = 2;
-
-// MOVING DIRECTIONS
-const int MOVING_IDLE = 0;
-const int MOVING_FORWARD = 1;
-const int MOVING_BACKWARD = 2;
+const PinConfig INPUTS[1] = {
+    POWER_BUTTON,
+};
+const int INPUTS_COUNT = 1;
 
 #endif

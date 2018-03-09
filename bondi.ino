@@ -29,14 +29,7 @@
 #include "route.h"
 #include "state_manager.h"
 
-// INPUTS
-const int INPUTS[2] = {
-    POWER_BUTTON,
-    RFID_READER
-    // SAFETY_SENSOR_FRONT,
-    // SAFETY_SENSOR_BACK,
-};
-const int INPUTS_COUNT = 2;
+// MOTORS
 
 const RailMotor mainMotor = RailMotor(
     MAIN_MOTOR_OUT1,
@@ -52,14 +45,16 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-Config config = loadStaticConfiguration();
-
+// RFID
 RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
+
+// Load config
+Config config = loadStaticConfiguration();
 
 LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
 
 Feeder feeder = Feeder(
-    mainMotor, 
+    mainMotor,
     conveyorFront, 
     conveyorBack, 
     GREEN_LIGHT, 
@@ -81,7 +76,7 @@ bool isPowerON() {
 
 void setup() {
     Serial.begin(9600);   // open serial over USB
-    Serial.println("Configuration initiale...");
+    Serial.println("Démarrage en cours");
     
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
@@ -100,7 +95,7 @@ void setup() {
     feeder.setup();
     rfidReader.setup();
 
-    Serial.println("Configuration initiale terminée");
+    Serial.println("Configuration init.");
 
     stateManager.changeState(Idle);
 
@@ -118,7 +113,7 @@ void loop() {
     feeder.checkSafetyState();
 
     // Stop here if emergency button or safety bar is pressed
-    if (feeder.state == STATE_SAFETY_STOP) {
+    if (feeder.state == FEEDER_SAFETY_STOP) {
         delay(1000);
         return;
     }

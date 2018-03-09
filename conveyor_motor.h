@@ -7,15 +7,15 @@ const int CONVEYOR_SIDE_RIGHT = 2;
 
 class ConveyorMotor {
     public:
-        const int pwm;
-        const int reverse;
+        PinConfig pwm;
+        PinConfig reverse;
 
         int feedingSide = CONVEYOR_IDLE;
         int speed = 0;
 
         ConveyorMotor(
-            int motorPwm, 
-            int motorReverse
+            PinConfig motorPwm, 
+            PinConfig motorReverse
         ) : 
             pwm(motorPwm),
             reverse(motorReverse)

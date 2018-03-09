@@ -8,13 +8,13 @@ using namespace std;
 class Route {
     public:
         int id;
-        int initialDirection;
+        MovingDirection initialDirection;
         RailPoint startPoint;
         RailPoint endPoint;
 
         Route(
             int routeId,
-            int routeInitialDirection, 
+            MovingDirection routeInitialDirection, 
             RailPoint routeStartPoint, 
             RailPoint routeEndPoint
         ) : 

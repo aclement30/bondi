@@ -27,19 +27,19 @@ class StateManager {
 
             switch(currentState) {
                 case Off:
-                    Serial.println("MODE: arrêt");
+                    Serial.println("MODE: ARRET");
                     break;
                 case Idle:
-                    Serial.println("MODE: inactif");
+                    Serial.println("MODE: INACTIF");
                     break;
                 case Diagnostic:
-                    Serial.println("MODE: diagnostic");
+                    Serial.println("MODE: DIAGNOSTIC");
                     break;
                 case Manual:
-                    Serial.println("MODE: manuel");
+                    Serial.println("MODE: MANUEL");
                     break;
                 case Automatic:
-                    Serial.println("MODE: automatique");
+                    Serial.println("MODE: AUTO");
                     break;
             }
         }
