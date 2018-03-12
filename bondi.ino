@@ -17,16 +17,19 @@
 
 #include "config.h"
 #include "constants.h"
+#include "controllers/automatic_controller.h"
+#include "controllers/diagnostic_controller.h"
+#include "controllers/main_menu_controller.h"
 #include "conveyor_motor.h"
-#include "diagnostic/route_mapping.h"
+// #include "diagnostic/route_mapping.h"
 #include "feeder.h"
 #include "location_service.h"
-#include "meal.h"
-#include "meal_service.h"
-#include "rail_point.h"
+// #include "meal.h"
+// #include "meal_service.h"
+// #include "rail_point.h"
 #include "rail_motor.h"
 #include "rfid_reader.h"
-#include "route.h"
+// #include "route.h"
 #include "state_manager.h"
 
 // MOTORS
@@ -64,11 +67,7 @@ Feeder feeder = Feeder(
     locationService
 );
 
-MealService mealService = MealService(config.meals, feeder);
-
-DiagnosticService *diagnosticPtr = NULL;
-
-StateManager stateManager = StateManager();
+// MealService mealService = MealService(config.meals, feeder);
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
@@ -97,10 +96,7 @@ void setup() {
 
     Serial.println("Configuration init.");
 
-    stateManager.changeState(Idle);
-
-    // TEMPORARY
-    stateManager.changeState(Diagnostic);
+    StateManager::getInstance().changeState(MainMenu);
 }
 
 void loop() {
@@ -120,43 +116,29 @@ void loop() {
 
     locationService.refreshActivePoint();
 
-    MachineState currentState = stateManager.getState();
+    MachineState currentState = StateManager::getInstance().getState();
     switch(currentState) {
-        case Automatic:
-            mealService.refreshCurrentMeal();
-
-            if (mealService.hasCurrentMeal()) {
-                Meal currentMeal = mealService.getCurrentMeal();
-                mealService.distributeMeal(currentMeal);
-
-                char message[] = "Distribution du repas: ";
-                Serial.println(strcat(message, currentMeal.name));
-            } else {
-                Serial.println("Attente...");
-                delay(1000);
-            }
+        case Automatic: {
+            AutomaticController controller = AutomaticController(feeder);
+            controller.handle();
             break;
-        case Manual:
+        }
+        case Manual: {
+            // ManualController controller = ManualController(feeder, mealService);
+            // controller.handle();
             delay(1000);
             break;
-        case Diagnostic:
-            if (diagnosticPtr == NULL) {
-                RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(feeder, locationService.routes);
-                diagnosticPtr = &routeMappingDiagnostic;
-
-                Serial.println("Début du diagnostic: Routes");
-                routeMappingDiagnostic.startDiagnostic();
-                delay(1000);
-            } else {
-                if (diagnosticPtr->isCompleted()) {
-                    Serial.println("Fin du diagnostic");
-                    diagnosticPtr = NULL;
-                    stateManager.changeState(Manual);
-                } else {
-                    diagnosticPtr->continueDiagnostic();
-                    delay(1000);
-                }
-            }
+        }
+        case Diagnostic: {
+            DiagnosticController controller = DiagnosticController(feeder, locationService);
+            controller.handle();
+            break;
+        }
+        case MainMenu: {
+            MainMenuController controller = MainMenuController();
+            controller.handle();
+            break;
+        }
         default:
             break;
     }

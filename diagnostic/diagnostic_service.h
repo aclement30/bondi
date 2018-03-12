@@ -17,6 +17,7 @@ class DiagnosticService {
     public:
         virtual void startDiagnostic() = 0;
         virtual void continueDiagnostic() = 0;
+        virtual string getTitle() = 0;
 
         // DiagnosticService(
         //     RfidReader feederRfidReader,
@@ -112,9 +113,14 @@ class DiagnosticService {
             return completed;
         }
 
+        bool isCancelled() {
+            return cancelled;
+        }
+
     protected:
         //DiagnosticAware &observer;
         bool completed = false;
+        bool cancelled = false;
 };
 
 #endif

@@ -5,13 +5,20 @@ using namespace std;
 
 enum MachineState {
     Off,
-    Idle,
-    Diagnostic,
+    MainMenu,
+    Automatic,
     Manual,
-    Automatic
+    Diagnostic
 };
 
 class StateManager {
+    public:
+        static StateManager& getInstance() {
+            static StateManager instance;   // Guaranteed to be destroyed.
+                                            // Instantiated on first use.
+            return instance;
+        }
+
     public:
         MachineState getState() {
             return currentState;
@@ -29,17 +36,17 @@ class StateManager {
                 case Off:
                     Serial.println("MODE: ARRET");
                     break;
-                case Idle:
-                    Serial.println("MODE: INACTIF");
+                case MainMenu:
+                    Serial.println("MENU PRINCIPAL");
                     break;
-                case Diagnostic:
-                    Serial.println("MODE: DIAGNOSTIC");
+                case Automatic:
+                    Serial.println("MODE: AUTO");
                     break;
                 case Manual:
                     Serial.println("MODE: MANUEL");
                     break;
-                case Automatic:
-                    Serial.println("MODE: AUTO");
+                case Diagnostic:
+                    Serial.println("MODE: DIAGNOSTIC");
                     break;
             }
         }
@@ -47,6 +54,17 @@ class StateManager {
     private:
         MachineState currentState = Off;
         MachineState previousState = Off;
+
+        StateManager() {}
+
+        // C++ 03
+        // ========
+        // Don't forget to declare these two. You want to make sure they
+        // are unacceptable otherwise you may accidentally get copies of
+        // your singleton appearing.
+        // DisplayService(DisplayService const&);   // Don't Implement
+        void operator = (StateManager const&); // Don't implement
+
 };
 
 #endif

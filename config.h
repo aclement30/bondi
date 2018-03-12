@@ -16,7 +16,7 @@
 struct Config {
     std::vector<RailPoint> railPoints;
     std::vector<Route> routes;
-    std::vector<Meal> meals;
+    // std::vector<Meal> meals;
 };
 
 std::vector<RailPoint> loadRailPoints(JsonArray &data) {
@@ -50,41 +50,41 @@ std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints
     return routes;
 }
 
-std::vector<MealSequence> loadMealSequences(JsonArray &data, std::vector<RailPoint> railPoints) {
-    std::vector<MealSequence> sequences;
+// std::vector<MealSequence> loadMealSequences(JsonArray &data, std::vector<RailPoint> railPoints) {
+//     std::vector<MealSequence> sequences;
   
-    for (auto& sequenceData : data) {
-        const char* name = sequenceData["name"];
-        int startPointId = sequenceData["startPointId"];
-        int endPointId = sequenceData["endPointId"];
-        int feed1Flow = sequenceData["feed1Flow"];
-        int feed2Flow = sequenceData["feed2Flow"];
+//     for (auto& sequenceData : data) {
+//         const char* name = sequenceData["name"];
+//         int startPointId = sequenceData["startPointId"];
+//         int endPointId = sequenceData["endPointId"];
+//         int feed1Flow = sequenceData["feed1Flow"];
+//         int feed2Flow = sequenceData["feed2Flow"];
 
-        MealSequence sequence(name, getRailPointById(railPoints, startPointId), getRailPointById(railPoints, endPointId), feed1Flow, feed2Flow);
-        sequences.push_back(sequence);
-    }
+//         MealSequence sequence(name, getRailPointById(railPoints, startPointId), getRailPointById(railPoints, endPointId), feed1Flow, feed2Flow);
+//         sequences.push_back(sequence);
+//     }
 
-    return sequences;
-}
+//     return sequences;
+// }
 
-std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vector<RailPoint> railPoints) {
-    std::vector<Meal> meals;
+// std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vector<RailPoint> railPoints) {
+//     std::vector<Meal> meals;
 
-    for (auto& mealData : data) {
-        int id = mealData["id"];
-        const char* name = mealData["name"];
-        int startMoment = mealData["startMoment"];
-        int routeId = mealData["routeId"];
+//     for (auto& mealData : data) {
+//         int id = mealData["id"];
+//         const char* name = mealData["name"];
+//         int startMoment = mealData["startMoment"];
+//         int routeId = mealData["routeId"];
 
-        JsonArray& sequencesData = mealData["sequences"];
-        std::vector<MealSequence> sequences = loadMealSequences(sequencesData, railPoints);
+//         JsonArray& sequencesData = mealData["sequences"];
+//         std::vector<MealSequence> sequences = loadMealSequences(sequencesData, railPoints);
 
-        Meal meal(id, name, startMoment, getRouteById(routes, routeId), sequences, sequences.size());
-        meals.push_back(meal);
-    }
+//         Meal meal(id, name, startMoment, getRouteById(routes, routeId), sequences);
+//         meals.push_back(meal);
+//     }
 
-    return meals;
-}
+//     return meals;
+// }
 
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
@@ -109,32 +109,32 @@ Config loadStaticConfiguration() {
         Route(2, MOVING_BACKWARD, getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1000))
     };
 
-    std::vector<MealSequence> sequence1 = {
-        MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 500, 600),
-        MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 300, 600),
-        MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 300, 600),
-        MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 500, 600)
-    };
+    // std::vector<MealSequence> sequence1 = {
+    //     MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 500, 600),
+    //     MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 300, 600),
+    //     MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 300, 600),
+    //     MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 500, 600)
+    // };
 
-    std::vector<MealSequence> sequence2 = {
-        MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 500, 200),
-        MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 100, 0),
-        MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 500, 0),
-        MealSequence("P4", getRailPointById(railPoints, 101), getRailPointById(railPoints, 8), 100, 0),
-        MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 200, 300),
-        MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 500, 300),
-        MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 500, 200)
-    };
+    // std::vector<MealSequence> sequence2 = {
+    //     MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 500, 200),
+    //     MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 100, 0),
+    //     MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 500, 0),
+    //     MealSequence("P4", getRailPointById(railPoints, 101), getRailPointById(railPoints, 8), 100, 0),
+    //     MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 200, 300),
+    //     MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 500, 300),
+    //     MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 500, 200)
+    // };
 
-    std::vector<Meal> meals = {
-        Meal(1, "Repas matin - GE", 420, getRouteById(routes, 1), sequence1, 4),
-        Meal(2, "Repas matin - PE", 450, getRouteById(routes, 2), sequence2, 7)
-    };
+    // std::vector<Meal> meals = {
+    //     Meal(1, "Repas matin - GE", 420, getRouteById(routes, 1), sequence1),
+    //     Meal(2, "Repas matin - PE", 450, getRouteById(routes, 2), sequence2)
+    // };
 
     Config config = {
         railPoints,
-        routes,
-        meals
+        routes
+        // meals
     };
 
     return config;
@@ -165,45 +165,11 @@ Config loadSDCardConfiguration() {
     JsonArray& routesData = root["routes"];
     config.routes = loadRoutes(routesData, config.railPoints);
 
-    JsonArray& mealsData = root["meals"];
-    config.meals = loadMeals(mealsData, config.routes, config.railPoints);
+    // JsonArray& mealsData = root["meals"];
+    // config.meals = loadMeals(mealsData, config.routes, config.railPoints);
 
     // Close the file (File's destructor doesn't close the file)
     file.close();
-
-    return config;
-}
-
-Config loadConfiguration() {    
-    // POINTS
-    RailPoint dockPoint = RailPoint(1000, "DOCK", "0.0.0.1.1");
-    RailPoint pointG2 = RailPoint(2, "G-2", "0.0.0.0.1" );
-    RailPoint pointG4 = RailPoint(4, "G-4", "0.0.0.0.2");
-
-    // ROUTES
-    Route route(1, MOVING_FORWARD, dockPoint, dockPoint);
-
-    // MEALS
-
-    MealSequence sequence1("G1", pointG2, pointG4, 500, 600);
-
-    std::vector<MealSequence> repasMatin1Sequences = {
-        sequence1
-    };
-
-    Config config = {
-        {
-            dockPoint,
-            pointG2,
-            pointG4,
-        },
-        {
-            route
-        },
-        {
-            Meal(1, "Repas matin - GE", 420, route, repasMatin1Sequences, 1)
-        }
-    };
 
     return config;
 }

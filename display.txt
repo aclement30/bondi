@@ -8,11 +8,13 @@
 |####################|
 |   MENU PRINCIPAL   |
 |--------------------|
-| 1. Mode AUTO.		↑|
-| 2. Mode MANUEL 	↓|
-+ 3. Historique		 +
-+ 4. Diagnostic		 +
-+ 5. Redémarrage	 +
+|[1] Mode AUTO.		↑|
+|[2] Mode MANUEL 	↓|
+
++[3] Historique		 +
++[4] Diagnostic		 +
++[5] Redémarrage	 +
++					 +
 |#########**#########|
 
 |####################|
@@ -32,16 +34,19 @@
 |####################|
 |    MODE: MANUEL	 |
 |--------------------|
-| 1. Sélection repas |
-| 2. Contrôle manuel |
+|[1] Sélection repas |
+|[2] Contrôle manuel |
 |#########**#########|
 
 |####################|
 |   SÉLECTION REPAS	 |
 |--------------------|
-| 1. Mat-G.Etb 	  ✓ ↑|
-| 2. Midi-P.Etb	  × ↓|
-+ 3. Soir-G.Etb    	 +
+|[1] Mat-G.Etb 	  o ↑|
+|[2] Midi-P.Etb	  x ↓|
+
++[3] Soir-G.Etb    	 +
++					 +
++					 +
 + -- Revenir [F4] -- +
 |#########**#########|
 
@@ -55,35 +60,53 @@
 |####################|
 | HISTOR. - 12 mars  |
 |--------------------|
-| 0730 Mat-G.Etb  ✓ ↑|
-| 1230 Midi-P.Etb × ↓|
-+ 1700 Soir-G.Etb    +
-+ 1730 Soir-P.Etb    +
+|0730 Mat-G.Etb   * ↑|
+|1230 Midi-P.Etb    ↓|
+
++1700 Soir-G.Etb     +
++1730 Soir-P.Etb     +
++					 +
 + -- Quitter [F4] -- +
 |#########**#########|
 
 |####################|
 |  MODE: DIAGNOSTIC  |
 |--------------------|
-| 1. Liste routes	↑|
-| 2. Test mot. rail ↓|
-+ 3. Test conv. av   +
-+ 4. Test conv. arr  +
+|[1] Liste routes	↑|
+|[2] Test mot. rail ↓|
+
++[3] Test conv. av   +
++[4] Test conv. arr  +
++					 +
++					 +
 + -- Quitter [F4] -- +
 ##########**##########
 
 |####################|
-| DIAGNO. LST-ROUTES |
+|DIAGNO. LISTE ROUTES|
 |--------------------|
 | 	 Démarrer [F1]	 |
 |					 |
 |#########**#########|
 
 |####################|
-| DIAGNO. LST-ROUTES |
+|DIAGNO. LISTE ROUTES|
 |--------------------|
-| Route: GE  		 |
-| Point: G-2		 |
+|Route: GE  		 |
+|Point: G-2		 	 |
+|#########**#########|
+
+|####################|
+|	  ERREUR		 |
+|Le robot doit etre  |
+|positionne au dock. |
+|  Recommencer [F1]	 |
+|#########**#########|
+
+|DIAGNO. LISTE ROUTES|
+|--------------------|
+|Route: GE  		 |
+|Point: G-2		 	 |
 |#########**#########|
 
 |####################|
@@ -110,19 +133,19 @@
 |####################|
 |  TEST MOTEUR RAIL  |
 |--------------------|
-| Recommencer   [F1] |
-| Quitter 	    [F4] |
+|Recommencer     [F1]|
+|Quitter 	     [F4]|
 |#########**#########|
 
 |####################|
-|  TEST CONVO AVANT  |
+|TEST CONVOYEUR AVANT|
 |--------------------|
 | 	>>> DROITE >>>	 |
 |		500 rpm		 |
 |#########**#########|
 
 |####################|
-|  TEST CONVO AVANT  |
+|TEST CONVOYEUR AVANT|
 |--------------------|
 | 	<<< GAUCHE <<<	 |
 |	   1000 rpm		 |
