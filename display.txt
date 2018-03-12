@@ -8,10 +8,10 @@
 |####################|
 |   MENU PRINCIPAL   |
 |--------------------|
-|[1] Mode AUTO.		↑|
+|[1] Mode AUTO.		 |
 |[2] Mode MANUEL 	↓|
 
-+[3] Historique		 +
++[3] Historique		↑+
 +[4] Diagnostic		 +
 +[5] Redémarrage	 +
 +					 +
@@ -41,10 +41,10 @@
 |####################|
 |   SÉLECTION REPAS	 |
 |--------------------|
-|[1] Mat-G.Etb 	  o ↑|
+|[1] Mat-G.Etb 	  o  |
 |[2] Midi-P.Etb	  x ↓|
 
-+[3] Soir-G.Etb    	 +
++[3] Soir-G.Etb    	↑+
 +					 +
 +					 +
 + -- Revenir [F4] -- +
@@ -60,10 +60,10 @@
 |####################|
 | HISTOR. - 12 mars  |
 |--------------------|
-|0730 Mat-G.Etb   * ↑|
+|0730 Mat-G.Etb   *  |
 |1230 Midi-P.Etb    ↓|
 
-+1700 Soir-G.Etb     +
++1700 Soir-G.Etb    ↑+
 +1730 Soir-P.Etb     +
 +					 +
 + -- Quitter [F4] -- +
@@ -72,10 +72,10 @@
 |####################|
 |  MODE: DIAGNOSTIC  |
 |--------------------|
-|[1] Liste routes	↑|
+|[1] Liste routes	 |
 |[2] Test mot. rail ↓|
 
-+[3] Test conv. av   +
++[3] Test conv. av  ↑+
 +[4] Test conv. arr  +
 +					 +
 +					 +
@@ -97,7 +97,7 @@
 |#########**#########|
 
 |####################|
-|	  ERREUR		 |
+|	  	ERREUR		 |
 |Le robot doit etre  |
 |positionne au dock. |
 |  Recommencer [F1]	 |
@@ -149,4 +149,11 @@
 |--------------------|
 | 	<<< GAUCHE <<<	 |
 |	   1000 rpm		 |
+|#########**#########|
+
+|####################|
+| (!) ARRET SECURITE |
+|--------------------|
+| 	Continuer [F1]	 |
+|					 |
 |#########**#########|

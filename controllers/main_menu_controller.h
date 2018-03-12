@@ -1,3 +1,4 @@
+#include "./controller.h"
 #include "../display_service.h"
 #include "../navigation_menu.h"
 #include "../state_manager.h"
@@ -7,7 +8,7 @@
 
 using namespace std;
 
-class MainMenuController {
+class MainMenuController: public Controller {
     public:
         MainMenuController() {}
 

@@ -17,9 +17,7 @@
 
 #include "config.h"
 #include "constants.h"
-#include "controllers/automatic_controller.h"
-#include "controllers/diagnostic_controller.h"
-#include "controllers/main_menu_controller.h"
+#include "controllers/controller.h"
 #include "conveyor_motor.h"
 // #include "diagnostic/route_mapping.h"
 #include "feeder.h"
@@ -69,6 +67,8 @@ Feeder feeder = Feeder(
 
 // MealService mealService = MealService(config.meals, feeder);
 
+Controller *currentControllerPtr = NULL;
+
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
 }
@@ -116,32 +116,8 @@ void loop() {
 
     locationService.refreshActivePoint();
 
-    MachineState currentState = StateManager::getInstance().getState();
-    switch(currentState) {
-        case Automatic: {
-            AutomaticController controller = AutomaticController(feeder);
-            controller.handle();
-            break;
-        }
-        case Manual: {
-            // ManualController controller = ManualController(feeder, mealService);
-            // controller.handle();
-            delay(1000);
-            break;
-        }
-        case Diagnostic: {
-            DiagnosticController controller = DiagnosticController(feeder, locationService);
-            controller.handle();
-            break;
-        }
-        case MainMenu: {
-            MainMenuController controller = MainMenuController();
-            controller.handle();
-            break;
-        }
-        default:
-            break;
-    }
+    Controller &currentController = StateManager::getInstance().getController();
+    currentController.handle();
 }
 
 #ifdef __EMSCRIPTEN__

@@ -1,3 +1,9 @@
+#include "controllers/controller.h"
+#include "controllers/automatic_controller.h"
+#include "controllers/diagnostic_controller.h"
+#include "controllers/main_menu_controller.h"
+#include "controllers/off_controller.h"
+
 #ifndef STATEMANAGER_H
 #define STATEMANAGER_H
 
@@ -19,7 +25,6 @@ class StateManager {
             return instance;
         }
 
-    public:
         MachineState getState() {
             return currentState;
         }
@@ -29,31 +34,50 @@ class StateManager {
         }
 
         void changeState(MachineState newState) {
+            if (previousState == currentState) return;
+
             previousState = currentState;
             currentState = newState;
 
             switch(currentState) {
                 case Off:
                     Serial.println("MODE: ARRET");
+                    Controller currentController = OffController();
                     break;
                 case MainMenu:
                     Serial.println("MENU PRINCIPAL");
+                    Controller currentController = MainMenuController();
                     break;
                 case Automatic:
                     Serial.println("MODE: AUTO");
+                    Controller currentController = AutomaticController();
                     break;
                 case Manual:
                     Serial.println("MODE: MANUEL");
                     break;
                 case Diagnostic:
                     Serial.println("MODE: DIAGNOSTIC");
+                    Controller currentController = DiagnosticController();
                     break;
             }
+        }
+
+        Controller& getController() {
+            return &currentController;
+        }
+
+        void changeMovingDirection(MovingDirection newDirection) {
+            if (movingDirection == newDirection) return;
+
+            movingDirection = newDirection;
         }
 
     private:
         MachineState currentState = Off;
         MachineState previousState = Off;
+        MovingDirection movingDirection = MOVING_IDLE;
+        bool safetyStop = false;
+        Controller currentController = OffController();
 
         StateManager() {}
 
@@ -64,7 +88,6 @@ class StateManager {
         // your singleton appearing.
         // DisplayService(DisplayService const&);   // Don't Implement
         void operator = (StateManager const&); // Don't implement
-
 };
 
 #endif

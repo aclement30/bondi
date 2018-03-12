@@ -11,14 +11,14 @@
 class Feeder: public LocationAware {
     public:
         FeederState state = FEEDER_IDLE;
-        ConveyorMotor conveyorFront;
-        ConveyorMotor conveyorBack;
+        // ConveyorMotor conveyorFront;
+        // ConveyorMotor conveyorBack;
         LocationService locationService;
         
         Feeder(
             RailMotor motor,
-            ConveyorMotor feederConveyorFront,
-            ConveyorMotor feederConveyorBack,
+            // ConveyorMotor feederConveyorFront,
+            // ConveyorMotor feederConveyorBack,
             PinConfig feederGreenLight,
             PinConfig feederRedLight,
             PinConfig feederSafetySensorFront,
@@ -26,8 +26,8 @@ class Feeder: public LocationAware {
             LocationService feederLocationService
         ) : 
             mainMotor(motor),
-            conveyorFront(feederConveyorFront),
-            conveyorBack(feederConveyorBack),
+            // conveyorFront(feederConveyorFront),
+            // conveyorBack(feederConveyorBack),
             greenLight(feederGreenLight),
             redLight(feederRedLight),
             safetySensorFront(feederSafetySensorFront),
@@ -47,8 +47,8 @@ class Feeder: public LocationAware {
             digitalWrite(redLight, LOW);
 
             mainMotor.setup();
-            conveyorFront.setup();
-            conveyorBack.setup();
+            // conveyorFront.setup();
+            // conveyorBack.setup();
 
             Serial.println("Configuration du robot");
         }

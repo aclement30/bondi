@@ -1,3 +1,4 @@
+#include "./controller.h"
 #include "../diagnostic/diagnostic_service.h"
 #include "../diagnostic/route_mapping.h"
 #include "../display_service.h"
@@ -11,7 +12,7 @@
 
 using namespace std;
 
-class DiagnosticController {
+class DiagnosticController: public Controller {
     public:
         DiagnosticController(
             Feeder &feederRef,

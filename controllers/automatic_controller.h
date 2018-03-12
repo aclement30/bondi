@@ -1,3 +1,4 @@
+#include "./controller.h"
 #include "../feeder.h"
 #include "../meal_service.h"
 #include "../state_manager.h"
@@ -7,7 +8,7 @@
 
 using namespace std;
 
-class AutomaticController {
+class AutomaticController: public Controller {
     public:
         AutomaticController(
             Feeder &feederRef
