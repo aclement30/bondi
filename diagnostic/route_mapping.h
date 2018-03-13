@@ -1,7 +1,7 @@
 #include "diagnostic_service.h"
 #include "../display_service.h"
-#include "../feeder.h"
 #include "../navigation_menu.h"
+#include "../location_service.h"
 #include "../route.h"
 
 #ifndef DIAGNOSTIC_ROUTEMAPPING_H
@@ -12,18 +12,17 @@ using namespace std;
 class RouteMappingDiagnosticService: public DiagnosticService {
     public:
         RouteMappingDiagnosticService(
-            Feeder &diagnosticFeeder,
-            vector<Route> &diagnosticRoutes
+            LocationService &locationServiceRef
         ) : 
-            feeder(diagnosticFeeder),
-            routes(diagnosticRoutes),
-            routeIterator(diagnosticRoutes.begin())
+            locationService(locationServiceRef),
+            routes(locationServiceRef.routes),
+            routeIterator(locationServiceRef.routes.begin())
         {}
 
         void startDiagnostic() {
             displayDiagnosticScreen();
 
-            if (!feeder.isDocked()) {
+            if (!locationService.isDocked()) {
                 vector<string> errorMessage = {
                     "Le robot doit etre",
                     "positionne au dock."
@@ -37,14 +36,14 @@ class RouteMappingDiagnosticService: public DiagnosticService {
 
             Route &currentRoute = routes.front();
             displayCurrentRoute(currentRoute.id);
-            feeder.followRoute(routes.front());
+            locationService.followRoute(routes.front());
         }
 
         void continueDiagnostic() {
             displayDiagnosticScreen();
 
             // Let feeder continue on its current route
-            if (feeder.hasCurrentRoute()) {
+            if (locationService.isFollowingRoute()) {
                 return;
             }
 
@@ -53,7 +52,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
             if (routeIterator != routes.end()) {
                 Route currentRoute = *routeIterator;
                 displayCurrentRoute(currentRoute.id);
-                feeder.followRoute(currentRoute);
+                locationService.followRoute(currentRoute);
             } else {
                 completed = true;
             }
@@ -74,7 +73,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
         }
 
     private:
-        Feeder &feeder;
+        LocationService &locationService;
         vector<Route> &routes;
         Route *routeIterator;
 

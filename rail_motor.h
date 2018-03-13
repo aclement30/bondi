@@ -1,14 +1,13 @@
 #include "constants.h"
+#include "state_manager.h"
 
 #ifndef RAILMOTOR_H
 #define RAILMOTOR_H
 
-class RailMotor {
+class RailMotor: public DirectionAware {
     public:
         PinConfig out1;
         PinConfig out2;
-
-        MovingDirection state = MOVING_IDLE;
 
         RailMotor(
             PinConfig motorOut1, 
@@ -16,56 +15,53 @@ class RailMotor {
         ) : 
             out1(motorOut1),
             out2(motorOut2)
-        {}
-
-        void setup() {
+        {
             pinMode(out1, OUTPUT);
             pinMode(out2, OUTPUT);
             // Set to LOW so no power is flowing through the output
             digitalWrite(out1, LOW);
             digitalWrite(out2, LOW);
 
-            Serial.println("Configuration du moteur principal");
+            StateManager::getInstance().subscribeToDirection(this);
+        }
+
+        void didChangeDirection(MovingDirection direction) {
+            if (direction == MOVING_FORWARD) {
+                Serial.println("Moteur principal: rotation avant");
+                moveForward();
+            } else if (direction == MOVING_BACKWARD) {
+                Serial.println("Moteur principal: rotation arrière");
+                moveBackward();
+            } else {
+                Serial.println("Moteur principal: arrêt");
+                stop();
+            }
         }
 
         void moveForward() {
             digitalWrite(out1, HIGH);
             digitalWrite(out2, LOW);
-
-            changeState(MOVING_FORWARD);
         }
 
         void moveBackward() {
             digitalWrite(out1, LOW);
             digitalWrite(out2, HIGH);
-            
-            changeState(MOVING_BACKWARD);
         }
 
         void stop() {
             digitalWrite(out1, HIGH);
             digitalWrite(out2, HIGH);
-
-            changeState(MOVING_IDLE);
         }
 
-        void inverseMovingDirection() {
-            stop();
+        // void inverseMovingDirection() {
+        //     stop();
 
-            if (previousState == MOVING_FORWARD) {
-                moveBackward();
-            } else if (previousState == MOVING_BACKWARD) {
-                moveForward();
-            }
-        }
-
-    private:
-        MovingDirection previousState = MOVING_IDLE;
-
-        void changeState(MovingDirection newState) {
-            previousState = state;
-            state = newState;
-        }
+        //     if (previousState == MOVING_FORWARD) {
+        //         moveBackward();
+        //     } else if (previousState == MOVING_BACKWARD) {
+        //         moveForward();
+        //     }
+        // }
 };
 
 #endif

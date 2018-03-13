@@ -17,18 +17,22 @@
 
 #include "config.h"
 #include "constants.h"
+#include "state_manager.h"
 #include "controllers/controller.h"
+#include "controllers/automatic_controller.h"
+#include "controllers/diagnostic_controller.h"
+#include "controllers/main_menu_controller.h"
+#include "controllers/off_controller.h"
 #include "conveyor_motor.h"
 // #include "diagnostic/route_mapping.h"
-#include "feeder.h"
+// #include "feeder.h"
 #include "location_service.h"
 // #include "meal.h"
 // #include "meal_service.h"
 // #include "rail_point.h"
 #include "rail_motor.h"
-#include "rfid_reader.h"
 // #include "route.h"
-#include "state_manager.h"
+#include "safety_service.h"
 
 // MOTORS
 
@@ -46,31 +50,58 @@ const ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-// RFID
-RfidReader rfidReader = RfidReader(RFID_RSA_PIN, RFID_RST_PIN);
-
 // Load config
 Config config = loadStaticConfiguration();
 
-LocationService locationService = LocationService(rfidReader, config.railPoints, config.routes);
+LocationService locationService = LocationService(config.railPoints, config.routes);
+SafetyService safetyService = SafetyService();
 
-Feeder feeder = Feeder(
-    mainMotor,
-    conveyorFront, 
-    conveyorBack, 
-    GREEN_LIGHT, 
-    RED_LIGHT,
-    SAFETY_SENSOR_FRONT,
-    SAFETY_SENSOR_BACK,
-    locationService
-);
+// Feeder feeder = Feeder(
+//     mainMotor,
+//     conveyorFront, 
+//     conveyorBack
+// );
 
 // MealService mealService = MealService(config.meals, feeder);
 
 Controller *currentControllerPtr = NULL;
+MachineState previousState = Off;
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
+}
+
+void createController(MachineState currentState) {
+    if (currentControllerPtr != NULL) {
+        if (previousState == currentState) return;
+
+        delete currentControllerPtr;
+        currentControllerPtr = NULL;
+    }
+
+    previousState = currentState;
+
+    switch(currentState) {
+        case Off: {
+            currentControllerPtr = new OffController();
+            break;
+        }
+        case MainMenu: {
+            currentControllerPtr = new MainMenuController();
+            break;
+        }
+        case Automatic: {
+            currentControllerPtr = new AutomaticController();
+            break;
+        }
+        case Manual: {
+            break;
+        }
+        case Diagnostic: {
+            currentControllerPtr = new DiagnosticController(locationService);
+            break;
+        }
+    }
 }
 
 void setup() {
@@ -91,10 +122,9 @@ void setup() {
 
     #endif
 
-    feeder.setup();
-    rfidReader.setup();
+    // feeder.setup();
 
-    Serial.println("Configuration init.");
+    Serial.println("Configuration initiale");
 
     StateManager::getInstance().changeState(MainMenu);
 }
@@ -106,18 +136,27 @@ void loop() {
     //     return;
     // }
 
-    feeder.checkSafetyState();
+    Serial.println("* loop");
+    Serial.println("* check safety");
+
+    safetyService.checkSafetyState();
 
     // Stop here if emergency button or safety bar is pressed
-    if (feeder.state == FEEDER_SAFETY_STOP) {
-        delay(1000);
-        return;
-    }
+    // if (feeder.state == FEEDER_SAFETY_STOP) {
+    //     delay(1000);
+    //     return;
+    // }
+    Serial.println("* refresh point");
 
     locationService.refreshActivePoint();
 
-    Controller &currentController = StateManager::getInstance().getController();
-    currentController.handle();
+    Serial.println("* create controller");
+
+    createController(StateManager::getInstance().getState());
+
+    Serial.println("* handle");
+
+    currentControllerPtr->handle();
 }
 
 #ifdef __EMSCRIPTEN__

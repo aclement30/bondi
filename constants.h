@@ -25,6 +25,14 @@ enum PinConfig {
     CONVEYOR_MOTOR_BACK_REVERSE = A12,
 };
 
+enum MachineState {
+    Off,
+    MainMenu,
+    Automatic,
+    Manual,
+    Diagnostic
+};
+
 enum MovingDirection {
     MOVING_IDLE,
     MOVING_FORWARD,

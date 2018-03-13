@@ -13,19 +13,21 @@
 // class MealService: public LocationAware {
 //     public:
 //         vector<Meal> &meals;
-//         Feeder &feeder;
-
 //         Meal *currentMealPtr = NULL;
 //         MealSequence *currentSequencePtr = NULL;
 
 //         MealService(
+            // ConveyorMotor &conveyorFrontRef,
+            // ConveyorMotor &conveyorBackRef,
 //             vector<Meal> &mealsRef,
-//             Feeder &feederRef
+//             LocationService &locationServiceRef
 //         ) : 
+            // conveyorFront(conveyorFrontRef),
+            // conveyorBack(conveyorBackRef),
 //             meals(mealsRef),
-//             feeder(feederRef)
+//             locationService(locationServiceRef)
 //         {
-//             feeder.subscribeToLocation(this);
+//             locationService.subscribeToLocation(this);
 //         }
 
 //         Meal getCurrentMeal() {
@@ -65,23 +67,23 @@
 
 //         void distributeMeal(Meal meal) {
 //             // Move feeder in corresponding direction
-//             if (feeder.isDocked()) {
-//                 feeder.followRoute(meal.route);
+//             if (locationService.isDocked()) {
+//                 locationService.followRoute(meal.route);
 //             }
 
 //             if (currentSequencePtr) {
 //                 MealSequence sequence = MealSequence(* currentSequencePtr);
 
-//                 int feedingSide = ((feeder.getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
+//                 int feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
 //                 if (sequence.feed1Flow > 0) {
-//                     feeder.conveyorFront.start(feedingSide, sequence.feed1Flow);
+//                     conveyorFront.start(feedingSide, sequence.feed1Flow);
 //                 }
 //                 if (sequence.feed2Flow > 0) {
-//                     feeder.conveyorBack.start(feedingSide, sequence.feed2Flow);
+//                     conveyorBack.start(feedingSide, sequence.feed2Flow);
 //                 }
 //             } else {
 //                 // Make sure all feed conveyors are stopped
-//                 feeder.stopFeeding();
+//                 stopFeeding();
 //             }
 //         }
 
@@ -116,6 +118,14 @@
 //             currentSequencePtr = NULL;
 //         }
 
+            // void stopFeeding() {
+            //     // Shutdown conveyors motor
+            //     conveyorFront.stop();
+            //     conveyorBack.stop();
+
+            //     Serial.println("Convoyeurs: arrêt");
+            // }
+
 //         bool hasCurrentMeal() {
 //             return currentMealPtr != NULL;
 //         }
@@ -128,6 +138,9 @@
 //         }
 
 //     private:
+//         LocationService &locationService;
+        // ConveyorMotor conveyorFront;
+        // ConveyorMotor conveyorBack;
 //         vector<int> distributedMealIds;
 //         RailPoint *lastPointPtr = NULL;
 

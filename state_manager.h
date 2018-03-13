@@ -1,20 +1,11 @@
-#include "controllers/controller.h"
-#include "controllers/automatic_controller.h"
-#include "controllers/diagnostic_controller.h"
-#include "controllers/main_menu_controller.h"
-#include "controllers/off_controller.h"
-
 #ifndef STATEMANAGER_H
 #define STATEMANAGER_H
 
 using namespace std;
 
-enum MachineState {
-    Off,
-    MainMenu,
-    Automatic,
-    Manual,
-    Diagnostic
+class DirectionAware {
+    public:
+        virtual void didChangeDirection(MovingDirection movingDirection) = 0;
 };
 
 class StateManager {
@@ -34,50 +25,80 @@ class StateManager {
         }
 
         void changeState(MachineState newState) {
-            if (previousState == currentState) return;
+            Serial.print("New state:");
+            Serial.println(newState);
+
+            if (currentState == newState) {
+                return;
+            }
 
             previousState = currentState;
             currentState = newState;
-
+            
             switch(currentState) {
-                case Off:
+                case Off: {
                     Serial.println("MODE: ARRET");
-                    Controller currentController = OffController();
                     break;
-                case MainMenu:
+                }
+                case MainMenu: {
                     Serial.println("MENU PRINCIPAL");
-                    Controller currentController = MainMenuController();
                     break;
-                case Automatic:
+                }
+                case Automatic: {
                     Serial.println("MODE: AUTO");
-                    Controller currentController = AutomaticController();
                     break;
-                case Manual:
+                }
+                case Manual: {
                     Serial.println("MODE: MANUEL");
                     break;
-                case Diagnostic:
+                }
+                case Diagnostic: {
                     Serial.println("MODE: DIAGNOSTIC");
-                    Controller currentController = DiagnosticController();
                     break;
+                }
             }
         }
 
-        Controller& getController() {
-            return &currentController;
+        MovingDirection getMovingDirection() {
+            return movingDirection;
         }
 
         void changeMovingDirection(MovingDirection newDirection) {
             if (movingDirection == newDirection) return;
 
             movingDirection = newDirection;
+            notifyDirectionObservers(newDirection);
+        }
+
+        void notifyDirectionObservers(MovingDirection direction) {
+            for (int i = 0; i < directionObservers.size(); i++) {
+                directionObservers[i]->didChangeDirection(direction);
+            }
+        }
+
+        void subscribeToDirection(DirectionAware *observer) {
+            directionObservers.push_back(observer);
+        }
+
+        void stop() {
+            changeMovingDirection(MOVING_IDLE);
+        }
+
+        bool isSafetyMode() {
+            return safetyModeActivated;
+        }
+
+        void safetyStop() {
+            safetyModeActivated = true;
+            stop();
         }
 
     private:
         MachineState currentState = Off;
         MachineState previousState = Off;
         MovingDirection movingDirection = MOVING_IDLE;
-        bool safetyStop = false;
-        Controller currentController = OffController();
+        bool safetyModeActivated = false;
+        vector <class DirectionAware *> directionObservers;
 
         StateManager() {}
 

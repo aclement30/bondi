@@ -11,10 +11,8 @@ using namespace std;
 class AutomaticController: public Controller {
     public:
         AutomaticController(
-            Feeder &feederRef
             //MealService &mealServiceRef
-        ) : 
-            feeder(feederRef)
+        ) 
            // mealService(mealServiceRef)
         {}
 
@@ -36,7 +34,6 @@ class AutomaticController: public Controller {
         }
 
     private:
-        Feeder &feeder;
         // MealService &mealService;
 };
 

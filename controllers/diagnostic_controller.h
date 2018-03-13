@@ -3,7 +3,6 @@
 #include "../diagnostic/route_mapping.h"
 #include "../display_service.h"
 #include "../feeder.h"
-#include "../location_service.h"
 #include "../navigation_menu.h"
 #include "../state_manager.h"
 
@@ -12,13 +11,14 @@
 
 using namespace std;
 
+class LocationService;
+class StateManager;
+
 class DiagnosticController: public Controller {
     public:
         DiagnosticController(
-            Feeder &feederRef,
             LocationService &locationServiceRef
         ) : 
-            feeder(feederRef),
             locationService(locationServiceRef)
         {}
 
@@ -43,7 +43,6 @@ class DiagnosticController: public Controller {
 
     private:
         DiagnosticService *diagnosticPtr = NULL;
-        Feeder &feeder;
         LocationService &locationService;
         
         void showNavMenu() {
@@ -60,7 +59,7 @@ class DiagnosticController: public Controller {
 
             switch(selectedOption) {
                 case 1: {
-                    RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(feeder, locationService.routes);
+                    RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(locationService);
                     diagnosticPtr = &routeMappingDiagnostic;
 
                     showDiagnosticConfirmation();

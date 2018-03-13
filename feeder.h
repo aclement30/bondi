@@ -1,222 +1,217 @@
-#include "constants.h"
-#include "conveyor_motor.h"
-#include "location_service.h"
-#include "rail_motor.h"
-#include "rail_point.h"
-#include "route.h"
+// #include "constants.h"
+// #include "conveyor_motor.h"
+// #include "location_service.h"
+// #include "rail_motor.h"
+// #include "rail_point.h"
+// #include "route.h"
 
-#ifndef FEEDER_H
-#define FEEDER_H
+// #ifndef FEEDER_H
+// #define FEEDER_H
 
-class Feeder: public LocationAware {
-    public:
-        FeederState state = FEEDER_IDLE;
-        // ConveyorMotor conveyorFront;
-        // ConveyorMotor conveyorBack;
-        LocationService locationService;
+// class Feeder {
+//     public:
+//         FeederState state = FEEDER_IDLE;
+//         // ConveyorMotor conveyorFront;
+//         // ConveyorMotor conveyorBack;
         
-        Feeder(
-            RailMotor motor,
-            // ConveyorMotor feederConveyorFront,
-            // ConveyorMotor feederConveyorBack,
-            PinConfig feederGreenLight,
-            PinConfig feederRedLight,
-            PinConfig feederSafetySensorFront,
-            PinConfig feederSafetySensorBack,
-            LocationService feederLocationService
-        ) : 
-            mainMotor(motor),
-            // conveyorFront(feederConveyorFront),
-            // conveyorBack(feederConveyorBack),
-            greenLight(feederGreenLight),
-            redLight(feederRedLight),
-            safetySensorFront(feederSafetySensorFront),
-            safetySensorBack(feederSafetySensorBack),
-            locationService(feederLocationService)
-        {
-            locationService.subscribe(this);
-        }
+//         Feeder(
+//             RailMotor motor,
+//             // ConveyorMotor feederConveyorFront,
+//             // ConveyorMotor feederConveyorBack,
+//             // PinConfig feederGreenLight,
+//             // PinConfig feederRedLight,
+//             // PinConfig feederSafetySensorFront,
+//             // PinConfig feederSafetySensorBack,
+//             LocationService feederLocationService
+//         ) : 
+//             mainMotor(motor),
+//             // conveyorFront(feederConveyorFront),
+//             // conveyorBack(feederConveyorBack),
+//             // greenLight(feederGreenLight),
+//             // redLight(feederRedLight)
+//             // safetySensorFront(feederSafetySensorFront),
+//             // safetySensorBack(feederSafetySensorBack),
+//         {
+//             locationService.subscribe(this);
+//         }
 
-        void setup() {
-            pinMode(greenLight, OUTPUT);
-            pinMode(redLight, OUTPUT);
-            pinMode(safetySensorFront, INPUT);
-            pinMode(safetySensorBack, INPUT);
-            // Set to LOW so no power is flowing through the output
-            digitalWrite(greenLight, LOW);
-            digitalWrite(redLight, LOW);
+//         void setup() {
+//             pinMode(GREEN_LIGHT, OUTPUT);
+//             pinMode(RED_LIGHT, OUTPUT);
+//             // pinMode(safetySensorFront, INPUT);
+//             // pinMode(safetySensorBack, INPUT);
+//             // Set to LOW so no power is flowing through the output
+//             digitalWrite(GREEN_LIGHT, LOW);
+//             digitalWrite(RED_LIGHT, LOW);
 
-            mainMotor.setup();
-            // conveyorFront.setup();
-            // conveyorBack.setup();
+//             mainMotor.setup();
+//             // conveyorFront.setup();
+//             // conveyorBack.setup();
 
-            Serial.println("Configuration du robot");
-        }
+//             Serial.println("Configuration du robot");
+//         }
 
-        void moveForward() {
-            mainMotor.moveForward();
-            changeState(FEEDER_MOVING);
-            Serial.println("Moteur principal: rotation avant");
-        }
+//         // void didChangeDirection(MovingDirection direction) {
+//         //     if (direction == MOVING_FORWARD) {
+//         //         Serial.println("Moteur principal: rotation avant");
+//         //         mainMotor.moveForward();
+//         //     } else if (direction == MOVING_BACKWARD) {
+//         //         Serial.println("Moteur principal: rotation arrière");
+//         //         mainMotor.moveBackward();
+//         //     } else {
+//         //         Serial.println("Moteur principal: arrêt");
+//         //         mainMotor.stop();
+//         //     }
+//         // }
 
-        void moveBackward() {
-            mainMotor.moveBackward();
-            changeState(FEEDER_MOVING);
-            Serial.println("Moteur principal: rotation arrière");
-        }
+//         // void moveForward() {
+//         //     mainMotor.moveForward();
+//         //     changeState(FEEDER_MOVING);
+//         //     Serial.println("Moteur principal: rotation avant");
+//         // }
 
-        void stop() {
-            mainMotor.stop();
-            changeState(FEEDER_MOVING);
-            Serial.println("Moteur principal: arrêt");
-        }
+//         // void moveBackward() {
+//         //     mainMotor.moveBackward();
+//         //     changeState(FEEDER_MOVING);
+//         //     Serial.println("Moteur principal: rotation arrière");
+//         // }
 
-        void followRoute(Route route) {
-            currentRoutePtr = &route;
+//         // void stop() {
+//         //     mainMotor.stop();
+//         //     changeState(FEEDER_MOVING);
+//         //     Serial.println("Moteur principal: arrêt");
+//         // }
 
-            if (isDocked()) {
-                if (route.initialDirection == MOVING_FORWARD) {
-                    moveForward();
-                } else {
-                    moveBackward();
-                }
-            } else {
-                Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
-            }
-        }
+//         // void followRoute(Route route) {
+//         //     currentRoutePtr = &route;
 
-        void didUpdateLocation(RailPoint railPoint) {
-            if (railPoint.isReverse()) {
-                stopFeeding();
-                mainMotor.inverseMovingDirection();
-            }
+//         //     if (isDocked()) {
+//         //         if (route.initialDirection == MOVING_FORWARD) {
+//         //             moveForward();
+//         //         } else {
+//         //             moveBackward();
+//         //         }
+//         //     } else {
+//         //         Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
+//         //     }
+//         // }
 
-            // Ignore rail points in opposite direction
-            if (mainMotor.state == MOVING_FORWARD && railPoint.id % 2 != 0 
-             || mainMotor.state == MOVING_BACKWARD && railPoint.id % 2 == 0) {
-                return;
-            }
+//         void didUpdateLocation(RailPoint railPoint) {
+//         //     if (railPoint.isReverse()) {
+//         //         stopFeeding();
+//         //         mainMotor.inverseMovingDirection();
+//         //     }
 
-            if (currentRoutePtr != NULL) {
-                Route currentRoute = Route(* currentRoutePtr);
-                RailPoint lastPoint = RailPoint(* lastPointPtr);
+//         //     // Ignore rail points in opposite direction
+//         //     if (mainMotor.state == MOVING_FORWARD && railPoint.id % 2 != 0 
+//         //      || mainMotor.state == MOVING_BACKWARD && railPoint.id % 2 == 0) {
+//         //         return;
+//         //     }
 
-                if (railPoint.id == currentRoute.endPoint.id && railPoint.id != lastPoint.id) {
-                    completeRoute();
-                }
-            }
+//         //     if (currentRoutePtr != NULL) {
+//         //         Route currentRoute = Route(* currentRoutePtr);
+//         //         RailPoint lastPoint = RailPoint(* lastPointPtr);
 
-            lastPointPtr = &railPoint;
+//         //         if (railPoint.id == currentRoute.endPoint.id && railPoint.id != lastPoint.id) {
+//         //             completeRoute();
+//         //         }
+//         //     }
 
-            notifyLocationObservers(railPoint);
-        }
+//         //     lastPointPtr = &railPoint;
 
-        bool isSafetyBarPressed() {
-            return (mainMotor.state == MOVING_FORWARD && digitalRead(safetySensorFront) == HIGH) 
-                || (mainMotor.state == MOVING_BACKWARD && digitalRead(safetySensorBack) == HIGH);
-        }
+//         //     notifyLocationObservers(railPoint);
+//         }
 
-        bool isDocked() {
-            RailPoint activePoint = locationService.getActiveRailPoint();
-            return state == FEEDER_IDLE && activePoint.isDock();
-        }
+//         // bool isSafetyBarPressed() {
+//         //     return (mainMotor.state == MOVING_FORWARD && digitalRead(safetySensorFront) == HIGH) 
+//         //         || (mainMotor.state == MOVING_BACKWARD && digitalRead(safetySensorBack) == HIGH);
+//         // }
 
-        bool hasCurrentRoute() {
-            return currentRoutePtr != NULL;
-        }
+//         // bool isDocked() {
+//         //     RailPoint activePoint = locationService.getActiveRailPoint();
+//         //     return state == FEEDER_IDLE && activePoint.isDock();
+//         // }
 
-        void checkSafetyState() {
-            if (state != FEEDER_SAFETY_STOP && isSafetyBarPressed()) {
-                Serial.println("Barre de sécurité enclenchée");
+//         // bool hasCurrentRoute() {
+//         //     return currentRoutePtr != NULL;
+//         // }
 
-                // Shutdown everything immediately
-                safetyStop();
-            } else if (state == FEEDER_SAFETY_STOP && !isSafetyBarPressed()) {
-                // Note: we should wait for manual reactivation or a timeout before reactivating automatically
-                // TODO: Reactivate robot
-            }
-        }
+//         // void checkSafetyState() {
+//         //     if (state != FEEDER_SAFETY_STOP && isSafetyBarPressed()) {
+//         //         Serial.println("Barre de sécurité enclenchée");
 
-        void safetyStop() {
-            mainMotor.stop();
-            stopFeeding();
+//         //         // Shutdown everything immediately
+//         //         safetyStop();
+//         //     } else if (state == FEEDER_SAFETY_STOP && !isSafetyBarPressed()) {
+//         //         // Note: we should wait for manual reactivation or a timeout before reactivating automatically
+//         //         // TODO: Reactivate robot
+//         //     }
+//         // }
+
+//         // void safetyStop() {
+//         //     mainMotor.stop();
+//         //     stopFeeding();
             
-            changeState(FEEDER_SAFETY_STOP);
+//         //     changeState(FEEDER_SAFETY_STOP);
 
-            Serial.println("(!) Arrêt d'urgence");
-        }
+//         //     Serial.println("(!) Arrêt d'urgence");
+//         // }
 
-        void emergencyStop() {
-            mainMotor.stop();
-            stopFeeding();
+//         // void emergencyStop() {
+//         //     mainMotor.stop();
+//         //     stopFeeding();
             
-            changeState(FEEDER_SAFETY_STOP);
+//         //     changeState(FEEDER_SAFETY_STOP);
 
-            Serial.println("(!) Arrêt d'urgence");
-        }
+//         //     Serial.println("(!) Arrêt d'urgence");
+//         // }
 
-        int getMovingDirection() {
-            return mainMotor.state;
-        }
+//         // int getMovingDirection() {
+//         //     return mainMotor.state;
+//         // }
 
-        void stopFeeding() {
-            // Shutdown conveyors motor
-            conveyorFront.stop();
-            conveyorBack.stop();
+//         // void stopFeeding() {
+//         //     // Shutdown conveyors motor
+//         //     conveyorFront.stop();
+//         //     conveyorBack.stop();
 
-            Serial.println("Convoyeurs: arrêt");
-        }
+//         //     Serial.println("Convoyeurs: arrêt");
+//         // }
 
-        void setLight(LightColor lightColor, bool blinking) {
-            if (lightColor == GREEN) {
-                digitalWrite(greenLight, HIGH);
-                digitalWrite(redLight, LOW);
+//         void setLight(LightColor lightColor, bool blinking) {
+//             if (lightColor == GREEN) {
+//                 digitalWrite(GREEN_LIGHT, HIGH);
+//                 digitalWrite(RED_LIGHT, LOW);
                 
-                Serial.println("Lumière VERTE allumée");
-            } else {
-                digitalWrite(greenLight, LOW);
-                digitalWrite(redLight, HIGH);
+//                 Serial.println("Lumière VERTE allumée");
+//             } else {
+//                 digitalWrite(GREEN_LIGHT, LOW);
+//                 digitalWrite(RED_LIGHT, HIGH);
 
-                Serial.println("Lumière ROUGE allumée");
-            }
-        }
+//                 Serial.println("Lumière ROUGE allumée");
+//             }
+//         }
 
-        void notifyLocationObservers(RailPoint railPoint) {
-            for (int i = 0; i < observers.size(); i++) {
-                observers[i]->didUpdateLocation(railPoint);
-            }
-        }
+//     private:
+//         RailMotor mainMotor;
+//         // PinConfig greenLight;
+//         // PinConfig redLight;
+//         // PinConfig safetySensorFront;
+//         // PinConfig safetySensorBack;
+//         //FeederState previousState = FEEDER_IDLE;
+//         // Route *currentRoutePtr = NULL;
+//         // RailPoint *lastPointPtr = NULL;
 
-        void subscribeToLocation(LocationAware *observer) {
-            observers.push_back(observer);
-        }
+//         // void changeState(FeederState newState) {
+//         //     previousState = state;
+//         //     state = newState;
 
-    private:
-        RailMotor mainMotor;
-        PinConfig greenLight;
-        PinConfig redLight;
-        PinConfig safetySensorFront;
-        PinConfig safetySensorBack;
-        FeederState previousState = FEEDER_IDLE;
-        Route *currentRoutePtr = NULL;
-        RailPoint *lastPointPtr = NULL;
-        vector <class LocationAware *> observers;
+//         //     if (state == FEEDER_MOVING || state == FEEDER_REFILLING) {
+//         //         setLight(GREEN, false);
+//         //     } else if (state == FEEDER_SAFETY_STOP) {
+//         //         setLight(RED, true);
+//         //     }
+//         // }
+// };
 
-        void changeState(FeederState newState) {
-            previousState = state;
-            state = newState;
-
-            if (state == FEEDER_MOVING || state == FEEDER_REFILLING) {
-                setLight(GREEN, false);
-            } else if (state == FEEDER_SAFETY_STOP) {
-                setLight(RED, true);
-            }
-        }
-
-        void completeRoute() {
-            currentRoutePtr = NULL;
-            stop();
-        }
-};
-
-#endif
+// #endif

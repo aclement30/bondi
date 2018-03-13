@@ -8,6 +8,8 @@
 
 using namespace std;
 
+class StateManager;
+
 class MainMenuController: public Controller {
     public:
         MainMenuController() {}
