@@ -8,7 +8,7 @@ void pinMode(uint8_t pinNumber, uint8_t mode) {}
 void digitalWrite(uint8_t pinNumber, uint8_t value) {
     switch(pinNumber) {
     case MAIN_MOTOR_OUT2: {
-        const int movingDirection = feeder.getMovingDirection();
+        const int movingDirection = StateManager::getInstance().getMovingDirection();
         if (movingDirection == MOVING_FORWARD) {
             EM_ASM({
                 console.log('moveMainMotor(forward)');

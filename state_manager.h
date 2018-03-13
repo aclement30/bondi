@@ -3,11 +3,6 @@
 
 using namespace std;
 
-class DirectionAware {
-    public:
-        virtual void didChangeDirection(MovingDirection movingDirection) = 0;
-};
-
 class StateManager {
     public:
         static StateManager& getInstance() {
@@ -25,9 +20,6 @@ class StateManager {
         }
 
         void changeState(MachineState newState) {
-            Serial.print("New state:");
-            Serial.println(newState);
-
             if (currentState == newState) {
                 return;
             }
@@ -67,17 +59,6 @@ class StateManager {
             if (movingDirection == newDirection) return;
 
             movingDirection = newDirection;
-            notifyDirectionObservers(newDirection);
-        }
-
-        void notifyDirectionObservers(MovingDirection direction) {
-            for (int i = 0; i < directionObservers.size(); i++) {
-                directionObservers[i]->didChangeDirection(direction);
-            }
-        }
-
-        void subscribeToDirection(DirectionAware *observer) {
-            directionObservers.push_back(observer);
         }
 
         void stop() {
@@ -98,7 +79,6 @@ class StateManager {
         MachineState previousState = Off;
         MovingDirection movingDirection = MOVING_IDLE;
         bool safetyModeActivated = false;
-        vector <class DirectionAware *> directionObservers;
 
         StateManager() {}
 

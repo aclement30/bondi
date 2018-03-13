@@ -1,6 +1,8 @@
+#ifndef __EMSCRIPTEN__
 #include <ArduinoSTL.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#endif
 
 #ifndef DISPLAYSERVICE_H
 #define DISPLAYSERVICE_H

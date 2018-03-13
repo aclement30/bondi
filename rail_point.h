@@ -2,6 +2,8 @@
 #include <ArduinoSTL.h>
 #endif
 
+#include "constants.h"
+
 #ifndef RAILPOINT_H
 #define RAILPOINT_H
 
@@ -31,7 +33,7 @@ class RailPoint {
 };
 
 RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
-    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
         return point.id == pointId;
     });
 
@@ -39,19 +41,21 @@ RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
 }
 
 RailPoint getDockPoint(std::vector<RailPoint> railPoints) {
-    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
         return point.isDock();
     });
 
     return *iterator;
 }
 
-RailPoint getRailPointByRfidUId(std::vector<RailPoint> railPoints, const char *rfidUid) {
+RailPoint* getRailPointFromRfid(std::vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction) {
     std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
-        return point.rfidUid == rfidUid;
+        return point.rfidUid == rfidUid 
+            && ((direction == MOVING_FORWARD && point.id % 2 == 0) 
+            || (direction == MOVING_BACKWARD && point.id % 2 != 0));
     });
 
-    return *iterator;
+    return &*iterator;
 }
 
 #endif

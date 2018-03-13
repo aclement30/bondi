@@ -15,8 +15,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
             LocationService &locationServiceRef
         ) : 
             locationService(locationServiceRef),
-            routes(locationServiceRef.routes),
-            routeIterator(locationServiceRef.routes.begin())
+            routes(locationServiceRef.routes)
         {}
 
         void startDiagnostic() {
@@ -34,9 +33,9 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                 return;
             }
 
-            Route &currentRoute = routes.front();
+            Route &currentRoute = routes.at(currentRouteIndex);
             displayCurrentRoute(currentRoute.id);
-            locationService.followRoute(routes.front());
+            locationService.followRoute(currentRoute.id);
         }
 
         void continueDiagnostic() {
@@ -47,14 +46,15 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                 return;
             }
 
-            advance(routeIterator, 1);
+            currentRouteIndex += 1;
 
-            if (routeIterator != routes.end()) {
-                Route currentRoute = *routeIterator;
+            if (currentRouteIndex < routes.size()) {
+                Route &currentRoute = routes.at(currentRouteIndex);
                 displayCurrentRoute(currentRoute.id);
-                locationService.followRoute(currentRoute);
+                locationService.followRoute(currentRoute.id);
             } else {
                 completed = true;
+                currentRouteIndex = 0;
             }
         }
 
@@ -75,7 +75,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
     private:
         LocationService &locationService;
         vector<Route> &routes;
-        Route *routeIterator;
+        int currentRouteIndex = 0;
 
         void displayDiagnosticScreen() {
             DisplayService::getInstance().clearScreen();

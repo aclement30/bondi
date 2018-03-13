@@ -4,53 +4,50 @@
 #ifndef RAILMOTOR_H
 #define RAILMOTOR_H
 
-class RailMotor: public DirectionAware {
+class RailMotor {
     public:
-        PinConfig out1;
-        PinConfig out2;
+        RailMotor() {
+            pinMode(MAIN_MOTOR_OUT1, OUTPUT);
+            pinMode(MAIN_MOTOR_OUT2, OUTPUT);
 
-        RailMotor(
-            PinConfig motorOut1, 
-            PinConfig motorOut2
-        ) : 
-            out1(motorOut1),
-            out2(motorOut2)
-        {
-            pinMode(out1, OUTPUT);
-            pinMode(out2, OUTPUT);
             // Set to LOW so no power is flowing through the output
-            digitalWrite(out1, LOW);
-            digitalWrite(out2, LOW);
-
-            StateManager::getInstance().subscribeToDirection(this);
+            digitalWrite(MAIN_MOTOR_OUT1, LOW);
+            digitalWrite(MAIN_MOTOR_OUT2, LOW);
         }
 
-        void didChangeDirection(MovingDirection direction) {
-            if (direction == MOVING_FORWARD) {
-                Serial.println("Moteur principal: rotation avant");
-                moveForward();
-            } else if (direction == MOVING_BACKWARD) {
-                Serial.println("Moteur principal: rotation arrière");
-                moveBackward();
-            } else {
+        void loop() {
+            MovingDirection newDirection = StateManager::getInstance().getMovingDirection();
+            if (currentDirection == newDirection) return;
+
+            // First stop the motor
+            if (currentDirection != MOVING_IDLE) {
                 Serial.println("Moteur principal: arrêt");
                 stop();
+            }
+
+            // Then, change the motor direction
+            if (newDirection == MOVING_FORWARD) {
+                Serial.println("Moteur principal: rotation avant");
+                moveForward();
+            } else if (newDirection == MOVING_BACKWARD) {
+                Serial.println("Moteur principal: rotation arrière");
+                moveBackward();
             }
         }
 
         void moveForward() {
-            digitalWrite(out1, HIGH);
-            digitalWrite(out2, LOW);
+            digitalWrite(MAIN_MOTOR_OUT1, HIGH);
+            digitalWrite(MAIN_MOTOR_OUT2, LOW);
         }
 
         void moveBackward() {
-            digitalWrite(out1, LOW);
-            digitalWrite(out2, HIGH);
+            digitalWrite(MAIN_MOTOR_OUT1, LOW);
+            digitalWrite(MAIN_MOTOR_OUT2, HIGH);
         }
 
         void stop() {
-            digitalWrite(out1, HIGH);
-            digitalWrite(out2, HIGH);
+            digitalWrite(MAIN_MOTOR_OUT1, HIGH);
+            digitalWrite(MAIN_MOTOR_OUT2, HIGH);
         }
 
         // void inverseMovingDirection() {
@@ -62,6 +59,8 @@ class RailMotor: public DirectionAware {
         //         moveForward();
         //     }
         // }
+    private:
+        MovingDirection currentDirection = MOVING_IDLE;
 };
 
 #endif

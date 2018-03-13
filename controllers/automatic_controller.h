@@ -1,5 +1,5 @@
 #include "./controller.h"
-#include "../feeder.h"
+#include "../display_service.h"
 #include "../meal_service.h"
 #include "../state_manager.h"
 
@@ -17,7 +17,7 @@ class AutomaticController: public Controller {
         {}
 
         void handle() {
-            // TODO: Show auto mode screen
+            displayAutomaticModeScreen();
 
             // mealService.refreshCurrentMeal();
 
@@ -35,6 +35,17 @@ class AutomaticController: public Controller {
 
     private:
         // MealService &mealService;
+
+        void displayAutomaticModeScreen() {
+            DisplayService::getInstance().clearScreen();
+            DisplayService::getInstance().printTitle("MODE: AUTO");
+            DisplayService::getInstance().addBorder();
+            DisplayService::getInstance().printCenter("En attente", 2);
+
+            // delay(2000);
+
+            // DisplayScreens::mealDistribution();
+        }
 };
 
 #endif

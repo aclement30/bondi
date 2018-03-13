@@ -36,10 +36,7 @@
 
 // MOTORS
 
-const RailMotor mainMotor = RailMotor(
-    MAIN_MOTOR_OUT1,
-    MAIN_MOTOR_OUT2
-);
+RailMotor mainMotor = RailMotor();
 
 const ConveyorMotor conveyorFront = ConveyorMotor(
     CONVEYOR_MOTOR_FRONT_PWM,
@@ -104,10 +101,17 @@ void createController(MachineState currentState) {
     }
 }
 
+void displayStartupScreen() {
+    DisplayService::getInstance().clearScreen();
+    DisplayService::getInstance().printCenter("Demarrage en cours", 3);
+}
+
 void setup() {
     Serial.begin(9600);   // open serial over USB
     Serial.println("Démarrage en cours");
     
+    displayStartupScreen();
+
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
     }
@@ -130,32 +134,26 @@ void setup() {
 }
 
 void loop() {
+    Serial.println("* loop");
     // Stop right here if power is OFF
     // if (!isPowerON()) {
     //     delay(1000);
     //     return;
     // }
 
-    Serial.println("* loop");
     Serial.println("* check safety");
-
     safetyService.checkSafetyState();
 
-    // Stop here if emergency button or safety bar is pressed
-    // if (feeder.state == FEEDER_SAFETY_STOP) {
-    //     delay(1000);
-    //     return;
-    // }
     Serial.println("* refresh point");
-
     locationService.refreshActivePoint();
 
-    Serial.println("* create controller");
+    Serial.println("* main motor");
+    mainMotor.loop();
 
+    Serial.println("* create controller");
     createController(StateManager::getInstance().getState());
 
     Serial.println("* handle");
-
     currentControllerPtr->handle();
 }
 

@@ -37,7 +37,7 @@ class SafetyService {
             bool canContinue = NavigationMenu::waitForConfirmation();
 
             if (canContinue) {
-                StateManager::getInstance().changeState(MainMenu);
+                return;
             } else {
                 StateManager::getInstance().changeState(MainMenu);
             }

@@ -1,4 +1,7 @@
+#ifndef __EMSCRIPTEN__
 #include <ArduinoSTL.h>
+#endif
+
 #include "display_service.h"
 
 #ifndef NAVIGATIONMENU_H
@@ -24,7 +27,7 @@ class NavigationMenu {
             }
             int screensCount = (linesCount + 4 - 1) / 4;
             string centeredTitle = DisplayService::getCenteredText(title);
-            string *optionItr = menuOptions.begin();
+            vector<string>::iterator optionItr = menuOptions.begin();
             
             for (unsigned int s = 0; s < screensCount; s++) {
                 MenuScreen screen;

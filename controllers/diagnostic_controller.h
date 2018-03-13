@@ -2,7 +2,6 @@
 #include "../diagnostic/diagnostic_service.h"
 #include "../diagnostic/route_mapping.h"
 #include "../display_service.h"
-#include "../feeder.h"
 #include "../navigation_menu.h"
 #include "../state_manager.h"
 

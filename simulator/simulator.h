@@ -10,8 +10,6 @@
 #include <emscripten.h>
 #endif
 
-#include "../rail_point.h"
-
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
@@ -21,22 +19,22 @@
 #define OUTPUT 0x1
 #define INPUT_PULLUP 0x2
 
-const int A0 = 97;
-const int A1 = 96;
-const int A2 = 95;
-const int A3 = 94;
-const int A4 = 93;
-const int A5 = 92;
-const int A6 = 91;
-const int A7 = 90;
-const int A8 = 89;
-const int A9 = 88;
-const int A10 = 87;
-const int A11 = 86;
-const int A12 = 85;
-const int A13 = 84;
-const int A14 = 83;
-const int A15 = 82;
+#define A0 97
+#define A1 96
+#define A2 95
+#define A3 94
+#define A4 93
+#define A5 92
+#define A6 91
+#define A7 90
+#define A8 89
+#define A9 88
+#define A10 87
+#define A11 86
+#define A12 85
+#define A13 84
+#define A14 83
+#define A15 82
 
 void pinMode(uint8_t pinNumber, uint8_t mode);
 void digitalWrite(uint8_t pinNumber, uint8_t value);
@@ -51,31 +49,33 @@ class Serial_ {
         Serial_() {};
         void begin(unsigned long);
         void end(void);
-        
+        bool available() { return false; }
+        uint8_t read() { return 1; }
+
         // size_t print(const __FlashStringHelper *);
-        size_t print(const std::string &);
-        size_t print(const char[]);
-        size_t print(char);
+        void print(const std::string &) {}
+        void print(const char[]) {}
+        void print(char) {}
         // size_t print(unsigned char, int = DEC);
         // size_t print(int, int = DEC);
         // size_t print(unsigned int, int = DEC);
         // size_t print(long, int = DEC);
         // size_t print(unsigned long, int = DEC);
-        size_t print(double, int = 2);
+        void print(double, int = 2) {}
         // size_t print(const Printable&);
 
         // size_t println(const __FlashStringHelper *);
-        size_t println(const std::string &s);
-        size_t println(const char[]);
-        size_t println(char);
+        void println(const std::string &s) {}
+        void println(const char[]) {}
+        void println(char) {}
         // size_t println(unsigned char, int = DEC);
         // size_t println(int, int = DEC);
         // size_t println(unsigned int, int = DEC);
         // size_t println(long, int = DEC);
         // size_t println(unsigned long, int = DEC);
-        size_t println(double, int = 2);
+        // size_t println(double, int = 2);
         // size_t println(const Printable&);
-        size_t println(void);
+        // size_t println(void);
 };
 
 Serial_ Serial = Serial_();
@@ -147,5 +147,35 @@ class SD_ {
 };
 
 SD_ SD = SD_();
+
+typedef enum { POSITIVE, NEGATIVE } t_backlighPol;
+
+#define LCD_8BITMODE            0x10
+#define LCD_4BITMODE            0x00
+#define LCD_2LINE               0x08
+#define LCD_1LINE               0x00
+#define LCD_5x10DOTS            0x04
+#define LCD_5x8DOTS             0x00
+
+class LiquidCrystal_I2C {
+    public:
+
+        LiquidCrystal_I2C(uint8_t lcd_Addr, uint8_t En, uint8_t Rw, uint8_t Rs,
+                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7,
+                        uint8_t backlighPin, t_backlighPol pol) {}
+
+    void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS) {}
+    void send(uint8_t value, uint8_t mode) {}
+    void setBacklight ( uint8_t value ) {}
+    void setCursor(uint8_t col, uint8_t row) {}
+    void createChar(uint8_t location, uint8_t charmap[]) {}
+    void clear() {}
+    void home() {}
+    void backlight() {}
+    void noBacklight() {}
+    void print(const std::string &) {}
+    void print(const char[]) {}
+    void print(char) {}
+};
 
 #endif

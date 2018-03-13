@@ -46,7 +46,7 @@ class MainMenuController: public Controller {
                     StateManager::getInstance().changeState(Diagnostic);
                     break;
                 case 5:
-                    asm volatile ("  jmp 0");
+                    //asm volatile ("  jmp 0");
                     break;
             }
         }

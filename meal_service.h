@@ -68,7 +68,7 @@
 //         void distributeMeal(Meal meal) {
 //             // Move feeder in corresponding direction
 //             if (locationService.isDocked()) {
-//                 locationService.followRoute(meal.route);
+//                 locationService.followRoute(meal.route.id);
 //             }
 
 //             if (currentSequencePtr) {
