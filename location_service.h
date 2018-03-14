@@ -100,15 +100,14 @@ class LocationService {
                 Serial.println("* RFID card detected");
                 if (rfid.readCardSerial()) {
                     Serial.println("* reading RFID card serial");
+                    char uid[20];
                     stringstream charUid;
 
                     for(int n = 0; n < 5; n++) {
                         charUid << rfid.serNum[n] << ".";
                     }
 
-                    string uid = charUid.str();
-                    //string message = "RFID point detected: ";
-                    //Serial.println(message + uid);
+                    sprintf(uid, "%d.%d.%d.%d.%d", rfid.serNum[0], rfid.serNum[1], rfid.serNum[2], rfid.serNum[3], rfid.serNum[4]);
 
                     return uid;
                 }

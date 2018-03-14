@@ -10,6 +10,8 @@ using namespace std;
 
 class DiagnosticService {
     public:
+        virtual ~DiagnosticService() = default;
+
         virtual void startDiagnostic() = 0;
         virtual void continueDiagnostic() = 0;
         virtual string getTitle() = 0;

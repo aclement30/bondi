@@ -34,24 +34,6 @@
 // #include "route.h"
 #include "safety_service.h"
 
-#ifdef __arm__
-// should use uinstd.h to define sbrk but Due causes a conflict
-extern "C" char* sbrk(int incr);
-#else  // __ARM__
-extern char *__brkval;
-#endif  // __arm__
- 
-int freeMemory() {
-  char top;
-#ifdef __arm__
-  return &top - reinterpret_cast<char*>(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
-  return &top - __brkval;
-#else  // __arm__
-  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif  // __arm__
-}
-
 // MOTORS
 
 RailMotor mainMotor = RailMotor();
@@ -161,14 +143,12 @@ void loop() {
     delay(250);
     
     Serial.println("* loop");
-    // Serial.print("Free memory: ");
-    // Serial.println(freeMemory());
     
-    // // Stop right here if power is OFF
-    // // if (!isPowerON()) {
-    // //     delay(1000);
-    // //     return;
-    // // }
+    // Stop right here if power is OFF
+    if (!isPowerON()) {
+        delay(1000);
+        return;
+    }
     
     // Serial.println("* check safety");
     // safetyService.checkSafetyState();
@@ -194,7 +174,7 @@ void loop() {
 #include "simulator/simulator.cpp"
 
 int main() {
-    emscripten_set_main_loop(loop, 60, 1);
+    emscripten_set_main_loop(loop, 1, 1);
 }
 
 #endif
