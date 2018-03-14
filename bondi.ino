@@ -34,6 +34,24 @@
 // #include "route.h"
 #include "safety_service.h"
 
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif  // __arm__
+ 
+int freeMemory() {
+  char top;
+#ifdef __arm__
+  return &top - reinterpret_cast<char*>(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+  return &top - __brkval;
+#else  // __arm__
+  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+#endif  // __arm__
+}
+
 // MOTORS
 
 RailMotor mainMotor = RailMotor();
@@ -70,7 +88,10 @@ bool isPowerON() {
 
 void createController(MachineState currentState) {
     if (currentControllerPtr != NULL) {
-        if (previousState == currentState) return;
+        if (previousState == currentState) {
+          Serial.println(" (use existing controller)");
+          return;
+        }
 
         delete currentControllerPtr;
         currentControllerPtr = NULL;
@@ -85,10 +106,12 @@ void createController(MachineState currentState) {
         }
         case MainMenu: {
             currentControllerPtr = new MainMenuController();
+            Serial.println(" (new MainMenuController)");
             break;
         }
         case Automatic: {
             currentControllerPtr = new AutomaticController();
+            Serial.println(" (new AutomaticController)");
             break;
         }
         case Manual: {
@@ -96,6 +119,7 @@ void createController(MachineState currentState) {
         }
         case Diagnostic: {
             currentControllerPtr = new DiagnosticController(locationService);
+            Serial.println(" (new DiagnosticController)");
             break;
         }
     }
@@ -134,26 +158,34 @@ void setup() {
 }
 
 void loop() {
+    delay(250);
+    
     Serial.println("* loop");
-    // Stop right here if power is OFF
-    // if (!isPowerON()) {
-    //     delay(1000);
-    //     return;
-    // }
-
-    Serial.println("* check safety");
-    safetyService.checkSafetyState();
-
+    // Serial.print("Free memory: ");
+    // Serial.println(freeMemory());
+    
+    // // Stop right here if power is OFF
+    // // if (!isPowerON()) {
+    // //     delay(1000);
+    // //     return;
+    // // }
+    
+    // Serial.println("* check safety");
+    // safetyService.checkSafetyState();
+    
     Serial.println("* refresh point");
     locationService.refreshActivePoint();
-
-    Serial.println("* main motor");
-    mainMotor.loop();
-
-    Serial.println("* create controller");
+    
+    // Serial.println("* main motor");
+    // mainMotor.loop();
+    
+    // Serial.print("* create controller");
     createController(StateManager::getInstance().getState());
+    
+    // Serial.println("* handle");
 
-    Serial.println("* handle");
+    // delay(250);
+
     currentControllerPtr->handle();
 }
 

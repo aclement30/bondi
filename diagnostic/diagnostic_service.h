@@ -6,11 +6,6 @@
 #ifndef DIAGNOSTICSERVICE_H
 #define DIAGNOSTICSERVICE_H
 
-class DiagnosticAware {
-    public:
-        virtual void didCompleteDiagnostic() = 0;
-};
-
 using namespace std;
 
 class DiagnosticService {
@@ -118,7 +113,6 @@ class DiagnosticService {
         }
 
     protected:
-        //DiagnosticAware &observer;
         bool completed = false;
         bool cancelled = false;
 };

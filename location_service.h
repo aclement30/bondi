@@ -41,6 +41,8 @@ class LocationService {
 
             // If UID is empty, it means o new RFID tag has been scanned, so we keep the active one
             if (uid.length() == 0 || uid == lastRfidUid) {
+                Serial.print("* no new RFID uid detected: ");
+                Serial.println(uid.c_str());
                 return;
             }
 
@@ -49,6 +51,12 @@ class LocationService {
             // New rail point detected: match RFID uid with corresponding rail point
             activeRailPointPtr = getRailPointFromRfid(railPoints, uid.c_str(), movingDirection);
 
+            if (activeRailPointPtr == NULL) {
+              Serial.print("Point RFID introuvable: ");
+              Serial.println(uid.c_str());
+                return;
+            }
+            
             if (currentRoutePtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPoint.id) {
                 completeRoute();
             }
@@ -60,15 +68,15 @@ class LocationService {
         void followRoute(int routeId) {
             currentRoutePtr = getRouteById(routes, routeId);
 
-            if (isDocked()) {
+            //if (isDocked()) {
                 if (currentRoutePtr->initialDirection == MOVING_FORWARD) {
                     StateManager::getInstance().changeMovingDirection(MOVING_FORWARD);
                 } else {
                     StateManager::getInstance().changeMovingDirection(MOVING_BACKWARD);
                 }
-            } else {
-                Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
-            }
+            // } else {
+            //     Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
+            // }
         }
 
         bool isFollowingRoute() {
@@ -86,8 +94,12 @@ class LocationService {
         // vector <class LocationAware *> observers;
 
         string readRfidPoint() {
+            Serial.println("* detecting RFID point");
+
             if (rfid.isCard()) {  
+                Serial.println("* RFID card detected");
                 if (rfid.readCardSerial()) {
+                    Serial.println("* reading RFID card serial");
                     stringstream charUid;
 
                     for(int n = 0; n < 5; n++) {

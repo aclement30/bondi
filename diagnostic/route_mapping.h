@@ -20,18 +20,18 @@ class RouteMappingDiagnosticService: public DiagnosticService {
 
         void startDiagnostic() {
             displayDiagnosticScreen();
-
-            if (!locationService.isDocked()) {
-                vector<string> errorMessage = {
-                    "Le robot doit etre",
-                    "positionne au dock."
-                };
-                DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                NavigationMenu::waitForConfirmation();
+            Serial.println("* start diagnostic");
+            // if (!locationService.isDocked()) {
+            //     vector<string> errorMessage = {
+            //         "Le robot doit etre",
+            //         "positionne au dock."
+            //     };
+            //     DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
+            //     NavigationMenu::waitForConfirmation();
                 
-                cancelled = true;
-                return;
-            }
+            //     cancelled = true;
+            //     return;
+            // }
 
             Route &currentRoute = routes.at(currentRouteIndex);
             displayCurrentRoute(currentRoute.id);
@@ -39,7 +39,11 @@ class RouteMappingDiagnosticService: public DiagnosticService {
         }
 
         void continueDiagnostic() {
-            displayDiagnosticScreen();
+            //displayDiagnosticScreen();
+
+            if (locationService.activeRailPointPtr != NULL) {
+                displayCurrentPoint(locationService.activeRailPointPtr->name);
+            }
 
             // Let feeder continue on its current route
             if (locationService.isFollowingRoute()) {
@@ -53,6 +57,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                 displayCurrentRoute(currentRoute.id);
                 locationService.followRoute(currentRoute.id);
             } else {
+                Serial.println("* complete diagnostic");
                 completed = true;
                 currentRouteIndex = 0;
             }
@@ -68,8 +73,9 @@ class RouteMappingDiagnosticService: public DiagnosticService {
             DisplayService::getInstance().print(lineText, 2);
         }
 
-        void displayCurrentPoint(string &name) {
-            DisplayService::getInstance().print("Point: " + name, 3);
+        void displayCurrentPoint(const char *name) {
+            char message[] = "Point: ";
+            DisplayService::getInstance().print(strcat(message, name), 3);
         }
 
     private:

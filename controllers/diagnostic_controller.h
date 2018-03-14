@@ -22,17 +22,37 @@ class DiagnosticController: public Controller {
         {}
 
         void handle() {
+            // Serial.println("* DiagnosticController->handle");
+            // delay(250);
+
             if (diagnosticPtr == NULL) {
+                Serial.println("* no diagnostic");
+                delay(250);
+
                 showNavMenu();
-            } else if (diagnosticPtr->isCompleted()) {                    
+            } else if (diagnosticPtr->isCompleted()) {    
+                Serial.println("* diagnostic completed");
+                delay(250);
+
                 completeDiagnostic();
+            } else if (diagnosticPtr->isCancelled()) {    
+                Serial.println("** diagnostic cancelled");
+                delay(250);
+
+                stopDiagnostic();
             } else {
+                Serial.println("*** continue diagnostic");
+                delay(250);
+
                 diagnosticPtr->continueDiagnostic();
                 delay(1000);
             }
         }
 
         void stopDiagnostic() {
+            Serial.println("* clear diagnostic service");
+
+            delete diagnosticPtr;
             diagnosticPtr = NULL;
         }
 
@@ -45,7 +65,7 @@ class DiagnosticController: public Controller {
         LocationService &locationService;
         
         void showNavMenu() {
-            vector<string> menuOptions = {
+             vector<string> menuOptions = {
                 "Liste routes",
                 "Test mot. rail",
                 "Test conv. av",
@@ -57,13 +77,10 @@ class DiagnosticController: public Controller {
             int selectedOption = menu.waitForSelection();
 
             switch(selectedOption) {
-                case 1: {
-                    RouteMappingDiagnosticService routeMappingDiagnostic = RouteMappingDiagnosticService(locationService);
-                    diagnosticPtr = &routeMappingDiagnostic;
-
+                case 1:
+                    diagnosticPtr = new RouteMappingDiagnosticService(locationService);
                     showDiagnosticConfirmation();
                     break;
-                }
                 // case 2:
                 //     DisplayScreens::diagnosticRailMotor();
                 //     break;

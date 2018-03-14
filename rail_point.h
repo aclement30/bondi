@@ -50,11 +50,24 @@ RailPoint getDockPoint(std::vector<RailPoint> railPoints) {
 
 RailPoint* getRailPointFromRfid(std::vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction) {
     std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
-        return point.rfidUid == rfidUid 
-            && ((direction == MOVING_FORWARD && point.id % 2 == 0) 
+        if (point.rfidUid != rfidUid) {
+            return false;
+        }
+
+            // Serial.print("* point trouvé :");
+            // Serial.println(point.name);
+            // Serial.print("* direction: ");
+            // Serial.print(direction == MOVING_FORWARD ? "FORWARD | " : "BACKWARD | ");
+            // Serial.println(point.id % 2 == 0);
+
+        return ((direction == MOVING_FORWARD && point.id % 2 == 0) 
             || (direction == MOVING_BACKWARD && point.id % 2 != 0));
     });
 
+    if (iterator == railPoints.end()) {
+        return NULL;
+    }
+    
     return &*iterator;
 }
 
