@@ -25,12 +25,12 @@ class Route {
         {}  
 };
 
-Route *getRouteById(vector<Route> routes, int routeId) {
+int getRouteIndexById(vector<Route> routes, int routeId) {
     vector<Route>::iterator iterator = find_if (routes.begin(), routes.end(), [&](const Route & route) {
         return route.id == routeId;
     });
 
-    return &*iterator;
+    return iterator - routes.begin();
 }
 
 #endif

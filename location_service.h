@@ -18,10 +18,10 @@ using namespace std;
 
 class LocationService {
     public:
-        vector<RailPoint> &railPoints;
-        vector<Route> &routes;
-        RailPoint *activeRailPointPtr = NULL;
-        Route *currentRoutePtr = NULL;
+        vector<RailPoint> & railPoints;
+        vector<Route> & routes;
+        RailPoint * activeRailPointPtr = NULL;
+        Route * currentRoutePtr = NULL;
 
         LocationService(
             vector<RailPoint> &railPointsRef,
@@ -38,45 +38,58 @@ class LocationService {
 
         void refreshActivePoint() {
             string uid = readRfidPoint();
-
+            
             // If UID is empty, it means o new RFID tag has been scanned, so we keep the active one
-            if (uid.length() == 0 || uid == lastRfidUid) {
-                Serial.print("* no new RFID uid detected: ");
-                Serial.println(uid.c_str());
+            if (uid.length() == 0 || uid.compare(lastRfidUid) == 0) {
                 return;
             }
 
             MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
-
+            
             // New rail point detected: match RFID uid with corresponding rail point
-            activeRailPointPtr = getRailPointFromRfid(railPoints, uid.c_str(), movingDirection);
-
-            if (activeRailPointPtr == NULL) {
-              Serial.print("Point RFID introuvable: ");
-              Serial.println(uid.c_str());
+            int pointIndex = getRailPointIndexFromRfid(railPoints, uid.c_str(), movingDirection);
+            if (pointIndex == -1) {
                 return;
             }
+
+            if (activeRailPointPtr != NULL) {
+                delete activeRailPointPtr;
+                activeRailPointPtr = NULL;
+            }
+
+            activeRailPointPtr = new RailPoint(railPoints.at(pointIndex));
+
+            lastRfidUid = uid;
             
-            if (currentRoutePtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPoint.id) {
+            // Serial.print("New Point: ");
+            // Serial.print(activeRailPointPtr->name);
+            // Serial.print(" - ");
+            // Serial.println(activeRailPointPtr->pointId);
+            
+            if (currentRoutePtr != NULL && activeRailPointPtr->pointId == currentRoutePtr->endPoint.pointId) {
                 completeRoute();
             }
             
-            char message[] = "Point actif: ";
+            char message[] = "* active point: ";
             Serial.println(strcat(message, activeRailPointPtr->name));
         }
 
         void followRoute(int routeId) {
-            currentRoutePtr = getRouteById(routes, routeId);
+            if (currentRoutePtr != NULL) {
+                completeRoute();
+            }
+            
+            currentRoutePtr = new Route(routes.at(getRouteIndexById(routes, routeId)));
 
-            //if (isDocked()) {
+            if (isDocked()) {
                 if (currentRoutePtr->initialDirection == MOVING_FORWARD) {
                     StateManager::getInstance().changeMovingDirection(MOVING_FORWARD);
                 } else {
                     StateManager::getInstance().changeMovingDirection(MOVING_BACKWARD);
                 }
-            // } else {
-            //     Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
-            // }
+            } else {
+                Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
+            }
         }
 
         bool isFollowingRoute() {
@@ -119,7 +132,11 @@ class LocationService {
         }
 
         void completeRoute() {
-            currentRoutePtr = NULL;
+            if (currentRoutePtr != NULL) {
+                delete currentRoutePtr;
+                currentRoutePtr = NULL;
+            }
+
             StateManager::getInstance().stop();
         }
 };

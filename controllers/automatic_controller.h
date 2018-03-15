@@ -31,6 +31,8 @@ class AutomaticController: public Controller {
             //     Serial.println("Attente...");
             //     delay(1000);
             // }
+
+            delay(2000);
         }
 
     private:
@@ -41,8 +43,6 @@ class AutomaticController: public Controller {
             DisplayService::getInstance().printTitle("MODE: AUTO");
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("En attente", 2);
-
-            // delay(2000);
 
             // DisplayScreens::mealDistribution();
         }

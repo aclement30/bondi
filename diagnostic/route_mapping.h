@@ -19,19 +19,21 @@ class RouteMappingDiagnosticService: public DiagnosticService {
         {}
 
         void startDiagnostic() {
-            displayDiagnosticScreen();
-            Serial.println("* start diagnostic");
-            // if (!locationService.isDocked()) {
-            //     vector<string> errorMessage = {
-            //         "Le robot doit etre",
-            //         "positionne au dock."
-            //     };
-            //     DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-            //     NavigationMenu::waitForConfirmation();
+            completed = false;
+            
+            if (!locationService.isDocked()) {
+                vector<string> errorMessage = {
+                    "Le robot doit etre",
+                    "positionne au dock."
+                };
+                DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
+                NavigationMenu::waitForConfirmation();
                 
-            //     cancelled = true;
-            //     return;
-            // }
+                cancelled = true;
+                return;
+            }
+
+            displayDiagnosticScreen();
 
             Route &currentRoute = routes.at(currentRouteIndex);
             displayCurrentRoute(currentRoute.id);
@@ -39,8 +41,6 @@ class RouteMappingDiagnosticService: public DiagnosticService {
         }
 
         void continueDiagnostic() {
-            //displayDiagnosticScreen();
-
             if (locationService.activeRailPointPtr != NULL) {
                 displayCurrentPoint(locationService.activeRailPointPtr->name);
             }
@@ -74,7 +74,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
         }
 
         void displayCurrentPoint(const char *name) {
-            char message[] = "Point: ";
+            char message[20] = "Point: ";
             DisplayService::getInstance().print(strcat(message, name), 3);
         }
 

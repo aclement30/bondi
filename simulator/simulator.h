@@ -125,7 +125,7 @@ class RFID {
                 console.log('getCurrentRailPoint()');
                 const currentPoint = window.simulator && window.simulator.service.getCurrentRailPoint();
                 if (currentPoint) {
-                    return currentPoint.id;
+                    return currentPoint.pointId;
                 }
                 return 0;
             });

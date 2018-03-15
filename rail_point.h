@@ -9,32 +9,32 @@
 
 class RailPoint {
     public:
-        int id;
+        int pointId;
         const char *name;
         const char *rfidUid;
 
         RailPoint(
-            int pointId, 
+            int railPointId, 
             const char *pointName,
             const char *pointRfidUid
         ) : 
-            id(pointId),
+            pointId(railPointId),
             name(pointName),
             rfidUid(pointRfidUid)
         {}
 
         bool isDock() {
-            return id == 1000;
+            return pointId == 1000;
         }
 
         bool isReverse() {
-            return id >= 100 && id < 200;
+            return pointId >= 100 && pointId < 200;
         }
 };
 
 RailPoint getRailPointById(std::vector<RailPoint> railPoints, int pointId) {
     std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
-        return point.id == pointId;
+        return point.pointId == pointId;
     });
 
     return *iterator;
@@ -48,27 +48,22 @@ RailPoint getDockPoint(std::vector<RailPoint> railPoints) {
     return *iterator;
 }
 
-RailPoint* getRailPointFromRfid(std::vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction) {
-    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](const RailPoint & point) {
-        if (point.rfidUid != rfidUid) {
-            return false;
-        }
-
-            // Serial.print("* point trouvé :");
-            // Serial.println(point.name);
-            // Serial.print("* direction: ");
-            // Serial.print(direction == MOVING_FORWARD ? "FORWARD | " : "BACKWARD | ");
-            // Serial.println(point.id % 2 == 0);
-
-        return ((direction == MOVING_FORWARD && point.id % 2 == 0) 
-            || (direction == MOVING_BACKWARD && point.id % 2 != 0));
+int getRailPointIndexFromRfid(std::vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction) {
+    std::vector<RailPoint>::iterator iterator = std::find_if (railPoints.begin(), railPoints.end(), [&](RailPoint & point) {
+        return (strcmp(point.rfidUid, rfidUid) == 0 && 
+                (
+                    point.isDock() || 
+                    direction == MOVING_IDLE || 
+                    (direction == MOVING_FORWARD && point.pointId % 2 == 0) || 
+                    (direction == MOVING_BACKWARD && point.pointId % 2 != 0)
+                ));
     });
 
     if (iterator == railPoints.end()) {
-        return NULL;
+        return -1;
     }
     
-    return &*iterator;
+    return iterator - railPoints.begin();
 }
 
 #endif

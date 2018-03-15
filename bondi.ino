@@ -88,20 +88,20 @@ void createController(MachineState currentState) {
         }
         case MainMenu: {
             currentControllerPtr = new MainMenuController();
-            Serial.println(" (new MainMenuController)");
+            // Serial.println(" (new MainMenuController)");
             break;
         }
         case Automatic: {
             currentControllerPtr = new AutomaticController();
-            Serial.println(" (new AutomaticController)");
+            // Serial.println(" (new AutomaticController)");
             break;
         }
         case Manual: {
             break;
         }
         case Diagnostic: {
-            currentControllerPtr = new DiagnosticController(locationService);
-            Serial.println(" (new DiagnosticController)");
+            currentControllerPtr = new DiagnosticController(locationService, mainMotor);
+            // Serial.println(" (new DiagnosticController)");
             break;
         }
     }

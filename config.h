@@ -88,11 +88,11 @@ std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints
 
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
-        RailPoint(1000, "DOCK",  "155.198.195.233.119"),
+        RailPoint(1000, "DOCK", "155.198.195.233.119"),
         RailPoint(2, "G-2", "197.8.161.185.213"),
         RailPoint(4, "G-4", "0.0.0.0.2"),
         RailPoint(101, "REV", "0.0.0.0.4"),
-        RailPoint(1, "G-1", "0.0.0.0.5"),
+        RailPoint(1, "G-1", "197.8.161.185.213"),
         RailPoint(3, "G-3", "0.0.0.0.6"),
         RailPoint(5, "P-5",  "0.0.0.0.7"),
         RailPoint(7, "P-7", "0.0.0.0.8"),

@@ -1,5 +1,6 @@
 #include "./controller.h"
 #include "../diagnostic/diagnostic_service.h"
+#include "../diagnostic/rail_motor.h"
 #include "../diagnostic/route_mapping.h"
 #include "../display_service.h"
 #include "../navigation_menu.h"
@@ -16,9 +17,11 @@ class StateManager;
 class DiagnosticController: public Controller {
     public:
         DiagnosticController(
-            LocationService &locationServiceRef
+            LocationService &locationServiceRef,
+            RailMotor &railMotorRef
         ) : 
-            locationService(locationServiceRef)
+            locationService(locationServiceRef),
+            railMotor(railMotorRef)
         {}
 
         void handle() {
@@ -45,7 +48,6 @@ class DiagnosticController: public Controller {
                 delay(250);
 
                 diagnosticPtr->continueDiagnostic();
-                delay(1000);
             }
         }
 
@@ -63,7 +65,8 @@ class DiagnosticController: public Controller {
     private:
         DiagnosticService *diagnosticPtr = NULL;
         LocationService &locationService;
-        
+        RailMotor &railMotor;
+
         void showNavMenu() {
              vector<string> menuOptions = {
                 "Liste routes",
@@ -81,9 +84,10 @@ class DiagnosticController: public Controller {
                     diagnosticPtr = new RouteMappingDiagnosticService(locationService);
                     showDiagnosticConfirmation();
                     break;
-                // case 2:
-                //     DisplayScreens::diagnosticRailMotor();
-                //     break;
+                case 2:
+                    diagnosticPtr = new RailMotorDiagnosticService(railMotor);
+                    showDiagnosticConfirmation();
+                    break;
                 // case 3:
                 //     DisplayScreens::diagnosticConveyorMotor();
                 //     break;
@@ -108,7 +112,6 @@ class DiagnosticController: public Controller {
 
             if (canStart) {
                 diagnosticPtr->startDiagnostic();
-                delay(1000);
             } else {
                 stopDiagnostic();
             }
