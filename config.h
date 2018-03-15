@@ -16,7 +16,7 @@
 struct Config {
     std::vector<RailPoint> railPoints;
     std::vector<Route> routes;
-    // std::vector<Meal> meals;
+    std::vector<Meal> meals;
 };
 
 std::vector<RailPoint> loadRailPoints(JsonArray &data) {
@@ -109,14 +109,14 @@ Config loadStaticConfiguration() {
         Route(2, MOVING_BACKWARD, getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1000))
     };
 
-    // std::vector<MealSequence> sequence1 = {
+    std::vector<MealSequence> sequence1;
     //     MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 500, 600),
     //     MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 300, 600),
     //     MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 300, 600),
     //     MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 500, 600)
     // };
 
-    // std::vector<MealSequence> sequence2 = {
+    std::vector<MealSequence> sequence2;
     //     MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 500, 200),
     //     MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 100, 0),
     //     MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 500, 0),
@@ -126,15 +126,15 @@ Config loadStaticConfiguration() {
     //     MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 500, 200)
     // };
 
-    // std::vector<Meal> meals = {
-    //     Meal(1, "Repas matin - GE", 420, getRouteById(routes, 1), sequence1),
-    //     Meal(2, "Repas matin - PE", 450, getRouteById(routes, 2), sequence2)
-    // };
+    std::vector<Meal> meals = {
+        Meal(1, "Repas matin - GE", 420, routes.at(getRouteIndexById(routes, 1)), sequence1),
+        Meal(2, "Repas matin - PE", 450, routes.at(getRouteIndexById(routes, 2)), )
+    };
 
     Config config = {
         railPoints,
-        routes
-        // meals
+        routes,
+        meals
     };
 
     return config;

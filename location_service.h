@@ -64,9 +64,9 @@ class LocationService {
             // Serial.print("New Point: ");
             // Serial.print(activeRailPointPtr->name);
             // Serial.print(" - ");
-            // Serial.println(activeRailPointPtr->pointId);
+            // Serial.println(activeRailPointPtr->id);
             
-            if (currentRoutePtr != NULL && activeRailPointPtr->pointId == currentRoutePtr->endPoint.pointId) {
+            if (currentRoutePtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPoint.id) {
                 completeRoute();
             }
             

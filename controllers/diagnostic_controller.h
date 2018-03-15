@@ -1,5 +1,6 @@
 #include "./controller.h"
 #include "../diagnostic/diagnostic_service.h"
+#include "../diagnostic/conveyor.h"
 #include "../diagnostic/rail_motor.h"
 #include "../diagnostic/route_mapping.h"
 #include "../display_service.h"
@@ -17,11 +18,15 @@ class StateManager;
 class DiagnosticController: public Controller {
     public:
         DiagnosticController(
-            LocationService &locationServiceRef,
-            RailMotor &railMotorRef
+            LocationService & locationServiceRef,
+            RailMotor & railMotorRef,
+            ConveyorMotor & conveyorFrontRef,
+            ConveyorMotor & conveyorBackRef
         ) : 
             locationService(locationServiceRef),
-            railMotor(railMotorRef)
+            railMotor(railMotorRef),
+            conveyorFront(conveyorFrontRef),
+            conveyorBack(conveyorBackRef)
         {}
 
         void handle() {
@@ -66,6 +71,8 @@ class DiagnosticController: public Controller {
         DiagnosticService *diagnosticPtr = NULL;
         LocationService &locationService;
         RailMotor &railMotor;
+        ConveyorMotor &conveyorFront;
+        ConveyorMotor &conveyorBack;
 
         void showNavMenu() {
              vector<string> menuOptions = {
@@ -88,12 +95,14 @@ class DiagnosticController: public Controller {
                     diagnosticPtr = new RailMotorDiagnosticService(railMotor);
                     showDiagnosticConfirmation();
                     break;
-                // case 3:
-                //     DisplayScreens::diagnosticConveyorMotor();
-                //     break;
-                // case 4:
-                //     DisplayScreens::diagnosticConveyorMotor();
-                //     break;
+                case 3:
+                    diagnosticPtr = new ConveyorDiagnosticService(conveyorFront, "CONVOYEUR AVANT");
+                    showDiagnosticConfirmation();
+                    break;
+                case 4:
+                    diagnosticPtr = new ConveyorDiagnosticService(conveyorBack, "CONVOYEUR ARRIERE");
+                    showDiagnosticConfirmation();
+                    break;
                 case -1:
                     StateManager::getInstance().changeState(MainMenu);
                     break;

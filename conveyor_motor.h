@@ -1,16 +1,14 @@
+#include "constants.h"
+
 #ifndef CONVEYORMOTOR_H
 #define CONVEYORMOTOR_H
-
-const int CONVEYOR_IDLE = 0;
-const int CONVEYOR_SIDE_LEFT = 1;
-const int CONVEYOR_SIDE_RIGHT = 2;
 
 class ConveyorMotor {
     public:
         PinConfig pwm;
         PinConfig reverse;
 
-        int feedingSide = CONVEYOR_IDLE;
+        ConveyorSide feedingSide = CONVEYOR_IDLE;
         int speed = 0;
 
         ConveyorMotor(
@@ -31,7 +29,7 @@ class ConveyorMotor {
             Serial.println("Configuration du convoyeur");
         }
 
-        void start(int side, int motorSpeed) {
+        void start(ConveyorSide side, int motorSpeed) {
             if (side == CONVEYOR_SIDE_LEFT) {
                 digitalWrite(reverse, HIGH);
             } else {

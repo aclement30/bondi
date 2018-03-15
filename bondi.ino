@@ -22,6 +22,7 @@
 #include "controllers/automatic_controller.h"
 #include "controllers/diagnostic_controller.h"
 #include "controllers/main_menu_controller.h"
+#include "controllers/manual_controller.h"
 #include "controllers/off_controller.h"
 #include "conveyor_motor.h"
 // #include "diagnostic/route_mapping.h"
@@ -37,12 +38,11 @@
 // MOTORS
 
 RailMotor mainMotor = RailMotor();
-
-const ConveyorMotor conveyorFront = ConveyorMotor(
+ConveyorMotor conveyorFront = ConveyorMotor(
     CONVEYOR_MOTOR_FRONT_PWM,
     CONVEYOR_MOTOR_FRONT_REVERSE
 );
-const ConveyorMotor conveyorBack = ConveyorMotor(
+ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_PWM,
     CONVEYOR_MOTOR_BACK_REVERSE
 );
@@ -59,7 +59,7 @@ SafetyService safetyService = SafetyService();
 //     conveyorBack
 // );
 
-// MealService mealService = MealService(config.meals, feeder);
+MealService mealService = MealService(conveyorFront, conveyorBack, config.meals, locationService);
 
 Controller *currentControllerPtr = NULL;
 MachineState previousState = Off;
@@ -71,7 +71,7 @@ bool isPowerON() {
 void createController(MachineState currentState) {
     if (currentControllerPtr != NULL) {
         if (previousState == currentState) {
-          Serial.println(" (use existing controller)");
+        //   Serial.println(" (use existing controller)");
           return;
         }
 
@@ -97,10 +97,17 @@ void createController(MachineState currentState) {
             break;
         }
         case Manual: {
+            currentControllerPtr = new ManualController(mealService);
+            // Serial.println(" (new ManualController)");
             break;
         }
         case Diagnostic: {
-            currentControllerPtr = new DiagnosticController(locationService, mainMotor);
+            currentControllerPtr = new DiagnosticController(
+                locationService,
+                mainMotor,
+                conveyorFront,
+                conveyorBack
+            );
             // Serial.println(" (new DiagnosticController)");
             break;
         }

@@ -76,6 +76,13 @@ class DisplayService {
             lcd.print(text.c_str());
         }
 
+        void print(const char *text, int row) {
+            clearLine(row);
+            
+            lcd.setCursor(0, row);
+            lcd.print(text);
+        }
+
         void addBorder(int row = 1) {
             lcd.setCursor(0, row);
             lcd.print(BORDER_LINE);

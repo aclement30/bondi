@@ -46,6 +46,12 @@ enum FeederState {
     FEEDER_SAFETY_STOP
 };
 
+enum ConveyorSide {
+    CONVEYOR_IDLE,
+    CONVEYOR_SIDE_LEFT,
+    CONVEYOR_SIDE_RIGHT
+};
+
 enum LightColor {
     GREEN,
     RED
