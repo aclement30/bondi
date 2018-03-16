@@ -92,7 +92,7 @@ void createController(MachineState currentState) {
             break;
         }
         case Automatic: {
-            currentControllerPtr = new AutomaticController();
+            currentControllerPtr = new AutomaticController(mealService);
             // Serial.println(" (new AutomaticController)");
             break;
         }

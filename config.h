@@ -128,7 +128,7 @@ Config loadStaticConfiguration() {
 
     std::vector<Meal> meals = {
         Meal(1, "Repas matin - GE", 420, routes.at(getRouteIndexById(routes, 1)), sequence1),
-        Meal(2, "Repas matin - PE", 450, routes.at(getRouteIndexById(routes, 2)), )
+        Meal(2, "Repas matin - PE", 450, routes.at(getRouteIndexById(routes, 2)), sequence2)
     };
 
     Config config = {

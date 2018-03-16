@@ -11,40 +11,35 @@ using namespace std;
 class AutomaticController: public Controller {
     public:
         AutomaticController(
-            //MealService &mealServiceRef
-        ) 
-           // mealService(mealServiceRef)
+            MealService & mealServiceRef
+        ) :
+           mealService(mealServiceRef)
         {}
 
         void handle() {
             displayAutomaticModeScreen();
 
-            // mealService.refreshCurrentMeal();
+            if (!mealService.hasCurrentMeal()) {
+                mealService.refreshCurrentMeal();
+            }
 
-            // if (mealService.hasCurrentMeal()) {
-            //     Meal currentMeal = mealService.getCurrentMeal();
+            if (mealService.hasCurrentMeal()) {
+                mealService.distributeMeal();
+            } else {
+                Serial.println("Attente...");
+            }
 
-            //     // TODO: Show meal distribution screen
-
-            //     mealService.distributeMeal(currentMeal);
-            // } else {
-            //     Serial.println("Attente...");
-            //     delay(1000);
-            // }
-
-            delay(2000);
+            delay(5000);
         }
 
     private:
-        // MealService &mealService;
+        MealService &mealService;
 
         void displayAutomaticModeScreen() {
             DisplayService::getInstance().clearScreen();
             DisplayService::getInstance().printTitle("MODE: AUTO");
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("En attente", 2);
-
-            // DisplayScreens::mealDistribution();
         }
 };
 

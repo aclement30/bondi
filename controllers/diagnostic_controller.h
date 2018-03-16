@@ -37,7 +37,7 @@ class DiagnosticController: public Controller {
                 Serial.println("* no diagnostic");
                 delay(250);
 
-                showNavMenu();
+                displayNavMenu();
             } else if (diagnosticPtr->isCompleted()) {    
                 Serial.println("* diagnostic completed");
                 delay(250);
@@ -64,7 +64,7 @@ class DiagnosticController: public Controller {
         }
 
         void completeDiagnostic() {
-            showDiagnosticCompleted();
+            displayCompletionScreen();
         }
 
     private:
@@ -74,7 +74,7 @@ class DiagnosticController: public Controller {
         ConveyorMotor &conveyorFront;
         ConveyorMotor &conveyorBack;
 
-        void showNavMenu() {
+        void displayNavMenu() {
              vector<string> menuOptions = {
                 "Liste routes",
                 "Test mot. rail",
@@ -89,19 +89,19 @@ class DiagnosticController: public Controller {
             switch(selectedOption) {
                 case 1:
                     diagnosticPtr = new RouteMappingDiagnosticService(locationService);
-                    showDiagnosticConfirmation();
+                    displayConfirmationScreen();
                     break;
                 case 2:
                     diagnosticPtr = new RailMotorDiagnosticService(railMotor);
-                    showDiagnosticConfirmation();
+                    displayConfirmationScreen();
                     break;
                 case 3:
                     diagnosticPtr = new ConveyorDiagnosticService(conveyorFront, "CONVOYEUR AVANT");
-                    showDiagnosticConfirmation();
+                    displayConfirmationScreen();
                     break;
                 case 4:
                     diagnosticPtr = new ConveyorDiagnosticService(conveyorBack, "CONVOYEUR ARRIERE");
-                    showDiagnosticConfirmation();
+                    displayConfirmationScreen();
                     break;
                 case -1:
                     StateManager::getInstance().changeState(MainMenu);
@@ -109,7 +109,7 @@ class DiagnosticController: public Controller {
             }
         }
 
-        void showDiagnosticConfirmation() {
+        void displayConfirmationScreen() {
             string diagnosticTitle = diagnosticPtr->getTitle();
 
             DisplayService::getInstance().clearScreen();
@@ -126,7 +126,7 @@ class DiagnosticController: public Controller {
             }
         }
 
-        void showDiagnosticCompleted() {
+        void displayCompletionScreen() {
             string diagnosticTitle = diagnosticPtr->getTitle();
 
             DisplayService::getInstance().clearScreen();

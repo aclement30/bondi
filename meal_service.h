@@ -30,10 +30,6 @@ class MealService {
             locationService(locationServiceRef)
         {}
 
-        Meal getCurrentMeal() {
-            return Meal(* currentMealPtr);
-        }
-
         void refreshCurrentMeal() {
             // Skip if there is already a meal being distributed
             if (hasCurrentMeal()) return;
@@ -72,21 +68,31 @@ class MealService {
             Serial.println(strcat(message, currentMealPtr->name));
         }
 
-        void distributeMeal(Meal meal) {
+        void distributeMeal() {
+            refreshDistributionState();
+            refreshCurrentSequence();
+            
+            // Stop here if meal distribution just complete
+            if (!hasCurrentMeal()) {
+                return;
+            }
+
+            displayMealDistributionScreen(currentMealPtr->name);
+
             // Move feeder in corresponding direction
             if (locationService.isDocked()) {
-                locationService.followRoute(meal.route.id);
+                locationService.followRoute(currentMealPtr->route.id);
             }
 
             if (currentSequencePtr) {
-                MealSequence sequence = MealSequence(* currentSequencePtr);
+                displaySequenceInfo(currentSequencePtr->name, currentSequencePtr->feed1Flow, currentSequencePtr->feed2Flow);
 
                 ConveyorSide feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
-                if (sequence.feed1Flow > 0) {
-                    conveyorFront.start(feedingSide, sequence.feed1Flow);
+                if (currentSequencePtr->feed1Flow > 0) {
+                    conveyorFront.start(feedingSide, currentSequencePtr->feed1Flow);
                 }
-                if (sequence.feed2Flow > 0) {
-                    conveyorBack.start(feedingSide, sequence.feed2Flow);
+                if (currentSequencePtr->feed2Flow > 0) {
+                    conveyorBack.start(feedingSide, currentSequencePtr->feed2Flow);
                 }
             } else {
                 // Make sure all feed conveyors are stopped
@@ -94,44 +100,64 @@ class MealService {
             }
         }
 
-        void didUpdateLocation(RailPoint railPoint) {
+        void refreshCurrentSequence() {
             if (!hasCurrentMeal()) {
                 return;
             }
 
-            Meal currentMeal = getCurrentMeal();
-            currentSequencePtr = currentMeal.getMealSequenceAt(railPoint);
-
-            RailPoint lastPoint = RailPoint(* lastPointPtr);
-            if (railPoint.id == currentMeal.route.endPoint.id && railPoint.id != lastPoint.id) {
-                completeDistribution();
+            // Skip if active rail point hasn't changed
+            if (currentPointId == locationService.activeRailPointPtr->id) {
+                return;
             }
 
-            lastPointPtr = &railPoint;
+            lastPointId = currentPointId;
+            currentPointId = locationService.activeRailPointPtr->id;
+
+            if (currentSequencePtr != NULL) {
+                delete currentSequencePtr;
+                currentSequencePtr = NULL;
+            }
+            
+            // Find corresponding meal sequence for active point
+            int sequenceIndex = currentMealPtr->getMealSequenceIndex(locationService.activeRailPointPtr);
+            if (sequenceIndex != -1) {
+                currentSequencePtr = new MealSequence(currentMealPtr->sequences.at(sequenceIndex));
+            }
+        }
+
+        void refreshDistributionState() {
+            if (!hasCurrentMeal()) {
+                return;
+            }
+
+            if (locationService.activeRailPointPtr->id == currentMealPtr->route.endPoint.id) {
+                completeDistribution();
+            }
         }
 
         void completeDistribution() {
-            Meal currentMeal = getCurrentMeal();
-
             // Only save distribued meal ID if distributedMealIds doesn't already contains it
-            if (!isMealDistributed(currentMeal.id)) {
-                distributedMealIds.push_back(currentMeal.id);
+            if (!isMealDistributed(currentMealPtr->id)) {
+                distributedMealIds.push_back(currentMealPtr->id);
             }
 
             char message[] = "Distribution du repas complétée: ";
-            Serial.println(strcat(message, currentMeal.name));
+            Serial.println(strcat(message, currentMealPtr->name));
 
+            delete currentMealPtr;
             currentMealPtr = NULL;
+
+            delete currentSequencePtr;
             currentSequencePtr = NULL;
         }
 
-            void stopFeeding() {
-                // Shutdown conveyors motor
-                conveyorFront.stop();
-                conveyorBack.stop();
+        void stopFeeding() {
+            // Shutdown conveyors motor
+            conveyorFront.stop();
+            conveyorBack.stop();
 
-                Serial.println("Convoyeurs: arrêt");
-            }
+            Serial.println("Arrêt des convoyeurs");
+        }
 
         bool hasCurrentMeal() {
             return currentMealPtr != NULL;
@@ -149,10 +175,28 @@ class MealService {
         ConveyorMotor conveyorFront;
         ConveyorMotor conveyorBack;
         vector<int> distributedMealIds;
-        RailPoint *lastPointPtr = NULL;
+        int currentPointId = 0;
+        int lastPointId = 0;
 
         bool isMealDistributed(int mealId) {
             return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
+        }
+
+        void displayMealDistributionScreen(const char * mealName) {
+            DisplayService::getInstance().clearScreen();
+            DisplayService::getInstance().printTitle("DISTRIBUTION AUTO.");
+
+            char mealLineText[20] = " Repas: ";
+            DisplayService::getInstance().print(strcat(mealLineText, mealName), 1);            
+        }
+
+        void displaySequenceInfo(const char * name, int feed1Flow, int feed2Flow) {
+            char nameLineText[20] = "Groupe: ";
+            DisplayService::getInstance().print(strcat(nameLineText, name), 2);
+
+            char feedLineText[20];
+            sprintf(feedLineText, " Alim.: %d | %d", feed1Flow, feed2Flow);
+            DisplayService::getInstance().print(feedLineText, 3);
         }
 };
 

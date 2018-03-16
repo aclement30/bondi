@@ -15,11 +15,11 @@ class MainMenuController: public Controller {
         MainMenuController() {}
 
         void handle() {
-            showNavMenu();
+            displayNavMenu();
         }
 
     private:
-        void showNavMenu() {
+        void displayNavMenu() {
             vector<string> menuOptions = {
                 "Mode AUTO.",
                 "Mode MANUEL",

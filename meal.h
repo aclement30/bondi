@@ -10,14 +10,14 @@
 
 class MealSequence {
     public:
-        string name;
+        const char * name;
         RailPoint startPoint;
         RailPoint endPoint;
         int feed1Flow;
         int feed2Flow;
 
         MealSequence(
-            string sequenceName, 
+            const char * sequenceName, 
             RailPoint sequenceStartPoint, 
             RailPoint sequenceEndPoint, 
             int sequenceFeed1Flow, 
@@ -34,34 +34,34 @@ class MealSequence {
 class Meal {
     public:
         int id;
-        const char *name;
+        const char * name;
         int startMoment;
-        int routeId;
+        Route & route;
         std::vector<MealSequence> sequences;
 
         Meal(
             int mealId,
             const char *mealName,
             int mealStartMoment, 
-            int mealRouteId;
+            Route & routeRef,
             std::vector<MealSequence> mealSequences
         ) : 
             id(mealId),
             name(mealName),
             startMoment(mealStartMoment), 
-            routeId(mealRouteId),
+            route(routeRef),
             sequences(mealSequences)
         {}
 
-        MealSequence* getMealSequenceAt(RailPoint currentRailPoint) {
+        int getMealSequenceIndex(RailPoint * railPointPtr) {
             for(int n = 0; n < sequences.size(); n++) {
                 const MealSequence sequence = sequences[n];
-                if (sequence.startPoint.id == currentRailPoint.id) {
-                    return &sequences[n];
+                if (sequence.startPoint.id == railPointPtr->id) {
+                    return n;
                 }
             }
 
-            return NULL;
+            return -1;
         }
 };
 
