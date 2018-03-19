@@ -36,7 +36,11 @@ class ConveyorMotor {
                 digitalWrite(reverse, LOW);
             }
 
-            analogWrite(pwm, motorSpeed);
+            if (motorSpeed > 100) {
+                motorSpeed = 100;
+            }
+
+            analogWrite(pwm, map(motorSpeed, 0, 100, 0, 255));
 
             feedingSide = side;
             speed = motorSpeed;

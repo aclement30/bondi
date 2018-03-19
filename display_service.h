@@ -107,6 +107,16 @@ class DisplayService {
             printCenter(okButtonText + " [F1]", 3);
         }
 
+        void showWarningScreen(vector<string> &message, string okButtonText) {
+            clearScreen();
+            printCenter("ATTENTION", 0);
+            print(message.at(0), 1);
+            if (message.size() > 1) {
+                print(message.at(1), 2);
+            }
+            printCenter(okButtonText + " [F1]", 3);
+        }
+
         static string getCenteredText(string &text) {
             string centeredText;
             centeredText.insert(centeredText.begin(), DisplayService::getLeftPadding(text), ' ');
@@ -121,6 +131,27 @@ class DisplayService {
                 return (padding - 1) / 2;
             }
             return padding / 2;
+        }
+
+        static bool waitForConfirmation() {
+            ApplicationMonitor.DisableWatchdog();
+            Serial.println("Appuyez sur F1 pour continuer...");
+
+            while (!Serial.available()) {}
+
+            ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
+
+            // read the incoming byte:
+            int keyCode = Serial.read();
+
+            if (keyCode == 32) {
+              return true;
+            } else if (keyCode == 47) {
+              Serial.print("ESC");
+              return false;
+            } else {
+                return waitForConfirmation();
+            }
         }
 
     private:

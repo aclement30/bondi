@@ -32,6 +32,20 @@
 |#########**#########|
 
 |####################|
+| 	  ATTENTION 	 |
+|La distribution du  |
+|repas sera annulee !|
+| 	Continuer [F1]	 |
+|#########**#########|
+
+|####################|
+| DISTRIBUTION AUTO. |
+|--------------------|
+| 	 Fin du repas 	 |
+|	  Mat-G.Etb	     |
+|#########**#########|
+
+|####################|
 |    MODE: MANUEL	 |
 |--------------------|
 |[1] Sélection repas |

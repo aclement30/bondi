@@ -28,7 +28,7 @@ class ConveyorDiagnosticService: public DiagnosticService {
                     "en arret complet."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                NavigationMenu::waitForConfirmation();
+                DisplayService::waitForConfirmation();
                 
                 cancelled = true;
                 return;
@@ -48,26 +48,26 @@ class ConveyorDiagnosticService: public DiagnosticService {
                 case 1:
                     delay(1000);
                     displaySide(CONVEYOR_SIDE_LEFT);
-                    displaySpeed(100);
-                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 100);
+                    displaySpeed(25);
+                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 25);
                 break;
                 case 2:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
-                    displaySpeed(200);
-                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 200);
+                    displaySpeed(50);
+                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 50);
                 break;
                 case 3:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
-                    displaySpeed(300);
-                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 300);
+                    displaySpeed(75);
+                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 75);
                 break;
                 case 4:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
-                    displaySpeed(400);
-                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 400);
+                    displaySpeed(100);
+                    conveyorMotor.start(CONVEYOR_SIDE_LEFT, 100);
                 break;
                 case 5:
                     delay(2000);
@@ -77,26 +77,26 @@ class ConveyorDiagnosticService: public DiagnosticService {
                 case 6:
                     delay(1000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
-                    displaySpeed(100);
-                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 100);
+                    displaySpeed(25);
+                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 25);
                 break;
                 case 7:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
-                    displaySpeed(200);
-                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 200);
+                    displaySpeed(50);
+                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 50);
                 break;
                 case 8:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
-                    displaySpeed(300);
-                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 300);
+                    displaySpeed(75);
+                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 75);
                 break;
                 case 9:
                     delay(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
-                    displaySpeed(400);
-                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 400);
+                    displaySpeed(100);
+                    conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 100);
                 break;
                 case 10:
                     delay(2000);
@@ -108,6 +108,11 @@ class ConveyorDiagnosticService: public DiagnosticService {
                     currentStep = 0;
                     break;
             }
+        }
+
+        void abortDiagnostic() {
+            conveyorMotor.stop();
+            displaySide(CONVEYOR_IDLE);
         }
 
         string getTitle() {
@@ -128,7 +133,7 @@ class ConveyorDiagnosticService: public DiagnosticService {
 
         void displaySpeed(int speed) {
             char speedText[20];
-            sprintf(speedText, "%d rpm", speed);
+            sprintf(speedText, "%d %%", speed);
             DisplayService::getInstance().printCenter(string(speedText), 3);
         }
 

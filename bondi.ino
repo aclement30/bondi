@@ -13,7 +13,11 @@
 #else
 #include <SD.h>
 #include <ArduinoSTL.h>
+//#include <avr/wdt.h>
+#include "ApplicationMonitor.h"
 #endif
+
+Watchdog::CApplicationMonitor ApplicationMonitor;
 
 #include "config.h"
 #include "constants.h"
@@ -21,8 +25,11 @@
 #include "controllers/controller.h"
 #include "controllers/automatic_controller.h"
 #include "controllers/diagnostic_controller.h"
+#include "controllers/history_controller.h"
 #include "controllers/main_menu_controller.h"
-#include "controllers/manual_controller.h"
+#include "controllers/manual_control_controller.h"
+#include "controllers/manual_meal_distribution_controller.h"
+#include "controllers/manual_menu_controller.h"
 #include "controllers/off_controller.h"
 #include "conveyor_motor.h"
 // #include "diagnostic/route_mapping.h"
@@ -63,6 +70,7 @@ MealService mealService = MealService(conveyorFront, conveyorBack, config.meals,
 
 Controller *currentControllerPtr = NULL;
 MachineState previousState = Off;
+bool escKeyPressed = false;
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
@@ -96,9 +104,24 @@ void createController(MachineState currentState) {
             // Serial.println(" (new AutomaticController)");
             break;
         }
-        case Manual: {
-            currentControllerPtr = new ManualController(mealService);
-            // Serial.println(" (new ManualController)");
+        case ManualMenu: {
+            currentControllerPtr = new ManualMenuController();
+            // Serial.println(" (new ManualMenuController)");
+            break;
+        }
+        case ManualMealDistribution: {
+            currentControllerPtr = new ManualMealDistributionController(mealService);
+            // Serial.println(" (new ManualControlController)");
+            break;
+        }
+        case ManualControl: {
+            currentControllerPtr = new ManualControlController(mealService);
+            // Serial.println(" (new ManualControlController)");
+            break;
+        }
+        case History: {
+            currentControllerPtr = new HistoryController(mealService);
+            // Serial.println(" (new HistoryController)");
             break;
         }
         case Diagnostic: {
@@ -122,7 +145,11 @@ void displayStartupScreen() {
 void setup() {
     Serial.begin(9600);   // open serial over USB
     Serial.println("Démarrage en cours");
-    
+
+    //wdt_enable(WDTO_1S);
+    ApplicationMonitor.Dump(Serial);
+    ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
+  
     displayStartupScreen();
 
     for (int n = 0; n < INPUTS_COUNT; n++) {
@@ -147,8 +174,10 @@ void setup() {
 }
 
 void loop() {
-    delay(250);
-    
+    //delay(250);
+    //wdt_reset();
+    ApplicationMonitor.IAmAlive();
+  
     Serial.println("* loop");
     
     // Stop right here if power is OFF
@@ -158,22 +187,42 @@ void loop() {
     }
     
     // Serial.println("* check safety");
-    // safetyService.checkSafetyState();
+    safetyService.checkSafetyState();
     
     Serial.println("* refresh point");
     locationService.refreshActivePoint();
     
     // Serial.println("* main motor");
-    // mainMotor.loop();
+    mainMotor.loop();
     
     // Serial.print("* create controller");
     createController(StateManager::getInstance().getState());
     
-    // Serial.println("* handle");
+    Serial.println("* handle");
 
-    // delay(250);
+    delay(250);
 
-    currentControllerPtr->handle();
+    if (escKeyPressed) {
+        // Stop motor
+        mainMotor.stop();
+
+        currentControllerPtr->escape();
+        
+        escKeyPressed = false;
+    } else {
+        currentControllerPtr->handle();
+    }
+}
+
+void serialEvent() {
+    while (Serial.available()) {
+        int keyCode = Serial.read();
+
+        if (keyCode == 47) {
+            Serial.print("ESC");
+            escKeyPressed = true;
+        }
+    }
 }
 
 #ifdef __EMSCRIPTEN__

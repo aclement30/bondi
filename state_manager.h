@@ -40,8 +40,16 @@ class StateManager {
                     Serial.println("MODE: AUTO");
                     break;
                 }
-                case Manual: {
+                case ManualMenu: {
                     Serial.println("MODE: MANUEL");
+                    break;
+                }
+                case ManualMealDistribution: {
+                    Serial.println("DISTRIBUTION MANUELLE");
+                    break;
+                }
+                case ManualControl: {
+                    Serial.println("CONTROLE MANUEL");
                     break;
                 }
                 case Diagnostic: {

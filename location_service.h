@@ -60,12 +60,7 @@ class LocationService {
             activeRailPointPtr = new RailPoint(railPoints.at(pointIndex));
 
             lastRfidUid = uid;
-            
-            // Serial.print("New Point: ");
-            // Serial.print(activeRailPointPtr->name);
-            // Serial.print(" - ");
-            // Serial.println(activeRailPointPtr->id);
-            
+
             if (currentRoutePtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPoint.id) {
                 completeRoute();
             }
@@ -75,12 +70,21 @@ class LocationService {
         }
 
         void followRoute(int routeId) {
+            Serial.println("* clear existing route");
+            delay(250);
+
             if (currentRoutePtr != NULL) {
                 completeRoute();
             }
             
+            Serial.println("* find selected route");
+            delay(250);
+            
             currentRoutePtr = new Route(routes.at(getRouteIndexById(routes, routeId)));
-
+            
+            Serial.println("* change moving direction");
+            delay(250);
+            
             if (isDocked()) {
                 if (currentRoutePtr->initialDirection == MOVING_FORWARD) {
                     StateManager::getInstance().changeMovingDirection(MOVING_FORWARD);
@@ -92,6 +96,10 @@ class LocationService {
             }
         }
 
+        void unfollowRoute() {
+            completeRoute();
+        }
+        
         bool isFollowingRoute() {
             return currentRoutePtr != NULL;
         }
@@ -104,7 +112,6 @@ class LocationService {
     private:
         RFID rfid;
         string lastRfidUid = "";
-        // vector <class LocationAware *> observers;
 
         string readRfidPoint() {
             Serial.println("* detecting RFID point");
@@ -136,6 +143,8 @@ class LocationService {
                 delete currentRoutePtr;
                 currentRoutePtr = NULL;
             }
+
+            Serial.println("* complete route");
 
             StateManager::getInstance().stop();
         }

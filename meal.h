@@ -37,11 +37,12 @@ class Meal {
         const char * name;
         int startMoment;
         Route & route;
+        int routeId;
         std::vector<MealSequence> sequences;
 
         Meal(
             int mealId,
-            const char *mealName,
+            const char * mealName,
             int mealStartMoment, 
             Route & routeRef,
             std::vector<MealSequence> mealSequences
@@ -50,6 +51,7 @@ class Meal {
             name(mealName),
             startMoment(mealStartMoment), 
             route(routeRef),
+            routeId(routeRef.id),
             sequences(mealSequences)
         {}
 

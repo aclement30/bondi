@@ -13,14 +13,15 @@ enum PinConfig {
     // OUTPUTS
     GREEN_LIGHT = 22,
     RED_LIGHT = 24,
+    GREEN_BACKWARD_LIGHT = 26,
 
     // RAIL MOTOR
     MAIN_MOTOR_OUT1 = A9,
     MAIN_MOTOR_OUT2 = A10,
 
     // CONVEYOR MOTORS
-    CONVEYOR_MOTOR_FRONT_PWM = A11,
-    CONVEYOR_MOTOR_FRONT_REVERSE = A12,
+    CONVEYOR_MOTOR_FRONT_PWM = 3,
+    CONVEYOR_MOTOR_FRONT_REVERSE = 46,
     CONVEYOR_MOTOR_BACK_PWM = A13,
     CONVEYOR_MOTOR_BACK_REVERSE = A12,
 };
@@ -29,7 +30,10 @@ enum MachineState {
     Off,
     MainMenu,
     Automatic,
-    Manual,
+    ManualMenu,
+    ManualMealDistribution,
+    ManualControl,
+    History,
     Diagnostic
 };
 
@@ -54,7 +58,8 @@ enum ConveyorSide {
 
 enum LightColor {
     GREEN,
-    RED
+    RED,
+    GREEN_BACKWARD
 };
 
 const PinConfig INPUTS[1] = {

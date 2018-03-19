@@ -9,6 +9,7 @@ class DiagnosticService {
 
         virtual void startDiagnostic() = 0;
         virtual void continueDiagnostic() = 0;
+        virtual void abortDiagnostic() = 0;
         virtual string getTitle() = 0;
 
         bool isCompleted() {

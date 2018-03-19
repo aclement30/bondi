@@ -27,7 +27,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                     "positionne au dock."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                NavigationMenu::waitForConfirmation();
+                DisplayService::waitForConfirmation();
                 
                 cancelled = true;
                 return;
@@ -61,6 +61,10 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                 completed = true;
                 currentRouteIndex = 0;
             }
+        }
+
+        void abortDiagnostic() {
+            locationService.unfollowRoute();
         }
 
         string getTitle() {

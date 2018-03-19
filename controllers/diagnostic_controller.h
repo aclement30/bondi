@@ -56,6 +56,19 @@ class DiagnosticController: public Controller {
             }
         }
 
+        void escape() {
+            if (diagnosticPtr == NULL) {
+                // Immediately go back to main menu
+                StateManager::getInstance().changeState(MainMenu);
+                return;
+            }
+            
+            diagnosticPtr->abortDiagnostic();
+            stopDiagnostic();
+
+            // Will return to diagnostic menu on next loop
+        }
+
         void stopDiagnostic() {
             Serial.println("* clear diagnostic service");
 
@@ -82,8 +95,10 @@ class DiagnosticController: public Controller {
                 "Test conv. arr"
             };
 
-            NavigationMenu menu = NavigationMenu("DIAGNOSTIC", menuOptions);
+            NavigationMenu menu;
+            menu.build("DIAGNOSTIC", menuOptions);
             menu.show();
+            
             int selectedOption = menu.waitForSelection();
 
             switch(selectedOption) {
@@ -117,7 +132,7 @@ class DiagnosticController: public Controller {
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("Commencer [F1]", 2);
 
-            bool canStart = NavigationMenu::waitForConfirmation();
+            bool canStart = DisplayService::waitForConfirmation();
 
             if (canStart) {
                 diagnosticPtr->startDiagnostic();
@@ -135,7 +150,7 @@ class DiagnosticController: public Controller {
             DisplayService::getInstance().printCenter("Recommencer [F1]", 2);
             DisplayService::getInstance().printCenter("Quitter [F4]", 3);
 
-            bool restart = NavigationMenu::waitForConfirmation();
+            bool restart = DisplayService::waitForConfirmation();
 
             if (restart) {
                 diagnosticPtr->startDiagnostic();

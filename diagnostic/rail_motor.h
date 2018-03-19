@@ -26,7 +26,7 @@ class RailMotorDiagnosticService: public DiagnosticService {
                     "en arret complet."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                NavigationMenu::waitForConfirmation();
+                DisplayService::waitForConfirmation();
                 
                 cancelled = true;
                 return;
@@ -67,6 +67,11 @@ class RailMotorDiagnosticService: public DiagnosticService {
                     currentStep = 0;
                     break;
             }
+        }
+
+        void abortDiagnostic() {
+            railMotor.stop();
+            displayDirection(MOVING_IDLE);
         }
 
         string getTitle() {

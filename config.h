@@ -109,26 +109,33 @@ Config loadStaticConfiguration() {
         Route(2, MOVING_BACKWARD, getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1000))
     };
 
-    std::vector<MealSequence> sequence1;
-    //     MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 500, 600),
-    //     MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 300, 600),
-    //     MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 300, 600),
-    //     MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 500, 600)
+    std::vector<MealSequence> sequence1 = {
+        MealSequence("G1", getRailPointById(railPoints, 1000), getRailPointById(railPoints, 2), 25, 50),
+        MealSequence("G2", getRailPointById(railPoints, 2), getRailPointById(railPoints, 1000), 50, 75)
+    };
+
+    //     MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 25, 25),
+    //     MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 50, 50),
+    //     MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 50, 50),
+    //     MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 100, 75)
     // };
 
-    std::vector<MealSequence> sequence2;
-    //     MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 500, 200),
-    //     MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 100, 0),
-    //     MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 500, 0),
-    //     MealSequence("P4", getRailPointById(railPoints, 101), getRailPointById(railPoints, 8), 100, 0),
-    //     MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 200, 300),
-    //     MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 500, 300),
-    //     MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 500, 200)
+    std::vector<MealSequence> sequence2 = {
+        MealSequence("P1", getRailPointById(railPoints, 1000), getRailPointById(railPoints, 1), 50, 25),
+        MealSequence("P2", getRailPointById(railPoints, 1), getRailPointById(railPoints, 1000), 25, 0),
+    };
+    //     MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 50, 25),
+    //     MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 25, 0),
+    //     MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 50, 0),
+    //     MealSequence("P4", getRailPointById(railPoints, 101), getRailPointById(railPoints, 8), 25, 0),
+    //     MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 75, 75),
+    //     MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 75, 75),
+    //     MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 50, 25)
     // };
 
     std::vector<Meal> meals = {
-        Meal(1, "Repas matin - GE", 420, routes.at(getRouteIndexById(routes, 1)), sequence1),
-        Meal(2, "Repas matin - PE", 450, routes.at(getRouteIndexById(routes, 2)), sequence2)
+        Meal(1, "Matin Gd.E", 420, routes.at(getRouteIndexById(routes, 1)), sequence1),
+        Meal(2, "Matin Pt.E", 450, routes.at(getRouteIndexById(routes, 2)), sequence2)
     };
 
     Config config = {

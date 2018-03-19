@@ -6,9 +6,8 @@
 // Empty controller, only used by the StateManager
 class OffController: public Controller {
     public:
-        OffController() {}
-
         void handle() {}
+        void escape() {}
 };
 
 #endif

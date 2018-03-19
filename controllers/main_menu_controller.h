@@ -12,11 +12,12 @@ class StateManager;
 
 class MainMenuController: public Controller {
     public:
-        MainMenuController() {}
-
         void handle() {
             displayNavMenu();
         }
+
+        // Do nothing
+        void escape() {}
 
     private:
         void displayNavMenu() {
@@ -28,7 +29,9 @@ class MainMenuController: public Controller {
                 "Redemarrage"
             };
 
-            NavigationMenu menu = NavigationMenu("MENU PRINCIPAL", menuOptions, "");
+            NavigationMenu menu;
+            menu.escapable = false;
+            menu.build("MENU PRINCIPAL", menuOptions);
             menu.show();
             int selectedOption = menu.waitForSelection();
 
@@ -37,10 +40,10 @@ class MainMenuController: public Controller {
                     StateManager::getInstance().changeState(Automatic);
                     break;
                 case 2:
-                    StateManager::getInstance().changeState(Manual);
+                    StateManager::getInstance().changeState(ManualMenu);
                     break;
                 case 3:
-                    // TODO: Switch for History mode
+                    StateManager::getInstance().changeState(History);
                     break;
                 case 4:
                     StateManager::getInstance().changeState(Diagnostic);

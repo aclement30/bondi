@@ -42,15 +42,10 @@ class MealService {
                 return meal.startMoment > minMoment && meal.startMoment <= maxMoment && !isMealDistributed(meal.id);
             });
 
-            if (iterator != meals.end()) {
-                currentMealPtr = new Meal(meals.at(iterator - meals.begin()));
-
-                char message[] = "Repas en cours: ";
-                Serial.println(strcat(message, currentMealPtr->name));
-            }
+            selectMeal(iterator->id);
         }
     
-        // Manually select a meal to distribute (ignore already distributed meals)
+        // Select a meal to distribute (ignore already distributed meals)
         void selectMeal(int mealId) {
             int mealIndex = getMealIndexById(meals, mealId);
             if (mealIndex == -1) {
@@ -63,29 +58,37 @@ class MealService {
             }
 
             currentMealPtr = new Meal(meals.at(mealIndex));
-            
-            char message[] = "Repas sélectionné: ";
-            Serial.println(strcat(message, currentMealPtr->name));
+            sequencesCount = 0;
+            displayMealDistributionScreen(currentMealPtr->name);
+
+            // char message[] = "Repas sélectionné: ";
+            // Serial.println(strcat(message, currentMealPtr->name));
         }
 
         void distributeMeal() {
-            refreshDistributionState();
             refreshCurrentSequence();
-            
+
             // Stop here if meal distribution just complete
             if (!hasCurrentMeal()) {
                 return;
             }
 
-            displayMealDistributionScreen(currentMealPtr->name);
-
             // Move feeder in corresponding direction
             if (locationService.isDocked()) {
-                locationService.followRoute(currentMealPtr->route.id);
+                locationService.followRoute(currentMealPtr->routeId);
             }
 
+            Serial.println("* distributeMeal | sequence");
+            delay(250);
+
             if (currentSequencePtr) {
+                Serial.println("* display sequence info");
+                delay(250);
+
                 displaySequenceInfo(currentSequencePtr->name, currentSequencePtr->feed1Flow, currentSequencePtr->feed2Flow);
+
+                Serial.println("* start conveyor");
+                delay(250);
 
                 ConveyorSide feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
                 if (currentSequencePtr->feed1Flow > 0) {
@@ -95,6 +98,9 @@ class MealService {
                     conveyorBack.start(feedingSide, currentSequencePtr->feed2Flow);
                 }
             } else {
+                Serial.println("* stop feeding");
+                delay(250);
+
                 // Make sure all feed conveyors are stopped
                 stopFeeding();
             }
@@ -117,6 +123,14 @@ class MealService {
                 delete currentSequencePtr;
                 currentSequencePtr = NULL;
             }
+
+            sequencesCount++;
+
+            // All sequences have been done, complete distribution
+            if (sequencesCount > currentMealPtr->sequences.size()) {
+                completeDistribution();
+                return;
+            }
             
             // Find corresponding meal sequence for active point
             int sequenceIndex = currentMealPtr->getMealSequenceIndex(locationService.activeRailPointPtr);
@@ -124,18 +138,11 @@ class MealService {
                 currentSequencePtr = new MealSequence(currentMealPtr->sequences.at(sequenceIndex));
             }
         }
-
-        void refreshDistributionState() {
-            if (!hasCurrentMeal()) {
-                return;
-            }
-
-            if (locationService.activeRailPointPtr->id == currentMealPtr->route.endPoint.id) {
-                completeDistribution();
-            }
-        }
-
+        
         void completeDistribution() {
+            // Make sure all feed conveyors are stopped
+            stopFeeding();
+
             // Only save distribued meal ID if distributedMealIds doesn't already contains it
             if (!isMealDistributed(currentMealPtr->id)) {
                 distributedMealIds.push_back(currentMealPtr->id);
@@ -144,11 +151,31 @@ class MealService {
             char message[] = "Distribution du repas complétée: ";
             Serial.println(strcat(message, currentMealPtr->name));
 
+            displayMealCompletionScreen(currentMealPtr->name);
+            delay(3000);
+
             delete currentMealPtr;
             currentMealPtr = NULL;
 
             delete currentSequencePtr;
             currentSequencePtr = NULL;
+
+            lastPointId = 0;
+            sequencesCount = 0;
+        }
+
+        void abortDistribution() {
+            stopFeeding();
+            locationService.unfollowRoute();
+            
+            delete currentMealPtr;
+            currentMealPtr = NULL;
+
+            delete currentSequencePtr;
+            currentSequencePtr = NULL;
+
+            lastPointId = 0;
+            sequencesCount = 0;
         }
 
         void stopFeeding() {
@@ -170,6 +197,10 @@ class MealService {
             Serial.println("Réinitialisation des repas distribués");
         }
 
+        bool isMealDistributed(int mealId) {
+            return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
+        }
+
     private:
         LocationService &locationService;
         ConveyorMotor conveyorFront;
@@ -177,17 +208,30 @@ class MealService {
         vector<int> distributedMealIds;
         int currentPointId = 0;
         int lastPointId = 0;
-
-        bool isMealDistributed(int mealId) {
-            return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
-        }
+        int sequencesCount = 0;
 
         void displayMealDistributionScreen(const char * mealName) {
             DisplayService::getInstance().clearScreen();
-            DisplayService::getInstance().printTitle("DISTRIBUTION AUTO.");
+            
+            MachineState currentState = StateManager::getInstance().getState();
+            if (currentState == Automatic) {
+                DisplayService::getInstance().printTitle("DISTRIBUTION AUTO.");
+            } else {
+                DisplayService::getInstance().printTitle("DISTRIBUTION REPAS");
+            }
 
             char mealLineText[20] = " Repas: ";
             DisplayService::getInstance().print(strcat(mealLineText, mealName), 1);            
+        }
+
+        void displayMealCompletionScreen(const char * mealName) {
+            DisplayService::getInstance().clearScreen();
+            
+            DisplayService::getInstance().printTitle("FIN DISTRIBUTION");
+            DisplayService::getInstance().addBorder();
+
+            char mealLineText[20] = "Repas: ";
+            DisplayService::getInstance().printCenter(strcat(mealLineText, mealName), 2);            
         }
 
         void displaySequenceInfo(const char * name, int feed1Flow, int feed2Flow) {
