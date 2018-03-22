@@ -2,5 +2,6 @@
     "board": "arduino:avr:mega",
     "sketch": "bondi.ino",
     "port": "/dev/cu.usbmodem1411",
-    "configuration": "cpu=atmega2560"
+    "configuration": "cpu=atmega2560",
+    "output": "../ArduinoOutput"
 }

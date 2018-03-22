@@ -1,4 +1,5 @@
 #include "conveyor_motor.h"
+#include "keypad_service.h"
 #include "location_service.h"
 #include "meal.h"
 #include "route.h"
@@ -152,7 +153,7 @@ class MealService {
             Serial.println(strcat(message, currentMealPtr->name));
 
             displayMealCompletionScreen(currentMealPtr->name);
-            delay(3000);
+            KeypadService::getInstance().waitForActivity(3000);
 
             delete currentMealPtr;
             currentMealPtr = NULL;

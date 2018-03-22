@@ -37,7 +37,7 @@ class ManualControlController: public Controller {
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("En attente", 2);
 
-            delay(2000);
+            KeypadService::getInstance().waitForActivity(5000);
         }
 };
 

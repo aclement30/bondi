@@ -1,6 +1,7 @@
 #include "diagnostic_service.h"
 #include "../conveyor_motor.h"
 #include "../display_service.h"
+#include "../keypad_service.h"
 #include "../navigation_menu.h"
 
 #ifndef DIAGNOSTIC_CONVEYOR_H
@@ -28,7 +29,7 @@ class ConveyorDiagnosticService: public DiagnosticService {
                     "en arret complet."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                DisplayService::waitForConfirmation();
+                KeypadService::getInstance().waitForConfirmation();
                 
                 cancelled = true;
                 return;
@@ -46,60 +47,60 @@ class ConveyorDiagnosticService: public DiagnosticService {
 
             switch(currentStep) {
                 case 1:
-                    delay(1000);
+                    KeypadService::getInstance().waitForActivity(1000);
                     displaySide(CONVEYOR_SIDE_LEFT);
                     displaySpeed(25);
                     conveyorMotor.start(CONVEYOR_SIDE_LEFT, 25);
                 break;
                 case 2:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
                     displaySpeed(50);
                     conveyorMotor.start(CONVEYOR_SIDE_LEFT, 50);
                 break;
                 case 3:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
                     displaySpeed(75);
                     conveyorMotor.start(CONVEYOR_SIDE_LEFT, 75);
                 break;
                 case 4:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_LEFT);
                     displaySpeed(100);
                     conveyorMotor.start(CONVEYOR_SIDE_LEFT, 100);
                 break;
                 case 5:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_IDLE);
                     conveyorMotor.stop();
                 break;
                 case 6:
-                    delay(1000);
+                    KeypadService::getInstance().waitForActivity(1000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
                     displaySpeed(25);
                     conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 25);
                 break;
                 case 7:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
                     displaySpeed(50);
                     conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 50);
                 break;
                 case 8:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
                     displaySpeed(75);
                     conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 75);
                 break;
                 case 9:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_SIDE_RIGHT);
                     displaySpeed(100);
                     conveyorMotor.start(CONVEYOR_SIDE_RIGHT, 100);
                 break;
                 case 10:
-                    delay(2000);
+                    KeypadService::getInstance().waitForActivity(2000);
                     displaySide(CONVEYOR_IDLE);
                     conveyorMotor.stop();
                 break;

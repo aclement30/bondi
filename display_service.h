@@ -133,26 +133,26 @@ class DisplayService {
             return padding / 2;
         }
 
-        static bool waitForConfirmation() {
-            ApplicationMonitor.DisableWatchdog();
-            Serial.println("Appuyez sur F1 pour continuer...");
+        // static bool waitForConfirmation() {
+        //     ApplicationMonitor.DisableWatchdog();
+        //     Serial.println("Appuyez sur F1 pour continuer...");
 
-            while (!Serial.available()) {}
+        //     while (!Serial.available()) {}
 
-            ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
+        //     ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
 
-            // read the incoming byte:
-            int keyCode = Serial.read();
+        //     // read the incoming byte:
+        //     int keyCode = Serial.read();
 
-            if (keyCode == 32) {
-              return true;
-            } else if (keyCode == 47) {
-              Serial.print("ESC");
-              return false;
-            } else {
-                return waitForConfirmation();
-            }
-        }
+        //     if (keyCode == 32) {
+        //       return true;
+        //     } else if (keyCode == 47) {
+        //       Serial.print("ESC");
+        //       return false;
+        //     } else {
+        //         return waitForConfirmation();
+        //     }
+        // }
 
     private:
         DisplayService() :

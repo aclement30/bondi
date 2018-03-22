@@ -3,6 +3,7 @@
 #endif
 
 #include "display_service.h"
+#include "keypad_service.h"
 
 #ifndef LISTMENU_H
 #define LISTMENU_H
@@ -88,35 +89,27 @@ class ListMenu {
         }
 
         int waitForSelection() {
-            ApplicationMonitor.DisableWatchdog();
-            Serial.println("<<<");
+            int keyPressed = KeypadService::getInstance().waitForSelection();
 
-            while (!Serial.available()) {}
-
-            ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
-            
-            // read the incoming byte:
-            int keyCode = Serial.read();
-
-            int minOption = 49;
+            int minOption = 1;
             int maxOption = minOption + itemsCount;
             
             // Accepted keys:
-            // 49-57: #1-9
-            // 43: + (next)
-            // 45: - (prev)
-            // 47: / (ESC)
-
-            if (keyCode == 43) {
+            // 1-9
+            // A: (prev)
+            // B: (next)
+            // *: (ESC)
+            
+            if (keyPressed == KeypadService::ArrowDownKey) {
               nextScreen();
               return waitForSelection();
-            } else if (keyCode == 45) {
+            } else if (keyPressed == KeypadService::ArrowUpKey) {
               previousScreen();
               return waitForSelection();
-            } else if (escapable && keyCode == 47) {
+            } else if (escapable && keyPressed == KeypadService::EscapeKey) {
               return -1;
-            } else if (keyCode >= minOption && keyCode <= maxOption) {
-              return keyCode - 48;
+            } else if (keyPressed >= minOption && keyPressed <= maxOption) {
+              return keyPressed;
             } else {
               show();
               return waitForSelection();

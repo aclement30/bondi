@@ -132,7 +132,7 @@ class DiagnosticController: public Controller {
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("Commencer [F1]", 2);
 
-            bool canStart = DisplayService::waitForConfirmation();
+            bool canStart = KeypadService::getInstance().waitForConfirmation();
 
             if (canStart) {
                 diagnosticPtr->startDiagnostic();
@@ -150,7 +150,7 @@ class DiagnosticController: public Controller {
             DisplayService::getInstance().printCenter("Recommencer [F1]", 2);
             DisplayService::getInstance().printCenter("Quitter [F4]", 3);
 
-            bool restart = DisplayService::waitForConfirmation();
+            bool restart = KeypadService::getInstance().waitForConfirmation();
 
             if (restart) {
                 diagnosticPtr->startDiagnostic();

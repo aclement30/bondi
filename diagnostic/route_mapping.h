@@ -27,7 +27,7 @@ class RouteMappingDiagnosticService: public DiagnosticService {
                     "positionne au dock."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                DisplayService::waitForConfirmation();
+                KeypadService::getInstance().waitForConfirmation();
                 
                 cancelled = true;
                 return;

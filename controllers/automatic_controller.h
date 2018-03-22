@@ -1,5 +1,6 @@
 #include "./controller.h"
 #include "../display_service.h"
+#include "../keypad_service.h"
 #include "../meal_service.h"
 #include "../navigation_menu.h"
 #include "../state_manager.h"
@@ -30,7 +31,7 @@ class AutomaticController: public Controller {
                 Serial.println("Attente...");
             }
 
-            delay(5000);
+            KeypadService::getInstance().waitForActivity(5000);
         }
 
         void escape() {
@@ -69,7 +70,7 @@ class AutomaticController: public Controller {
             };
             
             DisplayService::getInstance().showWarningScreen(errorMessage, "Continuer");
-            return DisplayService::waitForConfirmation();
+            return KeypadService::getInstance().waitForConfirmation();
         }
 };
 

@@ -79,7 +79,7 @@ class ManualMealDistributionController: public Controller {
             };
             
             DisplayService::getInstance().showWarningScreen(errorMessage, "Continuer");
-            return DisplayService::waitForConfirmation();
+            return KeypadService::getInstance().waitForConfirmation();
         }
 };
 

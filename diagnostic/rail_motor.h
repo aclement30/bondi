@@ -1,5 +1,6 @@
 #include "diagnostic_service.h"
 #include "../display_service.h"
+#include "../keypad_service.h"
 #include "../navigation_menu.h"
 #include "../rail_motor.h"
 
@@ -26,7 +27,7 @@ class RailMotorDiagnosticService: public DiagnosticService {
                     "en arret complet."
                 };
                 DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
-                DisplayService::waitForConfirmation();
+                KeypadService::getInstance().waitForConfirmation();
                 
                 cancelled = true;
                 return;
@@ -43,22 +44,22 @@ class RailMotorDiagnosticService: public DiagnosticService {
 
             switch(currentStep) {
                 case 1:
-                    delay(1000);
+                    KeypadService::getInstance().waitForActivity(1000);
                     displayDirection(MOVING_FORWARD);
                     railMotor.moveForward();
                 break;
                 case 2:
-                    delay(4000);
+                    KeypadService::getInstance().waitForActivity(4000);
                     displayDirection(MOVING_IDLE);
                     railMotor.stop();
                 break;
                 case 3:
-                    delay(1000);
+                    KeypadService::getInstance().waitForActivity(1000);
                     displayDirection(MOVING_BACKWARD);
                     railMotor.moveBackward();
                 break;
                 case 4:
-                    delay(4000);
+                    KeypadService::getInstance().waitForActivity(4000);
                     displayDirection(MOVING_IDLE);
                     railMotor.stop();
                 break;

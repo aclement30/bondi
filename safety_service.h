@@ -34,7 +34,7 @@ class SafetyService {
             DisplayService::getInstance().addBorder();
             DisplayService::getInstance().printCenter("Continuer [F1]", 2);
 
-            bool canContinue = DisplayService::waitForConfirmation();
+            bool canContinue = KeypadService::getInstance().waitForConfirmation();
 
             if (canContinue) {
                 return;
