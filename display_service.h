@@ -1,11 +1,9 @@
-#ifndef __EMSCRIPTEN__
 #include <ArduinoSTL.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-#endif
 
-#ifndef DISPLAYSERVICE_H
-#define DISPLAYSERVICE_H
+#ifndef DISPLAY_SERVICE_H
+#define DISPLAY_SERVICE_H
 
 const char BORDER_LINE[21] = "--------------------";
 
@@ -60,113 +58,20 @@ class DisplayService {
             return instance;
         }
 
-        void printTitle(string title) {
-            printCenter(title, 0);
-        }
-
-        void printCenter(string text, int row) {
-            string centeredText = getCenteredText(text);
-            print(centeredText, row);
-        }
-
-        void print(string text, int row) {
-            clearLine(row);
-            
-            lcd.setCursor(0, row);
-            lcd.print(text.c_str());
-        }
-
-        void print(const char *text, int row) {
-            clearLine(row);
-            
-            lcd.setCursor(0, row);
-            lcd.print(text);
-        }
-
-        void addBorder(int row = 1) {
-            lcd.setCursor(0, row);
-            lcd.print(BORDER_LINE);
-        }
-
-        void addScrollArrow(int row, ArrowType type) {
-            lcd.setCursor(19, row);
-            lcd.print(type == ARROW_UP ? char(0) : char(1));
-        }
-        
-        void clearScreen() {
-            lcd.clear();
-        }
-
-        void showErrorScreen(vector<string> &message, string okButtonText) {
-            clearScreen();
-            printCenter("ERREUR", 0);
-            print(message.at(0), 1);
-            if (message.size() > 1) {
-                print(message.at(1), 2);
-            }
-            printCenter(okButtonText + " [F1]", 3);
-        }
-
-        void showWarningScreen(vector<string> &message, string okButtonText) {
-            clearScreen();
-            printCenter("ATTENTION", 0);
-            print(message.at(0), 1);
-            if (message.size() > 1) {
-                print(message.at(1), 2);
-            }
-            printCenter(okButtonText + " [F1]", 3);
-        }
-
-        static string getCenteredText(string &text) {
-            string centeredText;
-            centeredText.insert(centeredText.begin(), DisplayService::getLeftPadding(text), ' ');
-            centeredText.append(text);
-            return centeredText;
-        }
-
-        static int getLeftPadding(string text) {
-            int length = text.length();
-            int padding = 20 - length;
-            if (padding % 2 != 0) {
-                return (padding - 1) / 2;
-            }
-            return padding / 2;
-        }
-
-        // static bool waitForConfirmation() {
-        //     ApplicationMonitor.DisableWatchdog();
-        //     Serial.println("Appuyez sur F1 pour continuer...");
-
-        //     while (!Serial.available()) {}
-
-        //     ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_4s);
-
-        //     // read the incoming byte:
-        //     int keyCode = Serial.read();
-
-        //     if (keyCode == 32) {
-        //       return true;
-        //     } else if (keyCode == 47) {
-        //       Serial.print("ESC");
-        //       return false;
-        //     } else {
-        //         return waitForConfirmation();
-        //     }
-        // }
+        void printTitle(string title);
+        void printCenter(string text, int row);
+        void print(string text, int row);
+        void print(const char *text, int row);
+        void addBorder(int row = 1);
+        void addScrollArrow(int row, ArrowType type);
+        void clearScreen();
+        void showErrorScreen(vector<string> &message, string okButtonText);
+        void showWarningScreen(vector<string> &message, string okButtonText);
+        static string getCenteredText(string &text);
+        static int getLeftPadding(string text);
 
     private:
-        DisplayService() :
-            lcd(LiquidCrystal_I2C(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE))
-        {
-            lcd.begin(20, 4);
-
-            int charBitmapSize = (sizeof(charBitmap ) / sizeof (charBitmap[0]));
-            for (int i = 0; i < charBitmapSize; i++) {
-                lcd.createChar(i, (uint8_t *) charBitmap[i]);
-            }
-
-            lcd.backlight();
-        }
+        DisplayService();
 
         // C++ 03
         // ========
@@ -183,10 +88,7 @@ class DisplayService {
 
         LiquidCrystal_I2C lcd;
 
-        void clearLine(int row) {
-            lcd.setCursor(0, row);
-            lcd.print("                    ");
-        }
+        void clearLine(int row);
 };
 
 #endif

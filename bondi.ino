@@ -1,14 +1,3 @@
-/*  Soil Mositure Basic Example
-    This sketch was written by SparkFun Electronics
-    Joel Bartlett 
-    August 31, 2015
-
-    Basic skecth to print out soil moisture values to the Serial Monitor 
-
-    Released under the MIT License(http://opensource.org/licenses/MIT)
-*/
-
-
 #include <SD.h>
 #include <ArduinoSTL.h>
 //#include <avr/wdt.h>
@@ -16,25 +5,25 @@
 #include "config.h"
 #include "constants.h"
 #include "state_manager.h"
-#include "controllers/controller.h"
-#include "controllers/automatic_controller.h"
-#include "controllers/diagnostic_controller.h"
-#include "controllers/history_controller.h"
-#include "controllers/main_menu_controller.h"
-#include "controllers/manual_control_controller.h"
-#include "controllers/manual_meal_distribution_controller.h"
-#include "controllers/manual_menu_controller.h"
-#include "controllers/off_controller.h"
+
+// Controllers
+#include "controller.h"
+#include "automatic_controller.h"
+#include "diagnostic_controller.h"
+#include "history_controller.h"
+#include "main_menu_controller.h"
+#include "manual_control_controller.h"
+#include "manual_meal_distribution_controller.h"
+#include "manual_menu_controller.h"
+#include "off_controller.h"
+
+// Motors
 #include "conveyor_motor.h"
-// #include "diagnostic/route_mapping.h"
-// #include "feeder.h"
+#include "rail_motor.h"
+
+// Services
 #include "keypad_service.h"
 #include "location_service.h"
-// #include "meal.h"
-// #include "meal_service.h"
-// #include "rail_point.h"
-#include "rail_motor.h"
-// #include "route.h"
 #include "safety_service.h"
 
 // MOTORS
@@ -148,8 +137,6 @@ void setup() {
     //    // don't do anything more:
     //    while (1);
     //}
-
-    // feeder.setup();
 
     Serial.println("Configuration initiale");
 

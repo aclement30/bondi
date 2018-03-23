@@ -1,13 +1,13 @@
 #include "./controller.h"
 
-#ifndef CONTROLLERS_OFFCONTROLLER_H
-#define CONTROLLERS_OFFCONTROLLER_H
+#ifndef OFF_CONTROLLER_H
+#define OFF_CONTROLLER_H
 
 // Empty controller, only used by the StateManager
 class OffController: public Controller {
     public:
-        void handle() {}
-        void escape() {}
+        void handle();
+        void escape();
 };
 
 #endif

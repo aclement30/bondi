@@ -1,7 +1,7 @@
-#ifndef STATEMANAGER_H
-#define STATEMANAGER_H
+#include "constants.h"
 
-using namespace std;
+#ifndef STATE_MANAGER_H
+#define STATE_MANAGER_H
 
 class StateManager {
     public:
@@ -11,84 +11,23 @@ class StateManager {
             return instance;
         }
 
-        MachineState getState() {
-            return currentState;
-        }
-
-        MachineState getPreviousState() {
-            return previousState;
-        }
-
-        void changeState(MachineState newState) {
-            if (currentState == newState) {
-                return;
-            }
-
-            previousState = currentState;
-            currentState = newState;
-            
-            switch(currentState) {
-                case Off: {
-                    Serial.println("MODE: ARRET");
-                    break;
-                }
-                case MainMenu: {
-                    Serial.println("MENU PRINCIPAL");
-                    break;
-                }
-                case Automatic: {
-                    Serial.println("MODE: AUTO");
-                    break;
-                }
-                case ManualMenu: {
-                    Serial.println("MODE: MANUEL");
-                    break;
-                }
-                case ManualMealDistribution: {
-                    Serial.println("DISTRIBUTION MANUELLE");
-                    break;
-                }
-                case ManualControl: {
-                    Serial.println("CONTROLE MANUEL");
-                    break;
-                }
-                case Diagnostic: {
-                    Serial.println("MODE: DIAGNOSTIC");
-                    break;
-                }
-            }
-        }
-
-        MovingDirection getMovingDirection() {
-            return movingDirection;
-        }
-
-        void changeMovingDirection(MovingDirection newDirection) {
-            if (movingDirection == newDirection) return;
-
-            movingDirection = newDirection;
-        }
-
-        void stop() {
-            changeMovingDirection(MOVING_IDLE);
-        }
-
-        bool isSafetyMode() {
-            return safetyModeActivated;
-        }
-
-        void safetyStop() {
-            safetyModeActivated = true;
-            stop();
-        }
+        MachineState getState();
+        MachineState getPreviousState();
+        void changeState(MachineState newState);
+        MovingDirection getMovingDirection();
+        void changeMovingDirection(MovingDirection newDirection);
+        void stop();
+        bool isSafetyMode();
+        void safetyStop();
+        void disengageSafetyMode();
 
     private:
-        MachineState currentState = Off;
-        MachineState previousState = Off;
-        MovingDirection movingDirection = MOVING_IDLE;
-        bool safetyModeActivated = false;
+        MachineState currentState;
+        MachineState previousState;
+        MovingDirection movingDirection;
+        bool safetyModeActivated;
 
-        StateManager() {}
+        StateManager();
 
         // C++ 03
         // ========

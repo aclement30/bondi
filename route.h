@@ -1,4 +1,4 @@
-#include "rail_point.h"
+#include "constants.h"
 
 #ifndef ROUTE_H
 #define ROUTE_H
@@ -9,28 +9,17 @@ class Route {
     public:
         int id;
         MovingDirection initialDirection;
-        RailPoint startPoint;
-        RailPoint endPoint;
+        int startPointId;
+        int endPointId;
 
         Route(
             int routeId,
             MovingDirection routeInitialDirection, 
-            RailPoint routeStartPoint, 
-            RailPoint routeEndPoint
-        ) : 
-            id(routeId),
-            initialDirection(routeInitialDirection),
-            startPoint(routeStartPoint),
-            endPoint(routeEndPoint)
-        {}  
+            int routeStartPointId, 
+            int routeEndPointId
+        );
 };
 
-int getRouteIndexById(vector<Route> routes, int routeId) {
-    vector<Route>::iterator iterator = find_if (routes.begin(), routes.end(), [&](const Route & route) {
-        return route.id == routeId;
-    });
-
-    return iterator - routes.begin();
-}
+int getRouteIndexById(vector<Route> routes, int routeId);
 
 #endif
