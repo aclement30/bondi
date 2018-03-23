@@ -32,6 +32,9 @@ void LocationService::refreshActivePoint() {
         return;
     }
 
+    Serial.print("* new RFID uid: ");
+    Serial.print(uid.c_str());
+
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
     
     // New rail point detected: match RFID uid with corresponding rail point
@@ -58,20 +61,20 @@ void LocationService::refreshActivePoint() {
 }
 
 void LocationService::followRoute(int routeId) {
-    Serial.println("* clear existing route");
-    delay(250);
+    // Serial.println("* clear existing route");
+    // delay(250);
 
     if (currentRoutePtr != NULL) {
         completeRoute();
     }
     
-    Serial.println("* find selected route");
-    delay(250);
+    // Serial.println("* find selected route");
+    // delay(250);
     
     currentRoutePtr = new Route(routes.at(getRouteIndexById(routes, routeId)));
     
-    Serial.println("* change moving direction");
-    delay(250);
+    // Serial.println("* change moving direction");
+    // delay(250);
     
     if (isDocked()) {
         if (currentRoutePtr->initialDirection == MOVING_FORWARD) {
@@ -114,7 +117,7 @@ string LocationService::readRfidPoint() {
             }
 
             sprintf(uid, "%d.%d.%d.%d.%d", rfid.serNum[0], rfid.serNum[1], rfid.serNum[2], rfid.serNum[3], rfid.serNum[4]);
-
+            
             return uid;
         }
 

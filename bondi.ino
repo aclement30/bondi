@@ -1,4 +1,3 @@
-#include <SD.h>
 #include <ArduinoSTL.h>
 //#include <avr/wdt.h>
 
@@ -40,6 +39,7 @@ ConveyorMotor conveyorBack = ConveyorMotor(
 
 // Load config
 Config config = loadStaticConfiguration();
+Config sdConfig = loadSDCardConfiguration();
 
 // Services
 

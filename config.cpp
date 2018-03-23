@@ -1,11 +1,12 @@
 #include <Arduino.h>
+#include "file_service.h"
 #include "rail_point.h"
 #include "config.h"
 
 std::vector<RailPoint> loadRailPoints(JsonArray &data) {
     std::vector<RailPoint> points;
 
-    for (auto& pointData : data) {
+    for (auto & pointData : data) {
         int id = pointData["id"];
         const char* name = pointData["name"];
         const char* rfidUid = pointData["rfidUid"];
@@ -20,7 +21,7 @@ std::vector<RailPoint> loadRailPoints(JsonArray &data) {
 std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints) {
     std::vector<Route> routes;
 
-    for (auto& routeData : data) {
+    for (auto & routeData : data) {
         int id = routeData["id"];
         MovingDirection initialDirection = (routeData["initialDirection"] == "forward") ? MOVING_FORWARD : MOVING_BACKWARD;
         int startPointId = routeData["startPointId"];
@@ -131,30 +132,29 @@ Config loadStaticConfiguration() {
 }
 
 Config loadSDCardConfiguration() {
-    const char *filename = "/config.json";  // <- SD library uses 8.3 filenames
+    FileService fileService = FileService();
+    File file = fileService.openFile("config.txt");
 
-    // Open file for reading
-    File file = SD.open(filename);
-
-    StaticJsonBuffer<3514> jsonBuffer;
+    DynamicJsonBuffer jsonBuffer;
 
     // Parse the root object
-    JsonObject &root = jsonBuffer.parseObject(file);
+    JsonObject & root = jsonBuffer.parseObject(file);
 
     if (!root.success()) {
-        Serial.println("Failed to read file, using default configuration");
+        Serial.println("Failed to read configuration file");
     }
 
     Config config = Config();
     
-    JsonArray& pointsData = root["points"];
+    JsonArray & pointsData = root["points"];
     config.railPoints = loadRailPoints(pointsData);
 
-    JsonArray& routesData = root["routes"];
+    JsonArray & routesData = root["routes"];
     config.routes = loadRoutes(routesData, config.railPoints);
 
     // JsonArray& mealsData = root["meals"];
     // config.meals = loadMeals(mealsData, config.routes, config.railPoints);
+
 
     // Close the file (File's destructor doesn't close the file)
     file.close();
