@@ -16,7 +16,7 @@ void ConveyorMotor::setup() {
     digitalWrite(pwm, LOW);
     digitalWrite(reverse, LOW);
 
-    Serial.println("Configuration du convoyeur");
+    Serial.println(F("Configuration du convoyeur"));
 }
 
 void ConveyorMotor::start(ConveyorSide side, int motorSpeed) {

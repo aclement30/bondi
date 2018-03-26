@@ -4,6 +4,7 @@
 #include "location_service.h"
 #include "navigation_menu.h"
 #include "route.h"
+#include "string.h"
 #include "route_mapping_diagnostic_service.h"
 
 using namespace std;
@@ -17,11 +18,15 @@ void RouteMappingDiagnosticService::startDiagnostic() {
     completed = false;
     
     if (!locationService.isDocked()) {
+        const static char errorMsg1[] PROGMEM = "Le robot doit etre";
+        const static char errorMsg2[] PROGMEM = "positionne au dock.";
+        const static char okBtn[] PROGMEM = "OK";
+
         vector<string> errorMessage = {
-            "Le robot doit etre",
-            "positionne au dock."
+            getString(errorMsg1),
+            getString(errorMsg2)
         };
-        DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
+        DisplayService::getInstance().showErrorScreen(errorMessage, getString(okBtn));
         KeypadService::getInstance().waitForConfirmation();
         
         cancelled = true;
@@ -52,7 +57,7 @@ void RouteMappingDiagnosticService::continueDiagnostic() {
         displayCurrentRoute(currentRoute.id);
         locationService.followRoute(currentRoute.id);
     } else {
-        Serial.println("* complete diagnostic");
+        Serial.println(F("* complete diagnostic"));
         completed = true;
         currentRouteIndex = 0;
     }
@@ -63,7 +68,8 @@ void RouteMappingDiagnosticService::abortDiagnostic() {
 }
 
 string RouteMappingDiagnosticService::getTitle() {
-    return "DIAGNO. LISTE ROUTES";
+    const static char title[] PROGMEM = "DIAGNO. LISTE ROUTES";
+    return getString(title);
 }
 
 void RouteMappingDiagnosticService::displayCurrentRoute(int routeId) {

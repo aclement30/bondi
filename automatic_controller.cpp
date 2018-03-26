@@ -3,6 +3,7 @@
 #include "meal_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
+#include "string.h"
 #include "automatic_controller.h"
 
 using namespace std;
@@ -23,7 +24,7 @@ void AutomaticController::handle() {
     if (mealService.hasCurrentMeal()) {
         mealService.distributeMeal();
     } else {
-        Serial.println("Attente...");
+        Serial.println(F("Attente..."));
     }
 
     KeypadService::getInstance().waitForActivity(5000);
@@ -51,18 +52,25 @@ void AutomaticController::escape() {
 // PRIVATE
 
 void AutomaticController::displayAutomaticModeScreen() {
+    const static char title[] PROGMEM = "MODE: AUTO";
+    const static char waitingMsg[] PROGMEM = "En attente";
+
     DisplayService::getInstance().clearScreen();
-    DisplayService::getInstance().printTitle("MODE: AUTO");
+    DisplayService::getInstance().printTitle(getString(title));
     DisplayService::getInstance().addBorder();
-    DisplayService::getInstance().printCenter("En attente", 2);
+    DisplayService::getInstance().printCenter(getString(waitingMsg), 2);
 }
 
 bool AutomaticController::displayEscapeConfirmationScreen() {
+    const static char confirmButtonText[] PROGMEM = "Continuer";
+    const static char errorMsg1[] PROGMEM = "La distribution du";
+    const static char errorMsg2[] PROGMEM = "repas sera annulee !";
+
     vector<string> errorMessage = {
-        "La distribution du",
-        "repas sera annulee !"
+        getString(errorMsg1),
+        getString(errorMsg2)
     };
     
-    DisplayService::getInstance().showWarningScreen(errorMessage, "Continuer");
+    DisplayService::getInstance().showWarningScreen(errorMessage, getString(confirmButtonText));
     return KeypadService::getInstance().waitForConfirmation();
 }

@@ -5,19 +5,18 @@
 
 using namespace std;
 
-class Route {
-    public:
-        int id;
-        MovingDirection initialDirection;
-        int startPointId;
-        int endPointId;
+struct Route {
+    int id;
+    MovingDirection initialDirection;
+    int startPointId;
+    int endPointId;
 
-        Route(
-            int routeId,
-            MovingDirection routeInitialDirection, 
-            int routeStartPointId, 
-            int routeEndPointId
-        );
+    Route(
+        int routeId,
+        MovingDirection routeInitialDirection, 
+        int routeStartPointId, 
+        int routeEndPointId
+    );
 };
 
 int getRouteIndexById(vector<Route> routes, int routeId);

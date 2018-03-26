@@ -7,15 +7,17 @@
 using namespace std;
 
 MealSequence::MealSequence(
-    const char * sequenceName, 
-    int sequenceStartPointInt, 
-    int sequenceEndPointInt, 
+    const char * sequenceName,
+    int sequenceMealId,
+    int sequenceStartPointId, 
+    int sequenceEndPointId, 
     int sequenceFeed1Flow, 
     int sequenceFeed2Flow
 ) {
     name = sequenceName;
-    startPointId = sequenceStartPointInt;
-    endPointId = sequenceEndPointInt;
+    mealId = sequenceMealId;
+    startPointId = sequenceStartPointId;
+    endPointId = sequenceEndPointId;
     feed1Flow = sequenceFeed1Flow;
     feed2Flow = sequenceFeed2Flow;
 }

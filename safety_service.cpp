@@ -2,6 +2,7 @@
 #include "display_service.h"
 #include "keypad_service.h"
 #include "state_manager.h"
+#include "string.h"
 #include "safety_service.h"
 
 SafetyService::SafetyService() {
@@ -13,7 +14,7 @@ void SafetyService::checkSafetyState() {
     bool safetyMode = StateManager::getInstance().isSafetyMode();
 
     if (!safetyMode && isSafetyBarPressed()) {
-        Serial.println("Barre de sécurité enclenchée");
+        Serial.println(F("Barre de sécurité enclenchée"));
 
         // Shutdown everything immediately
         StateManager::getInstance().safetyStop();
@@ -25,10 +26,13 @@ void SafetyService::checkSafetyState() {
 // PRIVATE
 
 void SafetyService::displaySafetyStopWarning() {
+    const static char title[] PROGMEM = "(!) ARRET SECURITE";
+    const static char continueBtn[] PROGMEM = "Continuer [#]";
+
     DisplayService::getInstance().clearScreen();
-    DisplayService::getInstance().printTitle("(!) ARRET SECURITE");
+    DisplayService::getInstance().printTitle(getString(title));
     DisplayService::getInstance().addBorder();
-    DisplayService::getInstance().printCenter("Continuer [F1]", 2);
+    DisplayService::getInstance().printCenter(getString(continueBtn), 2);
 
     bool canContinue = KeypadService::getInstance().waitForConfirmation();
 

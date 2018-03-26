@@ -14,10 +14,12 @@ struct Config {
     std::vector<Meal> meals;
 };
 
-std::vector<RailPoint> loadRailPoints(JsonArray &data);
-std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints);
-// std::vector<MealSequence> loadMealSequences(JsonArray &data, std::vector<RailPoint> railPoints);
-// std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vector<RailPoint> railPoints);
+std::vector<RailPoint> loadRailPoints(const char * filename);
+std::vector<Meal> loadMeals(const char * filename);
+std::vector<MealSequence> loadMealSequences(const char * filename);
+
+void displaySDCardErrorScreen();
+void displayConfigurationErrorScreen();
 
 Config loadStaticConfiguration();
 Config loadSDCardConfiguration();

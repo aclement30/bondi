@@ -7,8 +7,8 @@ using namespace std;
 
 RailPoint::RailPoint(
     int railPointId, 
-    const char *pointName,
-    const char *pointRfidUid
+    const char * pointName,
+    const char * pointRfidUid
 ) {
     id = railPointId;
     name = pointName;

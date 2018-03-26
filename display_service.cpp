@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include "display_service.h"
+#include "string.h"
 
 using namespace std;
 
@@ -49,7 +50,9 @@ void DisplayService::showErrorScreen(vector<string> &message, string okButtonTex
     if (message.size() > 1) {
         print(message.at(1), 2);
     }
-    printCenter(okButtonText + " [F1]", 3);
+    if (okButtonText.length() > 0) {
+        printCenter(okButtonText + " [#]", 3);
+    }
 }
 
 void DisplayService::showWarningScreen(vector<string> &message, string okButtonText) {
@@ -59,10 +62,10 @@ void DisplayService::showWarningScreen(vector<string> &message, string okButtonT
     if (message.size() > 1) {
         print(message.at(1), 2);
     }
-    printCenter(okButtonText + " [F1]", 3);
+    printCenter(okButtonText + " [#]", 3);
 }
 
-string DisplayService::getCenteredText(string &text) {
+string DisplayService::getCenteredText(string & text) {
     string centeredText;
     centeredText.insert(centeredText.begin(), DisplayService::getLeftPadding(text), ' ');
     centeredText.append(text);

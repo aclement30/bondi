@@ -1,6 +1,7 @@
 #include "display_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
+#include "string.h"
 #include "manual_menu_controller.h"
 
 using namespace std;
@@ -17,13 +18,17 @@ void ManualMenuController::escape() {
 // PRIVATE
 
 void ManualMenuController::displayManualMenuScreen() {
+    const static char title[] PROGMEM = "MODE: MANUEL";
+    const static char menuItem1[] PROGMEM = "Selection repas";
+    const static char menuItem2[] PROGMEM = "Controle manuel";
+
     vector<string> menuOptions = {
-        "Selection repas",
-        "Controle manuel"
+        getString(menuItem1),
+        getString(menuItem2)
     };
 
     NavigationMenu menu;
-    menu.build("MODE: MANUEL", menuOptions);
+    menu.build(getString(title), menuOptions);
     menu.show();
     int selectedOption = menu.waitForSelection();
 

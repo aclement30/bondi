@@ -27,7 +27,7 @@ void KeypadService::keypadInterrupt() {
     int keyCode = KeypadService::getInstance().getKeyPressed();
 
     if (keyCode == KeypadService::EscapeKey) {
-        Serial.println("[ESC]");
+        Serial.println(F("[ESC]"));
         KeypadService::getInstance().escKeyPressed = true;
     }
 }
@@ -37,7 +37,7 @@ void KeypadService::waitForActivity(unsigned long milliseconds) {
     unsigned long startTime = millis();
     unsigned long endTime = startTime + milliseconds;
 
-    Serial.println("(wait)");
+    Serial.println(F("(wait)"));
     
     char keyPressed = keypad.getKey();
     while (millis() < endTime && !escKeyPressed && keyPressed == NO_KEY) {

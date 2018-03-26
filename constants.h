@@ -8,7 +8,7 @@ enum PinConfig {
     POWER_BUTTON = A0,
     SAFETY_SENSOR_FRONT = A5,
     SAFETY_SENSOR_BACK = A6,
-    SD_CARD_CS = 53,
+    SD_CARD_CS = 8,
     RFID_RSA_PIN = 10,
     RFID_RST_PIN = 9,
 

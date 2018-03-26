@@ -8,20 +8,19 @@ using namespace std;
 
 // TODO: Transform into struct
 
-class RailPoint {
-    public:
-        int id;
-        const char *name;
-        const char *rfidUid;
+struct RailPoint {
+    int id;
+    const char * name;
+    const char * rfidUid;
 
-        RailPoint(
-            int railPointId, 
-            const char *pointName,
-            const char *pointRfidUid
-        );
+    RailPoint(
+        int railPointId, 
+        const char * pointName,
+        const char * pointRfidUid
+    );
 
-        bool isDock();
-        bool isReverse();
+    bool isDock();
+    bool isReverse();
 };
 
 // TODO: Refactor these functions as static methods in RailPoint class

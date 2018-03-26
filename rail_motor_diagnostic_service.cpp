@@ -3,6 +3,7 @@
 #include "keypad_service.h"
 #include "navigation_menu.h"
 #include "rail_motor.h"
+#include "string.h"
 #include "rail_motor_diagnostic_service.h"
 
 using namespace std;
@@ -14,11 +15,15 @@ void RailMotorDiagnosticService::startDiagnostic() {
 
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
     if (movingDirection != MOVING_IDLE) {
+        const static char errorMsg1[] PROGMEM = "Le robot doit etre";
+        const static char errorMsg2[] PROGMEM = "en arret complet.";
+        const static char okBtn[] PROGMEM = "OK";
+
         vector<string> errorMessage = {
-            "Le robot doit etre",
-            "en arret complet."
+            getString(errorMsg1),
+            getString(errorMsg2)
         };
-        DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
+        DisplayService::getInstance().showErrorScreen(errorMessage, getString(okBtn));
         KeypadService::getInstance().waitForConfirmation();
         
         cancelled = true;
@@ -28,7 +33,7 @@ void RailMotorDiagnosticService::startDiagnostic() {
     displayDiagnosticScreen();
     displayDirection(MOVING_IDLE);
 
-    Serial.println("* start diagnostic");
+    Serial.println(F("* start diagnostic"));
 }
 
 void RailMotorDiagnosticService::continueDiagnostic() {
@@ -68,16 +73,21 @@ void RailMotorDiagnosticService::abortDiagnostic() {
 }
 
 string RailMotorDiagnosticService::getTitle() {
-    return "TEST MOTEUR RAIL";
+    const static char title[] PROGMEM = "TEST MOTEUR RAIL";
+    return getString(title);
 }
 
 void RailMotorDiagnosticService::displayDirection(MovingDirection direction) {
+    const static char frontDirection[] PROGMEM = ">>> AVANT >>>";
+    const static char backDirection[] PROGMEM = "<<< ARRIERE <<<";
+    const static char stopped[] PROGMEM = "<ARRET>";
+
     if (direction == MOVING_FORWARD) {
-        DisplayService::getInstance().printCenter(">>> AVANT >>>", 2);
+        DisplayService::getInstance().printCenter(getString(frontDirection), 2);
     } else if (direction == MOVING_BACKWARD) {
-        DisplayService::getInstance().printCenter("<<< ARRIERE <<<", 2);
+        DisplayService::getInstance().printCenter(getString(backDirection), 2);
     } else {
-        DisplayService::getInstance().printCenter("<ARRET>", 2);
+        DisplayService::getInstance().printCenter(getString(stopped), 2);
     }
 }
 

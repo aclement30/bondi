@@ -2,6 +2,7 @@
 #include "list_menu.h"
 #include "meal_service.h"
 #include "state_manager.h"
+#include "string.h"
 #include "history_controller.h"
 
 using namespace std;
@@ -23,6 +24,7 @@ void HistoryController::escape() {
 // PRIVATE
 
 void HistoryController::displayHistoryScreen() {
+    const static char title[] PROGMEM = "SELECTION REPAS";
     vector<string> menuItems;
     for(int n = 0; n < mealService.meals.size(); n++) {
         Meal & meal = mealService.meals[n];
@@ -47,7 +49,7 @@ void HistoryController::displayHistoryScreen() {
     }
 
     ListMenu menu;
-    menu.build("HISTORIQUE", menuItems);
+    menu.build(getString(title), menuItems);
     menu.show();
     int selectedOption = menu.waitForSelection();
 

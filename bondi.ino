@@ -25,6 +25,8 @@
 #include "location_service.h"
 #include "safety_service.h"
 
+#include "string.h"
+
 // MOTORS
 
 RailMotor mainMotor = RailMotor();
@@ -37,9 +39,7 @@ ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-// Load config
 Config config = loadStaticConfiguration();
-Config sdConfig = loadSDCardConfiguration();
 
 // Services
 
@@ -74,32 +74,32 @@ void createController(MachineState currentState) {
         }
         case MainMenu: {
             currentControllerPtr = new MainMenuController();
-            // Serial.println(" (new MainMenuController)");
+            // Serial.println(F(" (new MainMenuController)"));
             break;
         }
         case Automatic: {
             currentControllerPtr = new AutomaticController(mealService);
-            // Serial.println(" (new AutomaticController)");
+            // Serial.println(F(" (new AutomaticController)"));
             break;
         }
         case ManualMenu: {
             currentControllerPtr = new ManualMenuController();
-            // Serial.println(" (new ManualMenuController)");
+            // Serial.println(F(" (new ManualMenuController)"));
             break;
         }
         case ManualMealDistribution: {
             currentControllerPtr = new ManualMealDistributionController(mealService);
-            // Serial.println(" (new ManualControlController)");
+            // Serial.println(F(" (new ManualControlController)"));
             break;
         }
         case ManualControl: {
             currentControllerPtr = new ManualControlController(mealService);
-            // Serial.println(" (new ManualControlController)");
+            // Serial.println(F(" (new ManualControlController)"));
             break;
         }
         case History: {
             currentControllerPtr = new HistoryController(mealService);
-            // Serial.println(" (new HistoryController)");
+            // Serial.println(F(" (new HistoryController)"));
             break;
         }
         case Diagnostic: {
@@ -109,36 +109,39 @@ void createController(MachineState currentState) {
                 conveyorFront,
                 conveyorBack
             );
-            // Serial.println(" (new DiagnosticController)");
+            // Serial.println(F(" (new DiagnosticController)"));
             break;
         }
     }
 }
 
 void displayStartupScreen() {
+    const static char startupString[] PROGMEM = "Demarrage en cours";
     DisplayService::getInstance().clearScreen();
-    DisplayService::getInstance().printCenter("Demarrage en cours", 3);
+    DisplayService::getInstance().printCenter(getString(startupString), 3);
 }
 
 void setup() {
     Serial.begin(9600);   // open serial over USB
-    Serial.println("Démarrage en cours");
+    Serial.println(F("Démarrage en cours"));
+
+    // Init SPI bus
+    SPI.begin();
 
     //wdt_enable(WDTO_1S);
   
     displayStartupScreen();
 
+    // Load config
+    //config = loadSDCardConfiguration();
+
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
     }
 
-    //if (!SD.begin(SD_CARD_CS)) {
-    //    Serial.println("Card failed, or not present");
-    //    // don't do anything more:
-    //    while (1);
-    //}
+    locationService.setup();
 
-    Serial.println("Configuration initiale");
+    Serial.println(F("Configuration initiale"));
 
     StateManager::getInstance().changeState(MainMenu);
     KeypadService::getInstance().listenForEscape();
@@ -147,7 +150,7 @@ void setup() {
 void loop() {
     //wdt_reset();
   
-    Serial.println("* loop");
+    Serial.println(F("* loop"));
     
     // Stop right here if power is OFF
     if (!isPowerON()) {
@@ -158,7 +161,7 @@ void loop() {
     // Serial.println("* check safety");
     safetyService.checkSafetyState();
     
-    Serial.println("* refresh point");
+    Serial.println(F("* refresh point"));
     locationService.refreshActivePoint();
     
     // Serial.println("* main motor");
@@ -167,7 +170,7 @@ void loop() {
     // Serial.print("* create controller");
     createController(StateManager::getInstance().getState());
     
-    Serial.println("* handle");
+    Serial.println(F("* handle"));
 
     delay(250);
 

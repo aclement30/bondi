@@ -9,6 +9,7 @@
 #include "route.h"
 #include "meal_service.h"
 #include "state_manager.h"
+#include "string.h"
 
 using namespace std;
 
@@ -72,16 +73,16 @@ void MealService::distributeMeal() {
         locationService.followRoute(currentMealPtr->routeId);
     }
 
-    Serial.println("* distributeMeal | sequence");
+    Serial.println(F("* distributeMeal | sequence"));
     delay(250);
 
     if (currentSequencePtr) {
-        Serial.println("* display sequence info");
+        Serial.println(F("* display sequence info"));
         delay(250);
 
         displaySequenceInfo(currentSequencePtr->name, currentSequencePtr->feed1Flow, currentSequencePtr->feed2Flow);
 
-        Serial.println("* start conveyor");
+        Serial.println(F("* start conveyor"));
         delay(250);
 
         ConveyorSide feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
@@ -92,7 +93,7 @@ void MealService::distributeMeal() {
             conveyorBack.start(feedingSide, currentSequencePtr->feed2Flow);
         }
     } else {
-        Serial.println("* stop feeding");
+        Serial.println(F("* stop feeding"));
         delay(250);
 
         // Make sure all feed conveyors are stopped
@@ -177,7 +178,7 @@ void MealService::stopFeeding() {
     conveyorFront.stop();
     conveyorBack.stop();
 
-    Serial.println("Arrêt des convoyeurs");
+    Serial.println(F("Arrêt des convoyeurs"));
 }
 
 bool MealService::hasCurrentMeal() {
@@ -188,7 +189,7 @@ bool MealService::hasCurrentMeal() {
 void MealService::resetDistributedMeals() {
     distributedMealIds.clear();
     
-    Serial.println("Réinitialisation des repas distribués");
+    Serial.println(F("Réinitialisation des repas distribués"));
 }
 
 bool MealService::isMealDistributed(int mealId) {
@@ -202,9 +203,11 @@ void MealService::displayMealDistributionScreen(const char * mealName) {
     
     MachineState currentState = StateManager::getInstance().getState();
     if (currentState == Automatic) {
-        DisplayService::getInstance().printTitle("DISTRIBUTION AUTO.");
+        const static char title[] PROGMEM = "DISTRIBUTION AUTO.";
+        DisplayService::getInstance().printTitle(getString(title));
     } else {
-        DisplayService::getInstance().printTitle("DISTRIBUTION REPAS");
+        const static char title[] PROGMEM = "DISTRIBUTION REPAS";
+        DisplayService::getInstance().printTitle(getString(title));
     }
 
     char mealLineText[20] = " Repas: ";
@@ -212,9 +215,11 @@ void MealService::displayMealDistributionScreen(const char * mealName) {
 }
 
 void MealService::displayMealCompletionScreen(const char * mealName) {
+    const static char title[] PROGMEM = "FIN DISTRIBUTION";
+
     DisplayService::getInstance().clearScreen();
     
-    DisplayService::getInstance().printTitle("FIN DISTRIBUTION");
+    DisplayService::getInstance().printTitle(getString(title));
     DisplayService::getInstance().addBorder();
 
     char mealLineText[20] = "Repas: ";

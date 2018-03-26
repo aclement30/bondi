@@ -2,6 +2,7 @@
 #include "meal_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
+#include "string.h"
 #include "manual_meal_distribution_controller.h"
 
 using namespace std;
@@ -36,6 +37,7 @@ void ManualMealDistributionController::escape() {
 }
 
 void ManualMealDistributionController::displayMealSelectionScreen() {
+    const static char title[] PROGMEM = "SELECTION REPAS";
     vector<string> menuOptions;
     for(int n = 0; n < mealService.meals.size(); n++) {
         char mealName[15];
@@ -50,7 +52,7 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
     }
 
     NavigationMenu menu;
-    menu.build("SELECTION REPAS", menuOptions);
+    menu.build(getString(title), menuOptions);
     menu.show();
     int selectedOption = menu.waitForSelection();
 
@@ -62,11 +64,15 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
 }
 
 bool ManualMealDistributionController::displayEscapeConfirmationScreen() {
+    const static char confirmButtonText[] PROGMEM = "Continuer";
+    const static char errorMsg1[] PROGMEM = "La distribution du";
+    const static char errorMsg2[] PROGMEM = "repas sera annulee !";
+
     vector<string> errorMessage = {
-        "La distribution du",
-        "repas sera annulee !"
+        getString(errorMsg1),
+        getString(errorMsg2)
     };
     
-    DisplayService::getInstance().showWarningScreen(errorMessage, "Continuer");
+    DisplayService::getInstance().showWarningScreen(errorMessage, getString(confirmButtonText));
     return KeypadService::getInstance().waitForConfirmation();
 }

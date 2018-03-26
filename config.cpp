@@ -1,74 +1,156 @@
 #include <Arduino.h>
+#include "display_service.h"
 #include "file_service.h"
+#include "keypad_service.h"
+#include "meal.h"
 #include "rail_point.h"
+#include "string.h"
 #include "config.h"
 
-std::vector<RailPoint> loadRailPoints(JsonArray &data) {
+std::vector<RailPoint> loadRailPoints(const char * filename) {
     std::vector<RailPoint> points;
+    
+    Serial.println(F("* chargement de la configuration des points"));
 
-    for (auto & pointData : data) {
-        int id = pointData["id"];
-        const char* name = pointData["name"];
-        const char* rfidUid = pointData["rfidUid"];
-        
-        RailPoint point(id, name, rfidUid);
-        points.push_back(point);
+    FileService fileService = FileService();
+    File file = fileService.openFile(filename);
+    if (!file) {
+        Serial.println(F("Erreur configuration: le fichier points.csv ne peut être ouvert!"));
+        return;
     }
+
+    int lineNumber = 0;
+    char line[40];
+    while (FileService::readLine(file, line, sizeof(line))) {
+        // Skip first line (headers)
+        if (lineNumber == 0) {
+            lineNumber += 1;
+            continue;
+        }
+
+        // Split line into segments
+        char * segments[3];
+        FileService::splitLine(line, segments);
+        
+        RailPoint point(atoi(segments[0]), segments[1], segments[2]);
+        points.push_back(point);
+        
+        lineNumber += 1;
+    }
+
+    file.close();
 
     return points;
 }
 
-std::vector<Route> loadRoutes(JsonArray &data, std::vector<RailPoint> railPoints) {
-    std::vector<Route> routes;
+std::vector<Meal> loadMeals(const char * filename) {
+    std::vector<Meal> meals;
+    
+    Serial.println(F("* chargement de la configuration des repas"));
 
-    for (auto & routeData : data) {
-        int id = routeData["id"];
-        MovingDirection initialDirection = (routeData["initialDirection"] == "forward") ? MOVING_FORWARD : MOVING_BACKWARD;
-        int startPointId = routeData["startPointId"];
-        int endPointId = routeData["endPointId"];
-        
-        Route route(id, initialDirection, startPointId, endPointId);
-        routes.push_back(route);
+    FileService fileService = FileService();
+    File file = fileService.openFile(filename);
+    if (!file) {
+        Serial.println(F("Erreur configuration: le fichier meals.csv ne peut être ouvert!"));
+        return;
     }
 
-    return routes;
+    int lineNumber = 0;
+    char line[30];
+    while (FileService::readLine(file, line, sizeof(line))) {
+        // Skip first line (headers)
+        if (lineNumber == 0) {
+            lineNumber += 1;
+            continue;
+        }
+
+        // Split line into segments
+        char * segments[4];
+        FileService::splitLine(line, segments);
+        
+        // TODO: Remove sequence
+        std::vector<MealSequence> sequence;
+        
+        Meal meal(atoi(segments[0]), segments[1], atoi(segments[2]), atoi(segments[3]), sequence);
+        meals.push_back(meal);
+        
+        lineNumber += 1;
+    }
+
+    file.close();
+
+    return meals;
 }
 
-// std::vector<MealSequence> loadMealSequences(JsonArray &data, std::vector<RailPoint> railPoints) {
-//     std::vector<MealSequence> sequences;
-  
-//     for (auto& sequenceData : data) {
-//         const char* name = sequenceData["name"];
-//         int startPointId = sequenceData["startPointId"];
-//         int endPointId = sequenceData["endPointId"];
-//         int feed1Flow = sequenceData["feed1Flow"];
-//         int feed2Flow = sequenceData["feed2Flow"];
+std::vector<MealSequence> loadMealSequences(const char * filename) {
+    std::vector<MealSequence> mealSequences;
 
-//         MealSequence sequence(name, getRailPointById(railPoints, startPointId), getRailPointById(railPoints, endPointId), feed1Flow, feed2Flow);
-//         sequences.push_back(sequence);
-//     }
+    Serial.println(F("* chargement de la configuration des séquences de repas"));
 
-//     return sequences;
-// }
+    FileService fileService = FileService();
+    File file = fileService.openFile(filename);
+    if (!file) {
+        Serial.println(F("Erreur configuration: le fichier meal_seq.csv ne peut être ouvert!"));
+        return;
+    }
 
-// std::vector<Meal> loadMeals(JsonArray &data, std::vector<Route> routes, std::vector<RailPoint> railPoints) {
-//     std::vector<Meal> meals;
+    int lineNumber = 0;
+    char line[60];
+    while (FileService::readLine(file, line, sizeof(line))) {
+        // Skip first line (headers)
+        if (lineNumber == 0) {
+            lineNumber += 1;
+            continue;
+        }
 
-//     for (auto& mealData : data) {
-//         int id = mealData["id"];
-//         const char* name = mealData["name"];
-//         int startMoment = mealData["startMoment"];
-//         int routeId = mealData["routeId"];
+        // Split line into segments
+        char * segments[6];
+        FileService::splitLine(line, segments);
+        
+        MealSequence mealSequence(segments[1], atoi(segments[0]), atoi(segments[2]), atoi(segments[3]), atoi(segments[4]), atoi(segments[5]));
+        mealSequences.push_back(mealSequence);
+        
+        lineNumber += 1;
+    }
 
-//         JsonArray& sequencesData = mealData["sequences"];
-//         std::vector<MealSequence> sequences = loadMealSequences(sequencesData, railPoints);
+    file.close();
 
-//         Meal meal(id, name, startMoment, getRouteById(routes, routeId), sequences);
-//         meals.push_back(meal);
-//     }
+    return mealSequences;
+}
 
-//     return meals;
-// }
+void displaySDCardErrorScreen() {
+    const static char okButtonText[] PROGMEM = "Redemarrer";
+    const static char errorMsg1[] PROGMEM = "Carte SD invalide";
+    const static char errorMsg2[] PROGMEM = "ou manquante.";
+
+    vector<string> errorMessage = {
+        getString(errorMsg1),
+        getString(errorMsg2)
+    };
+    
+    DisplayService::getInstance().showErrorScreen(errorMessage, getString(okButtonText));
+    bool restart = KeypadService::getInstance().waitForConfirmation();
+    if (restart) {
+        asm volatile ("  jmp 0");
+    }
+}
+
+void displayConfigurationErrorScreen() {
+    const static char okButtonText[] PROGMEM = "Redemarrer";
+    const static char errorMsg1[] PROGMEM = "Fichiers de config.";
+    const static char errorMsg2[] PROGMEM = "manquants.";
+
+    vector<string> errorMessage = {
+        getString(errorMsg1),
+        getString(errorMsg2)
+    };
+    
+    DisplayService::getInstance().showErrorScreen(errorMessage, getString(okButtonText));
+    bool restart = KeypadService::getInstance().waitForConfirmation();
+    if (restart) {
+        asm volatile ("  jmp 0");
+    }
+}
 
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
@@ -94,28 +176,14 @@ Config loadStaticConfiguration() {
     };
 
     std::vector<MealSequence> sequence1 = {
-        MealSequence("G1", 1000, 2, 25, 50),
-        MealSequence("G2", 2, 1000, 50, 75)
+        MealSequence("G1", 1, 1000, 2, 25, 50),
+        MealSequence("G2", 1, 2, 1000, 50, 75)
     };
-
-    //     MealSequence("G1", getRailPointById(railPoints, 2), getRailPointById(railPoints, 4), 25, 25),
-    //     MealSequence("G2", getRailPointById(railPoints, 4), getRailPointById(railPoints, 102), 50, 50),
-    //     MealSequence("G3", getRailPointById(railPoints, 102), getRailPointById(railPoints, 1), 50, 50),
-    //     MealSequence("G4", getRailPointById(railPoints, 1), getRailPointById(railPoints, 3), 100, 75)
-    // };
 
     std::vector<MealSequence> sequence2 = {
-        MealSequence("P1", 1000, 1, 50, 25),
-        MealSequence("P2", 1, 1000, 25, 0),
+        MealSequence("P1", 2, 000, 1, 50, 25),
+        MealSequence("P2", 2, 1, 1000, 25, 0),
     };
-    //     MealSequence("P1", getRailPointById(railPoints, 5), getRailPointById(railPoints, 7), 50, 25),
-    //     MealSequence("P2", getRailPointById(railPoints, 7), getRailPointById(railPoints, 9), 25, 0),
-    //     MealSequence("P3", getRailPointById(railPoints, 9), getRailPointById(railPoints, 101), 50, 0),
-    //     MealSequence("P4", getRailPointById(railPoints, 101), getRailPointById(railPoints, 8), 25, 0),
-    //     MealSequence("P5", getRailPointById(railPoints, 8), getRailPointById(railPoints, 10), 75, 75),
-    //     MealSequence("P6", getRailPointById(railPoints, 10), getRailPointById(railPoints, 12), 75, 75),
-    //     MealSequence("P7", getRailPointById(railPoints, 12), getRailPointById(railPoints, 14), 50, 25)
-    // };
 
     std::vector<Meal> meals = {
         Meal(1, "Matin Gd.E", 420, 1, sequence1),
@@ -131,33 +199,26 @@ Config loadStaticConfiguration() {
     return config;
 }
 
-Config loadSDCardConfiguration() {
+Config loadSDCardConfiguration() {    
+    Config config = Config();
+
     FileService fileService = FileService();
-    File file = fileService.openFile("config.txt");
-
-    DynamicJsonBuffer jsonBuffer;
-
-    // Parse the root object
-    JsonObject & root = jsonBuffer.parseObject(file);
-
-    if (!root.success()) {
-        Serial.println("Failed to read configuration file");
+    if (!fileService.validateSDCard()) {
+        displaySDCardErrorScreen();
+        return;
     }
 
-    Config config = Config();
-    
-    JsonArray & pointsData = root["points"];
-    config.railPoints = loadRailPoints(pointsData);
+    if (!fileService.validateConfigFiles()) {
+        displayConfigurationErrorScreen();
+        return;
+    }
 
-    JsonArray & routesData = root["routes"];
-    config.routes = loadRoutes(routesData, config.railPoints);
-
-    // JsonArray& mealsData = root["meals"];
-    // config.meals = loadMeals(mealsData, config.routes, config.railPoints);
-
-
-    // Close the file (File's destructor doesn't close the file)
-    file.close();
+    config.routes = {
+        Route(1, MOVING_FORWARD, 1000, 1000),
+        Route(2, MOVING_BACKWARD, 1000, 1000)
+    };
+    config.railPoints = loadRailPoints("points.csv");
+    config.meals = loadMeals("meals.csv");
 
     return config;
 }

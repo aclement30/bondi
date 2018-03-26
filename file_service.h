@@ -12,7 +12,11 @@ class FileService {
     public:
         FileService();
 
+        bool validateSDCard();
+        bool validateConfigFiles();
         File openFile(const char * filename);
+        static bool readLine(File & file, char * line, size_t maxLen);
+        static void splitLine(char * line, char * segments[]);
 };
 
 #endif

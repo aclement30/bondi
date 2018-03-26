@@ -4,6 +4,7 @@
 #include "keypad_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
+#include "string.h"
 #include "conveyor_diagnostic_service.h"
 
 ConveyorDiagnosticService::ConveyorDiagnosticService(
@@ -19,11 +20,15 @@ void ConveyorDiagnosticService::startDiagnostic() {
 
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
     if (movingDirection != MOVING_IDLE) {
+        const static char errorMsg1[] PROGMEM = "Le robot doit etre";
+        const static char errorMsg2[] PROGMEM = "en arret complet.";
+        const static char okBtn[] PROGMEM = "OK";
+
         vector<string> errorMessage = {
-            "Le robot doit etre",
-            "en arret complet."
+            getString(errorMsg1),
+            getString(errorMsg2)
         };
-        DisplayService::getInstance().showErrorScreen(errorMessage, string("OK"));
+        DisplayService::getInstance().showErrorScreen(errorMessage, getString(okBtn));
         KeypadService::getInstance().waitForConfirmation();
         
         cancelled = true;
@@ -34,7 +39,7 @@ void ConveyorDiagnosticService::startDiagnostic() {
     conveyorMotor.stop();
     displaySide(CONVEYOR_IDLE);
 
-    Serial.println("* start diagnostic");
+    Serial.println(F("* start diagnostic"));
 }
 
 void ConveyorDiagnosticService::continueDiagnostic() {
@@ -117,12 +122,16 @@ string ConveyorDiagnosticService::getTitle() {
 }
 
 void ConveyorDiagnosticService::displaySide(ConveyorSide side) {
+    const static char rightDirection[] PROGMEM = ">>> DROITE >>>";
+    const static char leftDirection[] PROGMEM = "<<< GAUCHE <<<";
+    const static char stopped[] PROGMEM = "<ARRET>";
+
     if (side == CONVEYOR_SIDE_RIGHT) {
-        DisplayService::getInstance().printCenter(">>> DROITE >>>", 2);
+        DisplayService::getInstance().printCenter(getString(rightDirection), 2);
     } else if (side == CONVEYOR_SIDE_LEFT) {
-        DisplayService::getInstance().printCenter("<<< GAUCHE <<<", 2);
+        DisplayService::getInstance().printCenter(getString(leftDirection), 2);
     } else {
-        DisplayService::getInstance().printCenter("<ARRET>", 2);
+        DisplayService::getInstance().printCenter(getString(stopped), 2);
         DisplayService::getInstance().print("", 3);
     }
 }

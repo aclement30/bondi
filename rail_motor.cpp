@@ -27,16 +27,16 @@ void RailMotor::loop() {
 
     // First stop the motor
     if (currentDirection != MOVING_IDLE) {
-        Serial.println("Moteur principal: arrêt");
+        Serial.println(F("Moteur principal: arrêt"));
         stop();
     }
 
     // Then, change the motor direction
     if (newDirection == MOVING_FORWARD) {
-        Serial.println("Moteur principal: rotation avant");
+        Serial.println(F("Moteur principal: rotation avant"));
         moveForward();
     } else if (newDirection == MOVING_BACKWARD) {
-        Serial.println("Moteur principal: rotation arrière");
+        Serial.println(F("Moteur principal: rotation arrière"));
         moveBackward();
     }
 
@@ -82,18 +82,18 @@ void RailMotor::setLight(LightColor lightColor, bool blinking) {
         digitalWrite(RED_LIGHT, LOW);
         digitalWrite(GREEN_BACKWARD_LIGHT, LOW);
 
-        Serial.println("Lumière VERTE allumée");
+        Serial.println(F("Lumière VERTE allumée"));
     } else if (lightColor == GREEN_BACKWARD) {
         digitalWrite(GREEN_LIGHT, LOW);
         digitalWrite(RED_LIGHT, LOW);
         digitalWrite(GREEN_BACKWARD_LIGHT, HIGH);
 
-        Serial.println("Lumière VERTE #2 allumée");
+        Serial.println(F("Lumière VERTE #2 allumée"));
     } else {
         digitalWrite(GREEN_LIGHT, LOW);
         digitalWrite(RED_LIGHT, HIGH);
         digitalWrite(GREEN_BACKWARD_LIGHT, LOW);
 
-        Serial.println("Lumière ROUGE allumée");
+        Serial.println(F("Lumière ROUGE allumée"));
     }
 }

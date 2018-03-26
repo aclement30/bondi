@@ -1,6 +1,5 @@
 #include <ArduinoSTL.h>
 #include <string.h>
-#include <sstream>
 #include <SPI.h>
 #include <RFID.h>
 #include "constants.h"
@@ -18,9 +17,9 @@ LocationService::LocationService(
     rfid(RFID(RFID_RSA_PIN, RFID_RST_PIN)),
     railPoints(railPointsRef),
     routes(routesRef)
-{
-    // Init SPI bus
-    SPI.begin();
+{}
+
+void LocationService::setup() {
     rfid.init();
 }
 
@@ -32,8 +31,8 @@ void LocationService::refreshActivePoint() {
         return;
     }
 
-    Serial.print("* new RFID uid: ");
-    Serial.print(uid.c_str());
+    Serial.print(F("* new RFID uid: "));
+    Serial.println(uid.c_str());
 
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
     
@@ -83,7 +82,7 @@ void LocationService::followRoute(int routeId) {
             StateManager::getInstance().changeMovingDirection(MOVING_BACKWARD);
         }
     } else {
-        Serial.println("ERREUR: le robot doit être arrêté au dock avant de commencer la route !");
+        Serial.println(F("ERREUR: le robot doit être arrêté au dock avant de commencer la route !"));
     }
 }
 
@@ -103,19 +102,14 @@ bool LocationService::isDocked() {
 // PRIVATE
 
 string LocationService::readRfidPoint() {
-    Serial.println("* detecting RFID point");
+    Serial.println(F("* detecting RFID point"));
 
     if (rfid.isCard()) {  
-        Serial.println("* RFID card detected");
+        Serial.println(F("* RFID card detected"));
         if (rfid.readCardSerial()) {
-            Serial.println("* reading RFID card serial");
+            Serial.println(F("* reading RFID card serial"));
+            
             char uid[20];
-            stringstream charUid;
-
-            for(int n = 0; n < 5; n++) {
-                charUid << rfid.serNum[n] << ".";
-            }
-
             sprintf(uid, "%d.%d.%d.%d.%d", rfid.serNum[0], rfid.serNum[1], rfid.serNum[2], rfid.serNum[3], rfid.serNum[4]);
             
             return uid;
@@ -133,7 +127,7 @@ void LocationService::completeRoute() {
         currentRoutePtr = NULL;
     }
 
-    Serial.println("* complete route");
+    Serial.println(F("* complete route"));
 
     StateManager::getInstance().stop();
 }

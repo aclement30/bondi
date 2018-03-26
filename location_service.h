@@ -16,6 +16,7 @@ class LocationService {
 
         LocationService(vector<RailPoint> &railPointsRef, vector<Route> &routesRef);
 
+        void setup();
         void refreshActivePoint();
         void followRoute(int routeId);
         void unfollowRoute();

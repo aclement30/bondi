@@ -21,31 +21,31 @@ void StateManager::changeState(MachineState newState) {
     
     switch(currentState) {
         case Off: {
-            Serial.println("MODE: ARRET");
+            Serial.println(F("MODE: ARRET"));
             break;
         }
         case MainMenu: {
-            Serial.println("MENU PRINCIPAL");
+            Serial.println(F("MENU PRINCIPAL"));
             break;
         }
         case Automatic: {
-            Serial.println("MODE: AUTO");
+            Serial.println(F("MODE: AUTO"));
             break;
         }
         case ManualMenu: {
-            Serial.println("MODE: MANUEL");
+            Serial.println(F("MODE: MANUEL"));
             break;
         }
         case ManualMealDistribution: {
-            Serial.println("DISTRIBUTION MANUELLE");
+            Serial.println(F("DISTRIBUTION MANUELLE"));
             break;
         }
         case ManualControl: {
-            Serial.println("CONTROLE MANUEL");
+            Serial.println(F("CONTROLE MANUEL"));
             break;
         }
         case Diagnostic: {
-            Serial.println("MODE: DIAGNOSTIC");
+            Serial.println(F("MODE: DIAGNOSTIC"));
             break;
         }
     }

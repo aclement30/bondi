@@ -6,6 +6,20 @@
 |#########**#########|
 
 |####################|
+|	  	ERREUR		 |
+|Carte SD invalide   |
+|ou manquante.  	 |
+| 	Redemarrer [#]	 |
+|#########**#########|
+
+|####################|
+|	  	ERREUR		 |
+|Fichiers de config. |
+|manquants.			 |
+| 	Redemarrer [#]	 |
+|#########**#########|
+
+|####################|
 |   MENU PRINCIPAL   |
 |--------------------|
 |[1] Mode AUTO.		 |
