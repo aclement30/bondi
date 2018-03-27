@@ -81,6 +81,11 @@ int DisplayService::getLeftPadding(string text) {
     return padding / 2;
 }
 
+void DisplayService::clearLine(int row) {
+    lcd.setCursor(0, row);
+    lcd.print("                    ");
+}
+
 // PRIVATE
 
 DisplayService::DisplayService() :
@@ -94,9 +99,4 @@ DisplayService::DisplayService() :
     }
 
     lcd.backlight();
-}
-
-void DisplayService::clearLine(int row) {
-    lcd.setCursor(0, row);
-    lcd.print("                    ");
 }

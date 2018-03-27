@@ -69,6 +69,7 @@ class DisplayService {
         void showWarningScreen(vector<string> &message, string okButtonText);
         static string getCenteredText(string &text);
         static int getLeftPadding(string text);
+        void clearLine(int row);
 
     private:
         DisplayService();
@@ -87,8 +88,6 @@ class DisplayService {
         // we don't want.
 
         LiquidCrystal_I2C lcd;
-
-        void clearLine(int row);
 };
 
 #endif

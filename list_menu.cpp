@@ -39,7 +39,7 @@ void ListMenu::build(string title, vector<string> & listItems, string escapeText
             } else {
                 if (showEscapeLine && n == 3) {
                     // Add EXIT text on 4th line of last screen
-                    string escapeLine = " -- " + escapeText + " [F4] -- ";
+                    string escapeLine = " --- " + escapeText + " [*] -- ";
                     screen.push_back(escapeLine);
                 } else {
                     screen.push_back("");

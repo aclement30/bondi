@@ -22,12 +22,12 @@ class LocationService {
         void unfollowRoute();
         bool isFollowingRoute();
         bool isDocked();
+        bool readRfidPoint(char * uid);
 
     private:
         RFID rfid;
-        string lastRfidUid = "";
+        char lastRfidUid[20] = {};
 
-        string readRfidPoint();
         void completeRoute();
 };
 

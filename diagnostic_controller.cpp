@@ -2,6 +2,7 @@
 #include "conveyor_diagnostic_service.h"
 #include "rail_motor_diagnostic_service.h"
 #include "route_mapping_diagnostic_service.h"
+#include "rfid_reader_diagnostic_service.h"
 #include "display_service.h"
 #include "keypad_service.h"
 #include "navigation_menu.h"
@@ -65,12 +66,14 @@ void DiagnosticController::displayNavMenu() {
     const static char menuItem2[] PROGMEM = "Test mot. rail";
     const static char menuItem3[] PROGMEM = "Test conv. av";
     const static char menuItem4[] PROGMEM = "Test conv. arr";
-    
+    const static char menuItem5[] PROGMEM = "Test lect. RFID";
+
     vector<string> menuOptions = {
         getString(menuItem1),
         getString(menuItem2),
         getString(menuItem3),
-        getString(menuItem4)
+        getString(menuItem4),
+        getString(menuItem5)
     };
 
     NavigationMenu menu;
@@ -100,6 +103,10 @@ void DiagnosticController::displayNavMenu() {
             displayConfirmationScreen();
             break;
         }
+        case 5:
+            diagnosticPtr = new RfidReaderDiagnosticService(locationService);
+            displayConfirmationScreen();
+            break;
         case -1:
             StateManager::getInstance().changeState(MainMenu);
             break;

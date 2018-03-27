@@ -24,20 +24,22 @@ void LocationService::setup() {
 }
 
 void LocationService::refreshActivePoint() {
-    string uid = readRfidPoint();
-    
+    char uid[20];
+    bool rfidPoint = readRfidPoint(uid);
+
     // If UID is empty, it means o new RFID tag has been scanned, so we keep the active one
-    if (uid.length() == 0 || uid.compare(lastRfidUid) == 0) {
+    if (!rfidPoint || strcmp(uid, lastRfidUid) == 0) {
         return;
     }
 
     Serial.print(F("* new RFID uid: "));
-    Serial.println(uid.c_str());
+    Serial.println(uid);
+    strcpy(lastRfidUid, uid);
 
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
     
     // New rail point detected: match RFID uid with corresponding rail point
-    int pointIndex = getRailPointIndexFromRfid(railPoints, uid.c_str(), movingDirection);
+    int pointIndex = getRailPointIndexFromRfid(railPoints, uid, movingDirection);
     if (pointIndex == -1) {
         return;
     }
@@ -48,8 +50,6 @@ void LocationService::refreshActivePoint() {
     }
 
     activeRailPointPtr = new RailPoint(railPoints.at(pointIndex));
-
-    lastRfidUid = uid;
 
     if (currentRoutePtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPointId) {
         completeRoute();
@@ -99,27 +99,25 @@ bool LocationService::isDocked() {
     return movingDirection == MOVING_IDLE && activeRailPointPtr != NULL && activeRailPointPtr->isDock();
 }
 
-// PRIVATE
-
-string LocationService::readRfidPoint() {
+bool LocationService::readRfidPoint(char * uid) {
     Serial.println(F("* detecting RFID point"));
 
     if (rfid.isCard()) {  
         Serial.println(F("* RFID card detected"));
         if (rfid.readCardSerial()) {
             Serial.println(F("* reading RFID card serial"));
-            
-            char uid[20];
             sprintf(uid, "%d.%d.%d.%d.%d", rfid.serNum[0], rfid.serNum[1], rfid.serNum[2], rfid.serNum[3], rfid.serNum[4]);
             
-            return uid;
+            return true;
         }
 
         rfid.halt();
     }
 
-    return "";
+    return false;
 }
+
+// PRIVATE
 
 void LocationService::completeRoute() {
     if (currentRoutePtr != NULL) {
