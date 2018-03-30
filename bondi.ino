@@ -4,6 +4,7 @@
 #include "config.h"
 #include "constants.h"
 #include "state_manager.h"
+#include "string.h"
 
 // Controllers
 #include "controller.h"
@@ -25,8 +26,6 @@
 #include "location_service.h"
 #include "safety_service.h"
 
-#include "string.h"
-
 // MOTORS
 
 RailMotor mainMotor = RailMotor();
@@ -39,7 +38,7 @@ ConveyorMotor conveyorBack = ConveyorMotor(
     CONVEYOR_MOTOR_BACK_REVERSE
 );
 
-Config config = loadStaticConfiguration();
+Config config = Config();
 
 // Services
 
@@ -133,7 +132,7 @@ void setup() {
     displayStartupScreen();
 
     // Load config
-    //config = loadSDCardConfiguration();
+    config = loadConfiguration();
 
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);

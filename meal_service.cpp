@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <TimeLib.h>
+#include "config.h"
 #include "constants.h"
 #include "conveyor_motor.h"
 #include "display_service.h"
@@ -22,7 +23,8 @@ MealService::MealService(
     conveyorFront(conveyorFrontRef),
     conveyorBack(conveyorBackRef),
     meals(mealsRef),
-    locationService(locationServiceRef)
+    locationService(locationServiceRef),
+    mealSequences(vector<MealSequence>())
 {}
 
 void MealService::refreshCurrentMeal() {
@@ -55,6 +57,8 @@ void MealService::selectMeal(int mealId) {
     currentMealPtr = new Meal(meals.at(mealIndex));
     sequencesCount = 0;
     displayMealDistributionScreen(currentMealPtr->name);
+
+    mealSequences = loadMealSequences(getString(FILE_MEAL_SEQUENCES), currentMealPtr->id);
 
     // char message[] = "Repas sélectionné: ";
     // Serial.println(strcat(message, currentMealPtr->name));
@@ -122,15 +126,15 @@ void MealService::refreshCurrentSequence() {
     sequencesCount++;
 
     // All sequences have been done, complete distribution
-    if (sequencesCount > currentMealPtr->sequences.size()) {
+    if (sequencesCount > mealSequences.size()) {
         completeDistribution();
         return;
     }
     
     // Find corresponding meal sequence for active point
-    int sequenceIndex = currentMealPtr->getMealSequenceIndex(locationService.activeRailPointPtr);
+    int sequenceIndex = MealSequence::getSequenceIndex(mealSequences, locationService.activeRailPointPtr);
     if (sequenceIndex != -1) {
-        currentSequencePtr = new MealSequence(currentMealPtr->sequences.at(sequenceIndex));
+        currentSequencePtr = new MealSequence(mealSequences.at(sequenceIndex));
     }
 }
 
@@ -157,6 +161,7 @@ void MealService::completeDistribution() {
 
     lastPointId = 0;
     sequencesCount = 0;
+    mealSequences.clear();
 }
 
 void MealService::abortDistribution() {
@@ -171,6 +176,7 @@ void MealService::abortDistribution() {
 
     lastPointId = 0;
     sequencesCount = 0;
+    mealSequences.clear();
 }
 
 void MealService::stopFeeding() {

@@ -1,5 +1,6 @@
 #include <SD.h>
 #include "constants.h"
+#include "string.h"
 #include "file_service.h"
 
 FileService::FileService() {
@@ -36,9 +37,9 @@ bool FileService::validateConfigFiles() {
     int matchingFilesCount = 0;
     int configFilesCount = 3;
     char * configFiles[3] = {
-        "MEALS.CSV",
-        "POINTS.CSV",
-        "MEAL_SEQ.CSV"
+        getString(FILE_MEALS),
+        getString(FILE_POINTS),
+        getString(FILE_MEAL_SEQUENCES)
     };
 
     char * filename;

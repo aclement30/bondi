@@ -3,25 +3,36 @@
 
 #include "constants.h"
 #include "meal.h"
+#include "meal_sequence.h"
+#include "rail_point.h"
 #include "route.h"
 
 #ifndef CONFIG_H
 #define CONFIG_H
 
+using namespace std;
+
 struct Config {
-    std::vector<RailPoint> railPoints;
-    std::vector<Route> routes;
-    std::vector<Meal> meals;
+    vector<RailPoint> railPoints;
+    vector<Route> routes;
+    vector<Meal> meals;
 };
 
-std::vector<RailPoint> loadRailPoints(const char * filename);
-std::vector<Meal> loadMeals(const char * filename);
-std::vector<MealSequence> loadMealSequences(const char * filename);
+enum ConfigurationSource {
+    Static,
+    SDCard
+};
+
+vector<RailPoint> loadRailPoints(const char * filename);
+vector<Meal> loadMeals(const char * filename);
+vector<MealSequence> loadStaticMealSequences(int mealId);
+vector<MealSequence> loadMealSequences(const char * filename, int mealId);
 
 void displaySDCardErrorScreen();
 void displayConfigurationErrorScreen();
 
 Config loadStaticConfiguration();
 Config loadSDCardConfiguration();
+Config loadConfiguration();
 
 #endif

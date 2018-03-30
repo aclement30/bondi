@@ -7,6 +7,8 @@
 #include "string.h"
 #include "config.h"
 
+const ConfigurationSource configSource = Static;
+
 std::vector<RailPoint> loadRailPoints(const char * filename) {
     std::vector<RailPoint> points;
     
@@ -16,7 +18,7 @@ std::vector<RailPoint> loadRailPoints(const char * filename) {
     File file = fileService.openFile(filename);
     if (!file) {
         Serial.println(F("Erreur configuration: le fichier points.csv ne peut être ouvert!"));
-        return;
+        return points;
     }
 
     int lineNumber = 0;
@@ -52,7 +54,7 @@ std::vector<Meal> loadMeals(const char * filename) {
     File file = fileService.openFile(filename);
     if (!file) {
         Serial.println(F("Erreur configuration: le fichier meals.csv ne peut être ouvert!"));
-        return;
+        return meals;
     }
 
     int lineNumber = 0;
@@ -68,10 +70,7 @@ std::vector<Meal> loadMeals(const char * filename) {
         char * segments[4];
         FileService::splitLine(line, segments);
         
-        // TODO: Remove sequence
-        std::vector<MealSequence> sequence;
-        
-        Meal meal(atoi(segments[0]), segments[1], atoi(segments[2]), atoi(segments[3]), sequence);
+        Meal meal(atoi(segments[0]), segments[1], atoi(segments[2]), atoi(segments[3]));
         meals.push_back(meal);
         
         lineNumber += 1;
@@ -82,7 +81,28 @@ std::vector<Meal> loadMeals(const char * filename) {
     return meals;
 }
 
-std::vector<MealSequence> loadMealSequences(const char * filename) {
+std::vector<MealSequence> loadStaticMealSequences(int mealId) {
+    std::vector<MealSequence> sequences;
+
+    switch(mealId) {
+        case 1:
+            sequences.push_back(MealSequence("G1", 1000, 2, 25, 50));
+            sequences.push_back(MealSequence("G2", 2, 1000, 50, 75));
+        break;
+        case 2:
+            sequences.push_back(MealSequence("P1", 000, 1, 50, 25));
+            sequences.push_back(MealSequence("P2", 1, 1000, 25, 0));
+        break;
+    }
+
+    return sequences;
+}
+
+std::vector<MealSequence> loadMealSequences(const char * filename, int mealId) {
+    if (configSource == Static) {
+        return loadStaticMealSequences(mealId);
+    }
+
     std::vector<MealSequence> mealSequences;
 
     Serial.println(F("* chargement de la configuration des séquences de repas"));
@@ -91,7 +111,7 @@ std::vector<MealSequence> loadMealSequences(const char * filename) {
     File file = fileService.openFile(filename);
     if (!file) {
         Serial.println(F("Erreur configuration: le fichier meal_seq.csv ne peut être ouvert!"));
-        return;
+        return mealSequences;
     }
 
     int lineNumber = 0;
@@ -107,7 +127,13 @@ std::vector<MealSequence> loadMealSequences(const char * filename) {
         char * segments[6];
         FileService::splitLine(line, segments);
         
-        MealSequence mealSequence(segments[1], atoi(segments[0]), atoi(segments[2]), atoi(segments[3]), atoi(segments[4]), atoi(segments[5]));
+        // Only keep sequences from selected meal
+        int sequenceMealId = atoi(segments[0]);
+        if (sequenceMealId != mealId) {
+            continue;
+        }
+
+        MealSequence mealSequence(segments[1], atoi(segments[2]), atoi(segments[3]), atoi(segments[4]), atoi(segments[5]));
         mealSequences.push_back(mealSequence);
         
         lineNumber += 1;
@@ -175,19 +201,9 @@ Config loadStaticConfiguration() {
         Route(2, MOVING_BACKWARD, 1000, 1000)
     };
 
-    std::vector<MealSequence> sequence1 = {
-        MealSequence("G1", 1, 1000, 2, 25, 50),
-        MealSequence("G2", 1, 2, 1000, 50, 75)
-    };
-
-    std::vector<MealSequence> sequence2 = {
-        MealSequence("P1", 2, 000, 1, 50, 25),
-        MealSequence("P2", 2, 1, 1000, 25, 0),
-    };
-
     std::vector<Meal> meals = {
-        Meal(1, "Matin Gd.E", 420, 1, sequence1),
-        Meal(2, "Matin Pt.E", 450, 2, sequence2)
+        Meal(1, "Matin Gd.E", 420, 1),
+        Meal(2, "Matin Pt.E", 450, 2)
     };
 
     Config config = {
@@ -205,12 +221,12 @@ Config loadSDCardConfiguration() {
     FileService fileService = FileService();
     if (!fileService.validateSDCard()) {
         displaySDCardErrorScreen();
-        return;
+        return config;
     }
 
     if (!fileService.validateConfigFiles()) {
         displayConfigurationErrorScreen();
-        return;
+        return config;
     }
 
     config.routes = {
@@ -221,4 +237,12 @@ Config loadSDCardConfiguration() {
     config.meals = loadMeals("meals.csv");
 
     return config;
+}
+
+Config loadConfiguration() {
+    if (configSource == Static) {
+        return loadStaticConfiguration();
+    }
+
+    return loadSDCardConfiguration();
 }

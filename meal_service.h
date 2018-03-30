@@ -4,6 +4,7 @@
 #include "keypad_service.h"
 #include "location_service.h"
 #include "meal.h"
+#include "meal_sequence.h"
 #include "route.h"
 
 #ifndef MEALSERVICE_H
@@ -40,6 +41,7 @@ class MealService {
         ConveyorMotor conveyorFront;
         ConveyorMotor conveyorBack;
         vector<int> distributedMealIds;
+        vector<MealSequence> mealSequences;
         int currentPointId = 0;
         int lastPointId = 0;
         int sequencesCount = 0;

@@ -69,4 +69,8 @@ const PinConfig INPUTS[1] = {
 };
 const int INPUTS_COUNT = 1;
 
+const char PROGMEM FILE_MEAL_SEQUENCES[] = "MEAL_SEQ.CSV";
+const char PROGMEM FILE_POINTS[] = "POINTS.CSV";
+const char PROGMEM FILE_MEALS[] = "MEALS.CSV";
+
 #endif
