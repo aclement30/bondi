@@ -5,7 +5,11 @@
 #include "string.h"
 #include "safety_service.h"
 
-SafetyService::SafetyService() {
+SafetyService::SafetyService(
+    MealService & mealServiceRef
+) : 
+    mealService(mealServiceRef)
+{
     pinMode(SAFETY_SENSOR_FRONT, INPUT);
     pinMode(SAFETY_SENSOR_BACK, INPUT);
 }
@@ -39,6 +43,10 @@ void SafetyService::displaySafetyStopWarning() {
     if (canContinue) {
         StateManager::getInstance().disengageSafetyMode();
     } else {
+        if (mealService.hasCurrentMeal()) {
+            mealService.abortDistribution();
+        }
+
         StateManager::getInstance().changeState(MainMenu);
     }
 }

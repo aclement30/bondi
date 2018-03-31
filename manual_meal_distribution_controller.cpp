@@ -1,4 +1,5 @@
 #include "display_service.h"
+#include "location_service.h"
 #include "meal_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
@@ -7,7 +8,13 @@
 
 using namespace std;
 
-ManualMealDistributionController::ManualMealDistributionController(MealService & mealServiceRef) : mealService(mealServiceRef) {}
+ManualMealDistributionController::ManualMealDistributionController(
+    MealService & mealServiceRef,
+    LocationService & locationServiceRef
+) : 
+    mealService(mealServiceRef),
+    locationService(locationServiceRef)
+{}
 
 void ManualMealDistributionController::handle() {
     if (mealService.hasCurrentMeal()) {
@@ -57,10 +64,30 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
     int selectedOption = menu.waitForSelection();
 
     if (selectedOption != -1) {
+        if (!locationService.isDocked()) {
+            displayDockingErrorScreen();
+            StateManager::getInstance().changeState(ManualMenu);
+            return;
+        }
+        
         mealService.selectMeal(mealService.meals[selectedOption - 1].id);
     } else {
         StateManager::getInstance().changeState(ManualMenu);
     }
+}
+
+void ManualMealDistributionController::displayDockingErrorScreen() {
+    const static char errorMsg1[] PROGMEM = "Le robot doit etre";
+    const static char errorMsg2[] PROGMEM = "positionne au dock.";
+    const static char okBtn[] PROGMEM = "OK";
+
+    vector<string> errorMessage = {
+        getString(errorMsg1),
+        getString(errorMsg2)
+    };
+    DisplayService::getInstance().showErrorScreen(errorMessage, getString(okBtn));
+    KeypadService::getInstance().waitForConfirmation();
+    return;
 }
 
 bool ManualMealDistributionController::displayEscapeConfirmationScreen() {

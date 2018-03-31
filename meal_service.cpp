@@ -29,7 +29,7 @@ MealService::MealService(
 
 void MealService::refreshCurrentMeal() {
     // Skip if there is already a meal being distributed
-    if (hasCurrentMeal()) return;
+    if (hasCurrentMeal() || !locationService.isDocked()) return;
 
     // Search meals scheduled within the last hour inclusively
     int minMoment = ((hour() - 1) * 60) + minute();
@@ -77,17 +77,17 @@ void MealService::distributeMeal() {
         locationService.followRoute(currentMealPtr->routeId);
     }
 
-    Serial.println(F("* distributeMeal | sequence"));
-    delay(250);
+    // Serial.println(F("* distributeMeal | sequence"));
+    // delay(250);
 
     if (currentSequencePtr) {
-        Serial.println(F("* display sequence info"));
-        delay(250);
+        // Serial.println(F("* display sequence info"));
+        // delay(250);
 
         displaySequenceInfo(currentSequencePtr->name, currentSequencePtr->feed1Flow, currentSequencePtr->feed2Flow);
 
         Serial.println(F("* start conveyor"));
-        delay(250);
+        // delay(250);
 
         ConveyorSide feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
         if (currentSequencePtr->feed1Flow > 0) {
@@ -98,7 +98,7 @@ void MealService::distributeMeal() {
         }
     } else {
         Serial.println(F("* stop feeding"));
-        delay(250);
+        // delay(250);
 
         // Make sure all feed conveyors are stopped
         stopFeeding();

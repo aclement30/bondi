@@ -43,8 +43,8 @@ Config config = Config();
 // Services
 
 LocationService locationService = LocationService(config.railPoints, config.routes);
-SafetyService safetyService = SafetyService();
 MealService mealService = MealService(conveyorFront, conveyorBack, config.meals, locationService);
+SafetyService safetyService = SafetyService(mealService);
 
 Controller *currentControllerPtr = NULL;
 MachineState previousState = Off;
@@ -87,7 +87,7 @@ void createController(MachineState currentState) {
             break;
         }
         case ManualMealDistribution: {
-            currentControllerPtr = new ManualMealDistributionController(mealService);
+            currentControllerPtr = new ManualMealDistributionController(mealService, locationService);
             // Serial.println(F(" (new ManualControlController)"));
             break;
         }
@@ -152,10 +152,10 @@ void loop() {
     Serial.println(F("* loop"));
     
     // Stop right here if power is OFF
-    if (!isPowerON()) {
-        delay(1000);
-        return;
-    }
+    // if (!isPowerON()) {
+    //     delay(1000);
+    //     return;
+    // }
 
     // Serial.println("* check safety");
     safetyService.checkSafetyState();
@@ -171,7 +171,7 @@ void loop() {
     
     Serial.println(F("* handle"));
 
-    delay(250);
+    // delay(250);
 
     if (KeypadService::getInstance().isEscapeKeyPressed()) {
         // Stop motor

@@ -67,6 +67,13 @@
 |#########**#########|
 
 |####################|
+|	  	ERREUR		 |
+|Le robot doit etre  |
+|positionne au dock. |
+|  Recommencer [F1]	 |
+|#########**#########|
+
+|####################|
 |   SÉLECTION REPAS	 |
 |--------------------|
 |[1] Mat-G.Etb 	  o  |

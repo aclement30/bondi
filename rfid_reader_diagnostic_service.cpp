@@ -18,6 +18,8 @@ void RfidReaderDiagnosticService::startDiagnostic() {
 }
 
 void RfidReaderDiagnosticService::continueDiagnostic() {
+    KeypadService::getInstance().waitForActivity(1000);
+
     char uid[20];
     bool rfidPoint = locationService.readRfidPoint(uid);
 
@@ -44,8 +46,6 @@ void RfidReaderDiagnosticService::continueDiagnostic() {
 
     RailPoint & railPoint = locationService.railPoints.at(pointIndex);
     displayRailPoint(railPoint.name);
-
-    KeypadService::getInstance().waitForActivity(1000);
 }
 
 void RfidReaderDiagnosticService::abortDiagnostic() {}

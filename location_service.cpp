@@ -27,7 +27,14 @@ void LocationService::refreshActivePoint() {
     char uid[20];
     bool rfidPoint = readRfidPoint(uid);
 
-    // If UID is empty, it means o new RFID tag has been scanned, so we keep the active one
+    // Always reset active rail point where not following a route
+    if (currentRoutePtr == NULL && activeRailPointPtr != NULL) {
+        delete activeRailPointPtr;
+        activeRailPointPtr = NULL;
+        strcpy(lastRfidUid, "");
+    }
+
+    // If UID is empty, it means a new RFID tag has been scanned, so we keep the active one
     if (!rfidPoint || strcmp(uid, lastRfidUid) == 0) {
         return;
     }

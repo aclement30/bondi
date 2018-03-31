@@ -6,15 +6,20 @@
 
 class ManualMealDistributionController: public Controller {
     public:
-        ManualMealDistributionController(MealService & mealServiceRef);
+        ManualMealDistributionController(
+            MealService & mealServiceRef,
+            LocationService & locationServiceRef
+        );
 
         void handle();
         void escape();
 
     private:
         MealService & mealService;
+        LocationService & locationService;
 
         void displayMealSelectionScreen();
+        void displayDockingErrorScreen();
         bool displayEscapeConfirmationScreen();
 };
 
