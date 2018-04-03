@@ -8,7 +8,7 @@ using namespace std;
 
 class RfidReaderDiagnosticService: public DiagnosticService {
     public:
-        RfidReaderDiagnosticService(LocationService & locationServiceRef);
+        RfidReaderDiagnosticService();
 
         void startDiagnostic();
         void continueDiagnostic();
@@ -16,7 +16,6 @@ class RfidReaderDiagnosticService: public DiagnosticService {
         string getTitle();
 
     private:
-        LocationService & locationService;
         char lastRfidUid[20];
 
         void displayDiagnosticScreen();

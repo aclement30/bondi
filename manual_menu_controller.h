@@ -6,6 +6,7 @@
 class ManualMenuController: public Controller {
     public:
         void handle();
+        void resume();
         void escape();
 
     private:

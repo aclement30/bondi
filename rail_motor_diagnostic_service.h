@@ -8,7 +8,7 @@ using namespace std;
 
 class RailMotorDiagnosticService: public DiagnosticService {
     public:
-        RailMotorDiagnosticService(RailMotor &motorRef);
+        RailMotorDiagnosticService();
 
         void startDiagnostic();
         void continueDiagnostic();
@@ -17,7 +17,6 @@ class RailMotorDiagnosticService: public DiagnosticService {
         void displayDirection(MovingDirection direction);
 
     private:
-        RailMotor &railMotor;
         int currentStep = 0;
 
         void displayDiagnosticScreen();

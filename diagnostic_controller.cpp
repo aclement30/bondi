@@ -12,17 +12,13 @@
 
 using namespace std;
 
-DiagnosticController::DiagnosticController(
-    LocationService & locationServiceRef,
-    RailMotor & railMotorRef,
-    ConveyorMotor & conveyorFrontRef,
-    ConveyorMotor & conveyorBackRef
-) : 
-    locationService(locationServiceRef),
-    railMotor(railMotorRef),
-    conveyorFront(conveyorFrontRef),
-    conveyorBack(conveyorBackRef)
-{}
+DiagnosticController::DiagnosticController() {}
+
+DiagnosticController::~DiagnosticController() {
+    if (diagnosticPtr != NULL) {
+        delete diagnosticPtr;
+    }
+}
 
 void DiagnosticController::handle() {
     if (diagnosticPtr == NULL) {
@@ -34,6 +30,10 @@ void DiagnosticController::handle() {
     } else {
         diagnosticPtr->continueDiagnostic();
     }
+}
+
+void DiagnosticController::resume() {
+    handle();
 }
 
 void DiagnosticController::escape() {
@@ -84,27 +84,27 @@ void DiagnosticController::displayNavMenu() {
 
     switch(selectedOption) {
         case 1:
-            diagnosticPtr = new RouteMappingDiagnosticService(locationService);
+            diagnosticPtr = new RouteMappingDiagnosticService();
             displayConfirmationScreen();
             break;
         case 2:
-            diagnosticPtr = new RailMotorDiagnosticService(railMotor);
+            diagnosticPtr = new RailMotorDiagnosticService();
             displayConfirmationScreen();
             break;
         case 3: {
             const static char conveyorName[] PROGMEM = "CONVOYEUR AVANT";
-            diagnosticPtr = new ConveyorDiagnosticService(conveyorFront, getString(conveyorName));
+            diagnosticPtr = new ConveyorDiagnosticService(FrontConveyor::getInstance(), getString(conveyorName));
             displayConfirmationScreen();
             break;
         }
         case 4: {
             const static char conveyorName[] PROGMEM = "CONVOYEUR ARRIERE";
-            diagnosticPtr = new ConveyorDiagnosticService(conveyorBack, getString(conveyorName));
+            diagnosticPtr = new ConveyorDiagnosticService(BackConveyor::getInstance(), getString(conveyorName));
             displayConfirmationScreen();
             break;
         }
         case 5:
-            diagnosticPtr = new RfidReaderDiagnosticService(locationService);
+            diagnosticPtr = new RfidReaderDiagnosticService();
             displayConfirmationScreen();
             break;
         case -1:

@@ -8,7 +8,7 @@
 
 using namespace std;
 
-RailMotorDiagnosticService::RailMotorDiagnosticService(RailMotor &motorRef) : railMotor(motorRef) {}
+RailMotorDiagnosticService::RailMotorDiagnosticService() {}
 
 void RailMotorDiagnosticService::startDiagnostic() {
     completed = false;
@@ -43,22 +43,22 @@ void RailMotorDiagnosticService::continueDiagnostic() {
         case 1:
             KeypadService::getInstance().waitForActivity(1000);
             displayDirection(MOVING_FORWARD);
-            railMotor.moveForward();
+            RailMotor::getInstance().moveForward();
         break;
         case 2:
             KeypadService::getInstance().waitForActivity(4000);
             displayDirection(MOVING_IDLE);
-            railMotor.stop();
+            RailMotor::getInstance().stop();
         break;
         case 3:
             KeypadService::getInstance().waitForActivity(1000);
             displayDirection(MOVING_BACKWARD);
-            railMotor.moveBackward();
+            RailMotor::getInstance().moveBackward();
         break;
         case 4:
             KeypadService::getInstance().waitForActivity(4000);
             displayDirection(MOVING_IDLE);
-            railMotor.stop();
+            RailMotor::getInstance().stop();
         break;
         default:
             completed = true;
@@ -68,7 +68,7 @@ void RailMotorDiagnosticService::continueDiagnostic() {
 }
 
 void RailMotorDiagnosticService::abortDiagnostic() {
-    railMotor.stop();
+    RailMotor::getInstance().stop();
     displayDirection(MOVING_IDLE);
 }
 

@@ -1,15 +1,13 @@
 #include "constants.h"
+#include "conveyor_motor.h"
 #include "display_service.h"
 #include "keypad_service.h"
+#include "rail_motor.h"
 #include "state_manager.h"
 #include "string.h"
 #include "safety_service.h"
 
-SafetyService::SafetyService(
-    MealService & mealServiceRef
-) : 
-    mealService(mealServiceRef)
-{
+SafetyService::SafetyService() {
     pinMode(SAFETY_SENSOR_FRONT, INPUT);
     pinMode(SAFETY_SENSOR_BACK, INPUT);
 }
@@ -21,7 +19,10 @@ void SafetyService::checkSafetyState() {
         Serial.println(F("Barre de sécurité enclenchée"));
 
         // Shutdown everything immediately
+        RailMotor::getInstance().stop();
         StateManager::getInstance().safetyStop();
+        FrontConveyor::getInstance().stop();
+        BackConveyor::getInstance().stop();
 
         displaySafetyStopWarning();
     }
@@ -43,11 +44,7 @@ void SafetyService::displaySafetyStopWarning() {
     if (canContinue) {
         StateManager::getInstance().disengageSafetyMode();
     } else {
-        if (mealService.hasCurrentMeal()) {
-            mealService.abortDistribution();
-        }
-
-        StateManager::getInstance().changeState(MainMenu);
+        StateManager::getInstance().getCurrentController()->escape();
     }
 }
 

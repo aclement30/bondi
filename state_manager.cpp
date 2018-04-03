@@ -1,4 +1,13 @@
 #include "constants.h"
+#include "controller.h"
+#include "automatic_controller.h"
+#include "diagnostic_controller.h"
+#include "history_controller.h"
+#include "main_menu_controller.h"
+#include "manual_control_controller.h"
+#include "manual_meal_distribution_controller.h"
+#include "manual_menu_controller.h"
+#include "off_controller.h"
 #include "state_manager.h"
 
 using namespace std;
@@ -12,8 +21,13 @@ MachineState StateManager::getPreviousState() {
 }
 
 void StateManager::changeState(MachineState newState) {
-    if (currentState == newState) {
-        return;
+    if (currentControllerPtr != NULL) {
+        if (currentState == newState) {
+            return;
+        }
+
+        delete currentControllerPtr;
+        currentControllerPtr = NULL;
     }
 
     previousState = currentState;
@@ -21,34 +35,50 @@ void StateManager::changeState(MachineState newState) {
     
     switch(currentState) {
         case Off: {
+            currentControllerPtr = new OffController();
             Serial.println(F("MODE: ARRET"));
             break;
         }
         case MainMenu: {
+            currentControllerPtr = new MainMenuController();
             Serial.println(F("MENU PRINCIPAL"));
             break;
         }
         case Automatic: {
+            currentControllerPtr = new AutomaticController();
             Serial.println(F("MODE: AUTO"));
             break;
         }
         case ManualMenu: {
+            currentControllerPtr = new ManualMenuController();
             Serial.println(F("MODE: MANUEL"));
             break;
         }
         case ManualMealDistribution: {
+            currentControllerPtr = new ManualMealDistributionController();
             Serial.println(F("DISTRIBUTION MANUELLE"));
             break;
         }
         case ManualControl: {
+            currentControllerPtr = new ManualControlController();
             Serial.println(F("CONTROLE MANUEL"));
             break;
         }
+        case History: {
+            currentControllerPtr = new HistoryController();
+            Serial.println(F("HISTORIQUE"));
+            break;
+        }
         case Diagnostic: {
+            currentControllerPtr = new DiagnosticController();
             Serial.println(F("MODE: DIAGNOSTIC"));
             break;
         }
     }
+}
+
+Controller * StateManager::getCurrentController() {
+    return currentControllerPtr;
 }
 
 MovingDirection StateManager::getMovingDirection() {
@@ -76,6 +106,8 @@ void StateManager::safetyStop() {
 
 void StateManager::disengageSafetyMode() {
     safetyModeActivated = false;
+    
+    currentControllerPtr->resume();
 }
 
 // PRIVATE

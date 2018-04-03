@@ -6,6 +6,12 @@
 
 using namespace std;
 
+DisplayService & DisplayService::getInstance() {
+    static DisplayService instance; // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
+}
+
 void DisplayService::printTitle(string title) {
     printCenter(title, 0);
 }
@@ -88,9 +94,7 @@ void DisplayService::clearLine(int row) {
 
 // PRIVATE
 
-DisplayService::DisplayService() :
-    lcd(LiquidCrystal_I2C(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE))
-{
+DisplayService::DisplayService() : lcd(LiquidCrystal_I2C(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE)) {
     lcd.begin(20, 4);
 
     int charBitmapSize = (sizeof(charBitmap ) / sizeof (charBitmap[0]));

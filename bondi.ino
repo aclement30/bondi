@@ -1,117 +1,26 @@
 #include <ArduinoSTL.h>
 //#include <avr/wdt.h>
 
-#include "config.h"
 #include "constants.h"
-#include "state_manager.h"
 #include "string.h"
-
-// Controllers
-#include "controller.h"
-#include "automatic_controller.h"
-#include "diagnostic_controller.h"
-#include "history_controller.h"
-#include "main_menu_controller.h"
-#include "manual_control_controller.h"
-#include "manual_meal_distribution_controller.h"
-#include "manual_menu_controller.h"
-#include "off_controller.h"
+#include "config.h"
 
 // Motors
 #include "conveyor_motor.h"
 #include "rail_motor.h"
 
 // Services
+#include "state_manager.h"
 #include "keypad_service.h"
 #include "location_service.h"
+#include "route_service.h"
 #include "safety_service.h"
 
-// MOTORS
-
-RailMotor mainMotor = RailMotor();
-ConveyorMotor conveyorFront = ConveyorMotor(
-    CONVEYOR_MOTOR_FRONT_PWM,
-    CONVEYOR_MOTOR_FRONT_REVERSE
-);
-ConveyorMotor conveyorBack = ConveyorMotor(
-    CONVEYOR_MOTOR_BACK_PWM,
-    CONVEYOR_MOTOR_BACK_REVERSE
-);
-
-Config config = Config();
-
 // Services
-
-LocationService locationService = LocationService(config.railPoints, config.routes);
-MealService mealService = MealService(conveyorFront, conveyorBack, config.meals, locationService);
-SafetyService safetyService = SafetyService(mealService);
-
-Controller *currentControllerPtr = NULL;
-MachineState previousState = Off;
+SafetyService safetyService = SafetyService();
 
 bool isPowerON() {
     return digitalRead(POWER_BUTTON) == LOW;
-}
-
-void createController(MachineState currentState) {
-    if (currentControllerPtr != NULL) {
-        if (previousState == currentState) {
-        //   Serial.println(" (use existing controller)");
-          return;
-        }
-
-        delete currentControllerPtr;
-        currentControllerPtr = NULL;
-    }
-
-    previousState = currentState;
-
-    switch(currentState) {
-        case Off: {
-            currentControllerPtr = new OffController();
-            break;
-        }
-        case MainMenu: {
-            currentControllerPtr = new MainMenuController();
-            // Serial.println(F(" (new MainMenuController)"));
-            break;
-        }
-        case Automatic: {
-            currentControllerPtr = new AutomaticController(mealService);
-            // Serial.println(F(" (new AutomaticController)"));
-            break;
-        }
-        case ManualMenu: {
-            currentControllerPtr = new ManualMenuController();
-            // Serial.println(F(" (new ManualMenuController)"));
-            break;
-        }
-        case ManualMealDistribution: {
-            currentControllerPtr = new ManualMealDistributionController(mealService, locationService);
-            // Serial.println(F(" (new ManualControlController)"));
-            break;
-        }
-        case ManualControl: {
-            currentControllerPtr = new ManualControlController(mealService);
-            // Serial.println(F(" (new ManualControlController)"));
-            break;
-        }
-        case History: {
-            currentControllerPtr = new HistoryController(mealService);
-            // Serial.println(F(" (new HistoryController)"));
-            break;
-        }
-        case Diagnostic: {
-            currentControllerPtr = new DiagnosticController(
-                locationService,
-                mainMotor,
-                conveyorFront,
-                conveyorBack
-            );
-            // Serial.println(F(" (new DiagnosticController)"));
-            break;
-        }
-    }
 }
 
 void displayStartupScreen() {
@@ -132,13 +41,16 @@ void setup() {
     displayStartupScreen();
 
     // Load config
-    config = loadConfiguration();
+    Config config = loadConfiguration();
+    AppConfig::getInstance().railPoints = config.railPoints;
+    AppConfig::getInstance().routes = config.routes;
+    AppConfig::getInstance().meals = config.meals;
 
     for (int n = 0; n < INPUTS_COUNT; n++) {
         pinMode(INPUTS[n], INPUT);
     }
 
-    locationService.setup();
+    LocationService::getInstance().setup();
 
     Serial.println(F("Configuration initiale"));
 
@@ -160,14 +72,8 @@ void loop() {
     // Serial.println("* check safety");
     safetyService.checkSafetyState();
     
-    Serial.println(F("* refresh point"));
-    locationService.refreshActivePoint();
-    
     // Serial.println("* main motor");
-    mainMotor.loop();
-    
-    // Serial.print("* create controller");
-    createController(StateManager::getInstance().getState());
+    // mainMotor.loop();
     
     Serial.println(F("* handle"));
 
@@ -175,12 +81,12 @@ void loop() {
 
     if (KeypadService::getInstance().isEscapeKeyPressed()) {
         // Stop motor
-        mainMotor.stop();
+        RailMotor::getInstance().stop();
 
-        currentControllerPtr->escape();
+        StateManager::getInstance().getCurrentController()->escape();
         
         KeypadService::getInstance().resetEscapeKey();
     } else {
-        currentControllerPtr->handle();
+        StateManager::getInstance().getCurrentController()->handle();
     }
 }

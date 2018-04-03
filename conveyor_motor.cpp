@@ -43,3 +43,23 @@ void ConveyorMotor::stop() {
     feedingSide = CONVEYOR_IDLE;
     speed = 0;
 }
+
+// FRONT CONVEYOR
+
+FrontConveyor & FrontConveyor::getInstance() {
+    static FrontConveyor instance; // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
+}
+
+FrontConveyor::FrontConveyor() : ConveyorMotor(CONVEYOR_MOTOR_FRONT_PWM, CONVEYOR_MOTOR_FRONT_REVERSE) {}
+
+// BACK CONVEYOR
+
+BackConveyor & BackConveyor::getInstance() {
+    static BackConveyor instance;   // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
+}
+
+BackConveyor::BackConveyor() : ConveyorMotor(CONVEYOR_MOTOR_BACK_PWM, CONVEYOR_MOTOR_BACK_REVERSE) {}

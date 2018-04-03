@@ -1,23 +1,28 @@
+#include "config.h"
 #include "diagnostic_service.h"
 #include "display_service.h"
 #include "keypad_service.h"
 #include "location_service.h"
 #include "navigation_menu.h"
 #include "route.h"
+#include "route_service.h"
 #include "string.h"
 #include "route_mapping_diagnostic_service.h"
 
 using namespace std;
 
-RouteMappingDiagnosticService::RouteMappingDiagnosticService(LocationService &locationServiceRef) : 
-    locationService(locationServiceRef),
-    routes(locationServiceRef.routes)
-{}
+RouteMappingDiagnosticService::RouteMappingDiagnosticService() {}
+
+RouteMappingDiagnosticService::~RouteMappingDiagnosticService() {
+    if (routeServicePtr != NULL) {
+        delete routeServicePtr;
+    }
+}
 
 void RouteMappingDiagnosticService::startDiagnostic() {
     completed = false;
     
-    if (!locationService.isDocked()) {
+    if (!LocationService::getInstance().isDocked()) {
         const static char errorMsg1[] PROGMEM = "Le robot doit etre";
         const static char errorMsg2[] PROGMEM = "positionne au dock.";
         const static char okBtn[] PROGMEM = "OK";
@@ -35,27 +40,34 @@ void RouteMappingDiagnosticService::startDiagnostic() {
 
     displayDiagnosticScreen();
 
-    Route &currentRoute = routes.at(currentRouteIndex);
-    displayCurrentRoute(currentRoute.id);
-    locationService.followRoute(currentRoute.id);
+    int routeId = AppConfig::getInstance().routes.at(currentRouteIndex).id;
+    routeServicePtr = new RouteService(routeId);
+    routeServicePtr->start();
+    displayCurrentRoute(routeId);
 }
 
 void RouteMappingDiagnosticService::continueDiagnostic() {
-    if (locationService.activeRailPointPtr != NULL) {
-        displayCurrentPoint(locationService.activeRailPointPtr->name);
+    routeServicePtr->refreshLocation();
+
+    if (routeServicePtr->activeRailPointPtr != NULL) {
+        displayCurrentPoint(routeServicePtr->activeRailPointPtr->name);
     }
 
     // Let feeder continue on its current route
-    if (locationService.isFollowingRoute()) {
+    if (!routeServicePtr->isCompleted()) {
         return;
     }
 
     currentRouteIndex += 1;
 
-    if (currentRouteIndex < routes.size()) {
-        Route &currentRoute = routes.at(currentRouteIndex);
-        displayCurrentRoute(currentRoute.id);
-        locationService.followRoute(currentRoute.id);
+    delete routeServicePtr;
+    routeServicePtr = NULL;
+
+    if (currentRouteIndex < AppConfig::getInstance().routes.size()) {
+        int routeId = AppConfig::getInstance().routes.at(currentRouteIndex).id;
+        routeServicePtr = new RouteService(routeId);
+        displayCurrentRoute(routeId);
+        routeServicePtr->start();
     } else {
         Serial.println(F("* complete diagnostic"));
         completed = true;
@@ -64,7 +76,7 @@ void RouteMappingDiagnosticService::continueDiagnostic() {
 }
 
 void RouteMappingDiagnosticService::abortDiagnostic() {
-    locationService.unfollowRoute();
+    routeServicePtr->stop();
 }
 
 string RouteMappingDiagnosticService::getTitle() {

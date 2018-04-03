@@ -6,18 +6,18 @@
 
 class RailMotor {
     public:
-        RailMotor();
+        static RailMotor & getInstance();
 
-        void loop();
+        // void loop();
         void moveForward();
         void moveBackward();
         void stop();
-        // void inverseMovingDirection();
+        void inverseMovingDirection();
 
     private:
-        MovingDirection currentDirection;
-
+        RailMotor();
         void setLight(LightColor lightColor, bool blinking);
+        void operator = (RailMotor const&); // Don't implement
 };
 
 #endif

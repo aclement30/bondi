@@ -9,15 +9,11 @@ using namespace std;
 
 class SafetyService {
     public:
-        SafetyService(
-            MealService & mealServiceRef
-        );
+        SafetyService();
 
         void checkSafetyState();
 
     private:
-        MealService & mealService;
-
         void displaySafetyStopWarning();
         bool isSafetyBarPressed();
 };

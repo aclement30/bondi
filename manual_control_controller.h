@@ -5,14 +5,13 @@
 
 class ManualControlController: public Controller {
     public:
-        ManualControlController(MealService & mealServiceRef);
+        ManualControlController();
 
         void handle();
+        void resume();
         void escape();
 
     private:
-        MealService & mealService;
-
         void displayManualControlScreen();
 };
 

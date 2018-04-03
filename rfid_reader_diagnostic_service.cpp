@@ -1,3 +1,4 @@
+#include "config.h"
 #include "display_service.h"
 #include "keypad_service.h"
 #include "location_service.h"
@@ -7,9 +8,7 @@
 
 using namespace std;
 
-RfidReaderDiagnosticService::RfidReaderDiagnosticService(LocationService & locationServiceRef) : 
-    locationService(locationServiceRef)
-{}
+RfidReaderDiagnosticService::RfidReaderDiagnosticService() {}
 
 void RfidReaderDiagnosticService::startDiagnostic() {
     completed = false;
@@ -21,9 +20,9 @@ void RfidReaderDiagnosticService::continueDiagnostic() {
     KeypadService::getInstance().waitForActivity(1000);
 
     char uid[20];
-    bool rfidPoint = locationService.readRfidPoint(uid);
+    bool hasRfidUid = LocationService::getInstance().readRfidUid(uid);
 
-    if (!rfidPoint) {
+    if (!hasRfidUid) {
         displayWaitingText();
         strcpy(lastRfidUid, "");
         return;
@@ -37,14 +36,14 @@ void RfidReaderDiagnosticService::continueDiagnostic() {
     displayUid(uid);
     strcpy(lastRfidUid, uid);
     
-    int pointIndex = getRailPointIndexFromRfid(locationService.railPoints, uid, MOVING_IDLE);
+    int pointIndex = getRailPointIndexFromRfid(AppConfig::getInstance().railPoints, uid, MOVING_IDLE);
     if (pointIndex == -1) {
         const static char unknownPoint[] PROGMEM = "?";
         displayRailPoint(getString(unknownPoint));
         return;
     }
 
-    RailPoint & railPoint = locationService.railPoints.at(pointIndex);
+    RailPoint & railPoint = AppConfig::getInstance().railPoints.at(pointIndex);
     displayRailPoint(railPoint.name);
 }
 

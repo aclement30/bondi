@@ -1,18 +1,25 @@
 #include "controller.h"
+#include "location_service.h"
 #include "meal_service.h"
 
 #ifndef AUTOMATIC_CONTROLLER_H
 #define AUTOMATIC_CONTROLLER_H
 
+using namespace std;
+
 class AutomaticController: public Controller {
     public:
-        AutomaticController(MealService & mealServiceRef);
+        AutomaticController();
+        ~AutomaticController();
+
         void handle();
+        void resume();
         void escape();
 
     private:
-        MealService & mealService;
+        MealService * mealServicePtr = NULL;
 
+        bool hasCurrentMeal();
         void displayAutomaticModeScreen();
         bool displayEscapeConfirmationScreen();
 };

@@ -1,20 +1,22 @@
+#include "config.h"
 #include "display_service.h"
 #include "list_menu.h"
 #include "meal_service.h"
+#include "meal.h"
 #include "state_manager.h"
 #include "string.h"
 #include "history_controller.h"
 
 using namespace std;
 
-HistoryController::HistoryController(
-    MealService & mealServiceRef
-) :
-    mealService(mealServiceRef)
-{}
+HistoryController::HistoryController() {}
 
 void HistoryController::handle() {
     displayHistoryScreen();
+}
+
+void HistoryController::resume() {
+    handle();
 }
 
 void HistoryController::escape() {
@@ -26,8 +28,8 @@ void HistoryController::escape() {
 void HistoryController::displayHistoryScreen() {
     const static char title[] PROGMEM = "SELECTION REPAS";
     vector<string> menuItems;
-    for(int n = 0; n < mealService.meals.size(); n++) {
-        Meal & meal = mealService.meals[n];
+    for(int n = 0; n < AppConfig::getInstance().meals.size(); n++) {
+        Meal & meal = AppConfig::getInstance().meals[n];
         char mealName[19];
 
         int hour = meal.startMoment / 60;
@@ -41,7 +43,7 @@ void HistoryController::displayHistoryScreen() {
         // Add meal name
         strcat(mealName, meal.name);
 
-        if (mealService.isMealDistributed(meal.id)) {
+        if (MealService::isMealDistributed(meal.id)) {
             mealName[18] = '*';
         }
 

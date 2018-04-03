@@ -12,6 +12,19 @@
 
 using namespace std;
 
+class AppConfig {
+    public:
+        static AppConfig & getInstance();
+
+        vector<RailPoint> railPoints;
+        vector<Route> routes;
+        vector<Meal> meals;
+
+    private:
+        AppConfig();
+        void operator = (AppConfig const&); // Don't implement
+};
+
 struct Config {
     vector<RailPoint> railPoints;
     vector<Route> routes;

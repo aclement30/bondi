@@ -10,13 +10,7 @@ const byte numRows = 4; //number of rows on the keypad
 const byte numCols = 4; //number of columns on the keypad
 
 class KeypadService {
-    public:
-        static KeypadService & getInstance() {
-            static KeypadService instance; // Guaranteed to be destroyed.
-                                            // Instantiated on first use.
-            return instance;
-        }
-
+    public:        
         static int EnterKey;
         static int EscapeKey;
         static int ArrowUpKey;
@@ -25,6 +19,7 @@ class KeypadService {
         static char EnterKeyChar;
         static char EscapeKeyChar;
 
+        static KeypadService & getInstance();
         static void keypadInterrupt();
 
         int waitForSelection();

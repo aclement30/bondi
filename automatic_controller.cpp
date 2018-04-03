@@ -1,5 +1,7 @@
+#include "config.h"
 #include "display_service.h"
 #include "keypad_service.h"
+#include "location_service.h"
 #include "meal_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
@@ -8,48 +10,83 @@
 
 using namespace std;
 
-AutomaticController::AutomaticController(
-    MealService & mealServiceRef
-) :
-    mealService(mealServiceRef)
-{}
+AutomaticController::AutomaticController() {}
+
+AutomaticController::~AutomaticController() {
+    if (mealServicePtr != NULL) {
+        delete mealServicePtr;
+    }
+}
 
 void AutomaticController::handle() {
-    displayAutomaticModeScreen();
+    // Skip if there is already a meal being distributed
+    if (hasCurrentMeal()) {
+        if (!mealServicePtr->isDistributionCompleted()) {
+            mealServicePtr->distributeMeal();
+        } else {
+            mealServicePtr->displayMealCompletionScreen();
 
-    if (!mealService.hasCurrentMeal()) {
-        mealService.refreshCurrentMeal();
-    }
-
-    if (mealService.hasCurrentMeal()) {
-        mealService.distributeMeal();
+            delete mealServicePtr;
+            mealServicePtr = NULL;
+        }
     } else {
-        Serial.println(F("Attente..."));
-    }
+        displayAutomaticModeScreen();
 
-    KeypadService::getInstance().waitForActivity(5000);
+        KeypadService::getInstance().waitForActivity(5000);
+
+        // Do nothing until feeder is docked
+        if (!LocationService::getInstance().isDocked()) {
+            return;
+        }
+
+        int scheduledMealId = MealService::getScheduledMealId(AppConfig::getInstance().meals);
+        if (scheduledMealId == 0) {
+            return;
+        }
+
+        if (mealServicePtr != NULL) {
+            delete mealServicePtr;
+            mealServicePtr = NULL;
+        }
+
+        mealServicePtr = new MealService(scheduledMealId);
+        mealServicePtr->displayMealDistributionScreen();
+        mealServicePtr->startDistribution();
+        return;
+    }
+}
+
+void AutomaticController::resume() {
+    if (hasCurrentMeal()) {
+        mealServicePtr->displayMealDistributionScreen();
+    }
+    
+    handle();
 }
 
 void AutomaticController::escape() {
-    if (!mealService.hasCurrentMeal()) {
+    if (!hasCurrentMeal()) {
         // Immediately go back to main menu
         StateManager::getInstance().changeState(MainMenu);
         return;
     }
 
     // Pause distribution
-    mealService.stopFeeding();
+    mealServicePtr->stopFeeding();
 
     // Ask if distribution should be cancelled
     bool cancelDistribution = displayEscapeConfirmationScreen();
 
     if (cancelDistribution) {
-        mealService.abortDistribution();
         StateManager::getInstance().changeState(MainMenu);
     }
 }
 
 // PRIVATE
+
+bool AutomaticController::hasCurrentMeal() {
+    return mealServicePtr != NULL;
+}
 
 void AutomaticController::displayAutomaticModeScreen() {
     const static char title[] PROGMEM = "MODE: AUTO";

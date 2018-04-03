@@ -2,10 +2,10 @@
 #include "conveyor_motor.h"
 #include "display_service.h"
 #include "keypad_service.h"
-#include "location_service.h"
 #include "meal.h"
 #include "meal_sequence.h"
 #include "route.h"
+#include "route_service.h"
 
 #ifndef MEALSERVICE_H
 #define MEALSERVICE_H
@@ -14,19 +14,18 @@ using namespace std;
 
 class MealService {
     public:
-        vector<Meal> & meals;
+        // vector<Meal> & meals;
         Meal * currentMealPtr = NULL;
         MealSequence * currentSequencePtr = NULL;
 
-        MealService(
-            ConveyorMotor & conveyorFrontRef,
-            ConveyorMotor & conveyorBackRef,
-            vector<Meal> & mealsRef,
-            LocationService & locationServiceRef
-        );
+        MealService::MealService(int mealId);
+        ~MealService();
 
-        void refreshCurrentMeal();
-        void selectMeal(int mealId);
+        static int getScheduledMealId(vector<Meal> & meals);
+        static MealService distributeMeal(int mealId);
+
+        // void selectMeal(int mealId);
+        void startDistribution();
         void distributeMeal();
         void refreshCurrentSequence();
         void completeDistribution();
@@ -34,20 +33,21 @@ class MealService {
         void stopFeeding();
         bool hasCurrentMeal();
         void resetDistributedMeals();
-        bool isMealDistributed(int mealId);
+
+        void displayMealDistributionScreen();
+        void displayMealCompletionScreen();
+
+        static bool isMealDistributed(int mealId);
+        bool isDistributionCompleted();
 
     private:
-        LocationService & locationService;
-        ConveyorMotor conveyorFront;
-        ConveyorMotor conveyorBack;
+        RouteService * routeServicePtr;
         vector<int> distributedMealIds;
         vector<MealSequence> mealSequences;
         int currentPointId = 0;
         int lastPointId = 0;
         int sequencesCount = 0;
 
-        void displayMealDistributionScreen(const char * mealName);
-        void displayMealCompletionScreen(const char * mealName);
         void displaySequenceInfo(const char * name, int feed1Flow, int feed2Flow);
 };
 

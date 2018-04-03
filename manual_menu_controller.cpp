@@ -10,6 +10,10 @@ void ManualMenuController::handle() {
     displayManualMenuScreen();
 }
 
+void ManualMenuController::resume() {
+    handle();
+}
+
 void ManualMenuController::escape() {
     StateManager::getInstance().changeState(MainMenu);
     return;

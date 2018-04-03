@@ -1,13 +1,17 @@
 #include "display_service.h"
-#include "meal_service.h"
+#include "keypad_service.h"
 #include "state_manager.h"
 #include "string.h"
 #include "manual_control_controller.h"
 
-ManualControlController::ManualControlController(MealService & mealServiceRef) : mealService(mealServiceRef) {}
+ManualControlController::ManualControlController() {}
 
 void ManualControlController::handle() {
     displayManualControlScreen();
+}
+
+void ManualControlController::resume() {
+    handle();
 }
 
 void ManualControlController::escape() {

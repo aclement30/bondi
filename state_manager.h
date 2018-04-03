@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "controller.h"
 
 #ifndef STATE_MANAGER_H
 #define STATE_MANAGER_H
@@ -14,6 +15,7 @@ class StateManager {
         MachineState getState();
         MachineState getPreviousState();
         void changeState(MachineState newState);
+        Controller * getCurrentController();
         MovingDirection getMovingDirection();
         void changeMovingDirection(MovingDirection newDirection);
         void stop();
@@ -22,6 +24,7 @@ class StateManager {
         void disengageSafetyMode();
 
     private:
+        Controller * currentControllerPtr = NULL;
         MachineState currentState;
         MachineState previousState;
         MovingDirection movingDirection;

@@ -2,6 +2,12 @@
 #include <Keypad.h>
 #include "keypad_service.h"
 
+KeypadService & KeypadService::getInstance() {
+    static KeypadService instance; // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
+}
+
 int KeypadService::waitForSelection() {
     waitForKey = true;
     Serial.println(">");

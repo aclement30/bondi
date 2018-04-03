@@ -9,6 +9,14 @@
 
 const ConfigurationSource configSource = Static;
 
+AppConfig & AppConfig::getInstance() {
+    static AppConfig instance;      // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
+}
+
+AppConfig::AppConfig() {}
+
 std::vector<RailPoint> loadRailPoints(const char * filename) {
     std::vector<RailPoint> points;
     

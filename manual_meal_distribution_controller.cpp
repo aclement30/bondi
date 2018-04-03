@@ -1,3 +1,4 @@
+#include "config.h"
 #include "display_service.h"
 #include "location_service.h"
 #include "meal_service.h"
@@ -8,50 +9,70 @@
 
 using namespace std;
 
-ManualMealDistributionController::ManualMealDistributionController(
-    MealService & mealServiceRef,
-    LocationService & locationServiceRef
-) : 
-    mealService(mealServiceRef),
-    locationService(locationServiceRef)
-{}
+ManualMealDistributionController::ManualMealDistributionController() {}
+
+ManualMealDistributionController::~ManualMealDistributionController() {
+    if (mealServicePtr != NULL) {
+        delete mealServicePtr;
+    }
+}
 
 void ManualMealDistributionController::handle() {
-    if (mealService.hasCurrentMeal()) {
-        mealService.distributeMeal();
+    if (hasCurrentMeal()) {
+        if (!mealServicePtr->isDistributionCompleted()) {
+            mealServicePtr->distributeMeal();
+        } else {
+            mealServicePtr->displayMealCompletionScreen();
+
+            delete mealServicePtr;
+            mealServicePtr = NULL;
+        }
     } else {
         displayMealSelectionScreen();
     }
 }
 
+void ManualMealDistributionController::resume() {
+    if (hasCurrentMeal()) {
+        mealServicePtr->displayMealDistributionScreen();
+    }
+    
+    handle();
+}
+
 void ManualMealDistributionController::escape() {
-    if (!mealService.hasCurrentMeal()) {
+    if (!hasCurrentMeal()) {
         // Immediately go back to main menu
         StateManager::getInstance().changeState(ManualMenu);
         return;
     }
 
     // Pause distribution
-    mealService.stopFeeding();
+    mealServicePtr->stopFeeding();
 
     // Ask if distribution should be cancelled
     bool cancelDistribution = displayEscapeConfirmationScreen();
 
     if (cancelDistribution) {
-        mealService.abortDistribution();
         StateManager::getInstance().changeState(ManualMenu);
     }
+}
+
+// PRIVATE
+
+bool ManualMealDistributionController::hasCurrentMeal() {
+    return mealServicePtr != NULL;
 }
 
 void ManualMealDistributionController::displayMealSelectionScreen() {
     const static char title[] PROGMEM = "SELECTION REPAS";
     vector<string> menuOptions;
-    for(int n = 0; n < mealService.meals.size(); n++) {
+    for(int n = 0; n < AppConfig::getInstance().meals.size(); n++) {
         char mealName[15];
-        strcpy(mealName, mealService.meals[n].name);
+        strcpy(mealName, AppConfig::getInstance().meals[n].name);
         strncat(mealName, "              ", 14 - strlen(mealName));
 
-        if (mealService.isMealDistributed(mealService.meals[n].id)) {
+        if (MealService::isMealDistributed(AppConfig::getInstance().meals[n].id)) {
             mealName[13] = '*';
         }
 
@@ -64,13 +85,28 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
     int selectedOption = menu.waitForSelection();
 
     if (selectedOption != -1) {
-        if (!locationService.isDocked()) {
+        if (!LocationService::getInstance().isDocked()) {
             displayDockingErrorScreen();
             StateManager::getInstance().changeState(ManualMenu);
             return;
         }
+
+        if (mealServicePtr != NULL) {
+            delete mealServicePtr;
+            mealServicePtr = NULL;
+        }
+
+        Serial.println("* meal selected");
+        delay(250);
+
+        int mealId = AppConfig::getInstance().meals[selectedOption - 1].id;
+        mealServicePtr = new MealService(mealId);
+        mealServicePtr->displayMealDistributionScreen();
+        mealServicePtr->startDistribution();
         
-        mealService.selectMeal(mealService.meals[selectedOption - 1].id);
+        Serial.println("* meal service created");
+        delay(250);
+        return;
     } else {
         StateManager::getInstance().changeState(ManualMenu);
     }

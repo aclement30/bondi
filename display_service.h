@@ -52,12 +52,8 @@ using namespace std;
 
 class DisplayService {
     public:
-        static DisplayService& getInstance() {
-            static DisplayService instance; // Guaranteed to be destroyed.
-                                            // Instantiated on first use.
-            return instance;
-        }
-
+        static DisplayService& getInstance();
+        
         void printTitle(string title);
         void printCenter(string text, int row);
         void print(string text, int row);

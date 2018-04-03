@@ -1,7 +1,6 @@
 #include "controller.h"
 #include "conveyor_motor.h"
 #include "diagnostic_service.h"
-#include "location_service.h"
 #include "rail_motor.h"
 
 #ifndef DIAGNOSTIC_CONTROLLER_H
@@ -11,24 +10,17 @@ using namespace std;
 
 class DiagnosticController: public Controller {
     public:
-        DiagnosticController(
-            LocationService & locationServiceRef,
-            RailMotor & railMotorRef,
-            ConveyorMotor & conveyorFrontRef,
-            ConveyorMotor & conveyorBackRef
-        );
-
+        DiagnosticController();
+        ~DiagnosticController();
+        
         void handle();
+        void resume();
         void escape();
         void stopDiagnostic();
         void completeDiagnostic();
 
     private:
-        DiagnosticService *diagnosticPtr = NULL;
-        LocationService &locationService;
-        RailMotor &railMotor;
-        ConveyorMotor &conveyorFront;
-        ConveyorMotor &conveyorBack;
+        DiagnosticService * diagnosticPtr = NULL;
 
         void displayNavMenu();
         void displayConfirmationScreen();

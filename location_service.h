@@ -10,25 +10,19 @@
 class LocationService {
     public:
         vector<RailPoint> & railPoints;
-        vector<Route> & routes;
-        RailPoint * activeRailPointPtr = NULL;
-        Route * currentRoutePtr = NULL;
 
-        LocationService(vector<RailPoint> &railPointsRef, vector<Route> &routesRef);
-
+        static LocationService & getInstance();
+        void setConfig(vector<RailPoint> & railPointsRef);
         void setup();
-        void refreshActivePoint();
-        void followRoute(int routeId);
-        void unfollowRoute();
-        bool isFollowingRoute();
         bool isDocked();
-        bool readRfidPoint(char * uid);
+        bool readRfidUid(char * uid);
 
     private:
-        RFID rfid;
-        char lastRfidUid[20] = {};
+        LocationService();
 
-        void completeRoute();
+        RFID rfid;
+
+        void operator = (LocationService const&); // Don't implement
 };
 
 #endif
