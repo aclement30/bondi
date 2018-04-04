@@ -10,14 +10,10 @@
 
 using namespace std;
 
-static LocationService & LocationService::getInstance() {
+LocationService & LocationService::getInstance() {
     static LocationService instance;    // Guaranteed to be destroyed.
                                         // Instantiated on first use.
     return instance;
-}
-
-void LocationService::setConfig(vector<RailPoint> & railPointsRef) {
-    railPoints = railPointsRef;
 }
 
 void LocationService::setup() {

@@ -14,7 +14,7 @@ class FileService {
 
         bool validateSDCard();
         bool validateConfigFiles();
-        File openFile(const char * filename);
+        File openFile(const char * filename, uint8_t mode);
         static bool readLine(File & file, char * line, size_t maxLen);
         static void splitLine(char * line, char * segments[]);
 };

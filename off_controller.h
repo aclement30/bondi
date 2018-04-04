@@ -7,8 +7,6 @@
 class OffController: public Controller {
     public:
         void handle();
-        void resume();
-        void escape();
 };
 
 #endif

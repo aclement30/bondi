@@ -32,10 +32,6 @@ void DiagnosticController::handle() {
     }
 }
 
-void DiagnosticController::resume() {
-    handle();
-}
-
 void DiagnosticController::escape() {
     if (diagnosticPtr == NULL) {
         // Immediately go back to main menu

@@ -10,10 +10,6 @@ void ManualControlController::handle() {
     displayManualControlScreen();
 }
 
-void ManualControlController::resume() {
-    handle();
-}
-
 void ManualControlController::escape() {
     // TODO: Stop conveyors, if needed
 

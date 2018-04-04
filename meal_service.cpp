@@ -47,27 +47,10 @@ int MealService::getScheduledMealId(vector<Meal> & meals) {
     return iterator->id;
 }
 
-// Select a meal to distribute (ignore already distributed meals)
-// void MealService::selectMeal(int mealId) {
-//     int mealIndex = getMealIndexById(meals, mealId);
-//     if (mealIndex == -1) {
-//         return;
-//     }
-
-//     if (currentMealPtr != NULL) {
-//         delete currentMealPtr;
-//         currentMealPtr = NULL;
-//     }
-
-//     currentMealPtr = new Meal(meals.at(mealIndex));
-//     sequencesCount = 0;
-//     MealService::displayMealDistributionScreen(currentMealPtr->name);
-
-//     mealSequences = loadMealSequences(getString(FILE_MEAL_SEQUENCES), currentMealPtr->id);
-
-//     // char message[] = "Repas sélectionné: ";
-//     // Serial.println(strcat(message, currentMealPtr->name));
-// }
+bool MealService::isMealDistributed(int mealId) {
+    return false;
+    // return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
+}
 
 void MealService::startDistribution() {
     routeServicePtr->start();
@@ -120,11 +103,28 @@ void MealService::distributeMeal() {
     }
 }
 
-void MealService::refreshCurrentSequence() {
-    // if (!hasCurrentMeal()) {
-    //     return;
-    // }
+void MealService::stopFeeding() {
+    // Shutdown conveyors motor
+    FrontConveyor::getInstance().stop();
+    BackConveyor::getInstance().stop();
 
+    Serial.println(F("Arrêt des convoyeurs"));
+}
+
+// TODO: Execute daily
+void MealService::resetDistributedMeals() {
+    distributedMealIds.clear();
+    
+    Serial.println(F("Réinitialisation des repas distribués"));
+}
+
+bool MealService::isDistributionCompleted() {
+    return sequencesCount > mealSequences.size();
+}
+
+// PRIVATE
+
+void MealService::refreshCurrentSequence() {
     // Skip if active rail point hasn't changed
     if (currentPointId == routeServicePtr->activeRailPointPtr->id) {
         return;
@@ -161,67 +161,7 @@ void MealService::completeDistribution() {
     if (!isMealDistributed(currentMealPtr->id)) {
         distributedMealIds.push_back(currentMealPtr->id);
     }
-
-    // char message[] = "Distribution du repas complétée: ";
-    // Serial.println(strcat(message, currentMealPtr->name));
-
-    // displayMealCompletionScreen();
-
-    // delete currentMealPtr;
-    // currentMealPtr = NULL;
-
-    // delete currentSequencePtr;
-    // currentSequencePtr = NULL;
-
-    // lastPointId = 0;
-    // sequencesCount = 0;
-    // mealSequences.clear();
 }
-
-void MealService::abortDistribution() {
-    stopFeeding();
-    routeServicePtr->stop();
-    
-    // delete currentMealPtr;
-    // currentMealPtr = NULL;
-
-    // delete currentSequencePtr;
-    // currentSequencePtr = NULL;
-
-    // lastPointId = 0;
-    // sequencesCount = 0;
-    // mealSequences.clear();
-}
-
-void MealService::stopFeeding() {
-    // Shutdown conveyors motor
-    FrontConveyor::getInstance().stop();
-    BackConveyor::getInstance().stop();
-
-    Serial.println(F("Arrêt des convoyeurs"));
-}
-
-bool MealService::hasCurrentMeal() {
-    return currentMealPtr != NULL;
-}
-
-// TODO: Execute daily
-void MealService::resetDistributedMeals() {
-    distributedMealIds.clear();
-    
-    Serial.println(F("Réinitialisation des repas distribués"));
-}
-
-bool MealService::isMealDistributed(int mealId) {
-    return false;
-    // return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
-}
-
-bool MealService::isDistributionCompleted() {
-    return sequencesCount > mealSequences.size();
-}
-
-// PRIVATE
 
 void MealService::displayMealDistributionScreen() {
     DisplayService::getInstance().clearScreen();

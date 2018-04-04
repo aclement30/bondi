@@ -10,13 +10,6 @@ void MainMenuController::handle() {
     displayNavMenu();
 }
 
-void MainMenuController::resume() {
-    handle();
-}
-
-// Do nothing
-void MainMenuController::escape() {}
-
 // PRIVATE
 
 void MainMenuController::displayNavMenu() {

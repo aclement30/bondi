@@ -8,7 +8,6 @@ class ManualControlController: public Controller {
         ManualControlController();
 
         void handle();
-        void resume();
         void escape();
 
     private:

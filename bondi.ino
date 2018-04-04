@@ -10,6 +10,7 @@
 #include "rail_motor.h"
 
 // Services
+#include "log_service.h"
 #include "state_manager.h"
 #include "keypad_service.h"
 #include "location_service.h"
@@ -18,10 +19,6 @@
 
 // Services
 SafetyService safetyService = SafetyService();
-
-bool isPowerON() {
-    return digitalRead(POWER_BUTTON) == LOW;
-}
 
 void displayStartupScreen() {
     const static char startupString[] PROGMEM = "Demarrage en cours";
@@ -36,6 +33,9 @@ void setup() {
     // Init SPI bus
     SPI.begin();
 
+    // Setup RFID reader
+    LocationService::getInstance().setup();
+
     //wdt_enable(WDTO_1S);
   
     displayStartupScreen();
@@ -45,12 +45,6 @@ void setup() {
     AppConfig::getInstance().railPoints = config.railPoints;
     AppConfig::getInstance().routes = config.routes;
     AppConfig::getInstance().meals = config.meals;
-
-    for (int n = 0; n < INPUTS_COUNT; n++) {
-        pinMode(INPUTS[n], INPUT);
-    }
-
-    LocationService::getInstance().setup();
 
     Serial.println(F("Configuration initiale"));
 
@@ -62,12 +56,6 @@ void loop() {
     //wdt_reset();
   
     Serial.println(F("* loop"));
-    
-    // Stop right here if power is OFF
-    // if (!isPowerON()) {
-    //     delay(1000);
-    //     return;
-    // }
 
     // Serial.println("* check safety");
     safetyService.checkSafetyState();

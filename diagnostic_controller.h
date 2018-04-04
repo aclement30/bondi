@@ -14,7 +14,6 @@ class DiagnosticController: public Controller {
         ~DiagnosticController();
         
         void handle();
-        void resume();
         void escape();
         void stopDiagnostic();
         void completeDiagnostic();

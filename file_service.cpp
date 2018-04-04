@@ -74,8 +74,8 @@ bool FileService::validateConfigFiles() {
     return true;
 }
 
-File FileService::openFile(const char * filename) {
-    return SD.open(filename);
+File FileService::openFile(const char * filename, uint8_t mode = FILE_READ) {
+    return SD.open(filename, mode);
 }
 
 bool FileService::readLine(File & file, char * line, size_t maxLen) {

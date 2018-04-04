@@ -15,10 +15,6 @@ void HistoryController::handle() {
     displayHistoryScreen();
 }
 
-void HistoryController::resume() {
-    handle();
-}
-
 void HistoryController::escape() {
     StateManager::getInstance().changeState(MainMenu);
 }

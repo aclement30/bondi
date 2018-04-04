@@ -241,8 +241,8 @@ Config loadSDCardConfiguration() {
         Route(1, MOVING_FORWARD, 1000, 1000),
         Route(2, MOVING_BACKWARD, 1000, 1000)
     };
-    config.railPoints = loadRailPoints("points.csv");
-    config.meals = loadMeals("meals.csv");
+    config.railPoints = loadRailPoints(getString(FILE_POINTS));
+    config.meals = loadMeals(getString(FILE_MEALS));
 
     return config;
 }

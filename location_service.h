@@ -1,4 +1,3 @@
-#include <ArduinoSTL.h>
 #include <RFID.h>
 
 #include "rail_point.h"
@@ -9,10 +8,7 @@
 
 class LocationService {
     public:
-        vector<RailPoint> & railPoints;
-
         static LocationService & getInstance();
-        void setConfig(vector<RailPoint> & railPointsRef);
         void setup();
         bool isDocked();
         bool readRfidUid(char * uid);

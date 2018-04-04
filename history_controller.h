@@ -12,7 +12,6 @@ class HistoryController: public Controller {
         HistoryController();
 
         void handle();
-        void resume();
         void escape();
 
     private:
