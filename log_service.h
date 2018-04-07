@@ -25,7 +25,8 @@ class LogService {
 
         LogService();
 
-        char[120] LogService::timestampToDate(DateTime timestamp)
+        void timestampToDate(char * date, DateTime timestamp);
+        void typeToText(char * line, FeederEvent type);
 
         void operator = (LogService const&); // Don't implement
 };

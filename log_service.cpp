@@ -26,10 +26,19 @@ void LogService::flush() {
     FileService fileService = FileService();
     File logFile = fileService.openFile(getString(FILE_LOGS), FILE_WRITE);
     
+    char logLine[120];
     for (auto const & event : eventsBuffer) {
-        dataFile.print(timestampToDate(event.timestamp));
-        dataFile.print(event.type);
-        dataFile.println(event.info);
+        timestampToDate(logLine, event.timestamp);
+        strcat(logLine, " ");
+        typeToText(logLine, event.type);
+        strcat(logLine, " ");
+        strcat(logLine, event.info);
+
+        // Write log line to file
+        dataFile.println(logLine);
+
+        // Clear line
+        logLine[0] = 0;
     }
 
     eventsBuffer.clear();
@@ -42,9 +51,7 @@ LogService::LogService() : rtc(RTC_DS1307()) {
 }
 
 
-char[120] LogService::timestampToDate(DateTime timestamp) {
-  char message[120];
-
+void LogService::timestampToDate(char * date, DateTime timestamp) {
   int year = timestamp.year();
   int month = timestamp.month();
   int day = timestamp.day();
@@ -52,7 +59,70 @@ char[120] LogService::timestampToDate(DateTime timestamp) {
   int minute = timestamp.minute();
   int second = timestamp.second();
 
-  sprintf(message, "%d-%d-%d %02d:%02d:%02d", year, month, day, , hour, minute, second);
-  
-  return message;
+  sprintf(date, "%d-%d-%d %02d:%02d:%02d ", year, month, day, , hour, minute, second);
+}
+
+void LogService::typeToText(char * line, FeederEvent type) {
+    switch (type) {
+        case STARTUP: {
+            const static char typeText[] PROGMEM = "STARTUP";
+            strcat(line, typeText);
+            break;
+        }
+        case MEAL_DISTRIBUTION_START: {
+            const static char typeText[] PROGMEM = "MEAL_DISTRIBUTION_START";
+            strcat(line, typeText);
+            break;
+        }
+        case MEAL_DISTRIBUTION_END: {
+            const static char typeText[] PROGMEM = "MEAL_DISTRIBUTION_END";
+            strcat(line, typeText);
+            break;
+        }
+        case MANUAL_MEAL_SELECTION: {
+            const static char typeText[] PROGMEM = "MANUAL_MEAL_SELECTION";
+            strcat(line, typeText);
+            break;
+        }
+        case ROUTE_START: {
+            const static char typeText[] PROGMEM = "ROUTE_START";
+            strcat(line, typeText);
+            break;
+        }
+        case ROUTE_END: {
+            const static char typeText[] PROGMEM = "ROUTE_END";
+            strcat(line, typeText);
+            break;
+        }
+        case SAFETY_BAR_PRESSED: {
+            const static char typeText[] PROGMEM = "SAFETY_BAR_PRESSED";
+            strcat(line, typeText);
+            break;
+        }
+        case SAFETY_MODE_ENGAGED: {
+            const static char typeText[] PROGMEM = "SAFETY_MODE_ENGAGED";
+            strcat(line, typeText);
+            break;
+        }
+        case SAFETY_MODE_DISENGAGED: {
+            const static char typeText[] PROGMEM = "SAFETY_MODE_DISENGAGED";
+            strcat(line, typeText);
+            break;
+        }
+        case MANUAL_CONTROL_START: {
+            const static char typeText[] PROGMEM = "MANUAL_CONTROL_START";
+            strcat(line, typeText);
+            break;
+        }
+        case MANUAL_CONTROL_END: {
+            const static char typeText[] PROGMEM = "MANUAL_CONTROL_END";
+            strcat(line, typeText);
+            break;
+        }
+        case MANUAL_RESTART: {
+            const static char typeText[] PROGMEM = "MANUAL_RESTART";
+            strcat(line, typeText);
+            break;
+        }
+    }
 }
