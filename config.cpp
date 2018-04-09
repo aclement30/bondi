@@ -7,7 +7,7 @@
 #include "string.h"
 #include "config.h"
 
-const ConfigurationSource configSource = Static;
+const ConfigurationSource configSource = SDCard;
 
 AppConfig & AppConfig::getInstance() {
     static AppConfig instance;      // Guaranteed to be destroyed.
@@ -42,6 +42,12 @@ std::vector<RailPoint> loadRailPoints(const char * filename) {
         char * segments[3];
         FileService::splitLine(line, segments);
         
+        // Remove line returns
+        int length = strlen(segments[2]);
+        if (segments[2][length-1] == '\r') {
+            segments[2][length-1]  = '\0';
+        }
+
         RailPoint point(atoi(segments[0]), segments[1], segments[2]);
         points.push_back(point);
         
@@ -94,11 +100,11 @@ std::vector<MealSequence> loadStaticMealSequences(int mealId) {
 
     switch(mealId) {
         case 1:
-            sequences.push_back(MealSequence("G1", 1000, 2, 25, 50));
-            sequences.push_back(MealSequence("G2", 2, 1000, 50, 75));
+            sequences.push_back(MealSequence("G1", 1000, 102, 25, 50));
+            sequences.push_back(MealSequence("G2", 102, 1000, 50, 75));
         break;
         case 2:
-            sequences.push_back(MealSequence("P1", 000, 1, 50, 25));
+            sequences.push_back(MealSequence("P1", 1000, 1, 50, 25));
             sequences.push_back(MealSequence("P2", 1, 1000, 25, 0));
         break;
     }
@@ -189,15 +195,15 @@ void displayConfigurationErrorScreen() {
 Config loadStaticConfiguration() {
     std::vector<RailPoint> railPoints = {
         RailPoint(1000, "DOCK", "155.198.195.233.119"),
-        RailPoint(2, "G-2", "197.8.161.185.213"),
-        RailPoint(4, "G-4", "0.0.0.0.2"),
-        RailPoint(101, "REV", "0.0.0.0.4"),
-        RailPoint(1, "G-1", "197.8.161.185.213"),
-        RailPoint(3, "G-3", "0.0.0.0.6"),
+        RailPoint(2, "G-2", "0.0.0.0.2"),
+        RailPoint(4, "G-4", "0.0.0.0.4"),
+        RailPoint(102, "REV", "197.8.161.185.213"),
+        RailPoint(1, "G-1", "43.103.109.43.10"),
+        RailPoint(3, "G-3", "68.103.110.43.102"),
         RailPoint(5, "P-5",  "0.0.0.0.7"),
         RailPoint(7, "P-7", "0.0.0.0.8"),
         RailPoint(9, "P-9", "0.0.0.0.9"),
-        RailPoint(102, "REV", "0.0.0.0.11"),
+        RailPoint(101, "REV", "0.0.0.0.11"),
         RailPoint(8, "P-8", "0.0.0.0.12"),
         RailPoint(10, "P-10", "0.0.0.0.13"),
         RailPoint(12, "P-12", "0.0.0.0.14"),

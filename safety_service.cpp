@@ -2,6 +2,7 @@
 #include "conveyor_motor.h"
 #include "display_service.h"
 #include "keypad_service.h"
+#include "log_service.h"
 #include "rail_motor.h"
 #include "state_manager.h"
 #include "string.h"
@@ -17,6 +18,7 @@ void SafetyService::checkSafetyState() {
 
     if (!safetyMode && isSafetyBarPressed()) {
         Serial.println(F("Barre de sécurité enclenchée"));
+        LogService::getInstance().log(SAFETY_BAR_PRESSED);
 
         // Shutdown everything immediately
         RailMotor::getInstance().stop();

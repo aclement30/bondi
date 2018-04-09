@@ -1,10 +1,13 @@
 #include "display_service.h"
 #include "keypad_service.h"
+#include "log_service.h"
 #include "state_manager.h"
 #include "string.h"
 #include "manual_control_controller.h"
 
-ManualControlController::ManualControlController() {}
+ManualControlController::ManualControlController() {
+    LogService::getInstance().log(MANUAL_CONTROL_START);
+}
 
 void ManualControlController::handle() {
     displayManualControlScreen();
@@ -12,6 +15,8 @@ void ManualControlController::handle() {
 
 void ManualControlController::escape() {
     // TODO: Stop conveyors, if needed
+
+    LogService::getInstance().log(MANUAL_CONTROL_END);
 
     // Go back to main menu
     StateManager::getInstance().changeState(ManualMenu);

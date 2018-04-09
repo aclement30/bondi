@@ -3,6 +3,7 @@
 #include "automatic_controller.h"
 #include "diagnostic_controller.h"
 #include "history_controller.h"
+#include "log_service.h"
 #include "main_menu_controller.h"
 #include "manual_control_controller.h"
 #include "manual_meal_distribution_controller.h"
@@ -101,12 +102,15 @@ bool StateManager::isSafetyMode() {
 
 void StateManager::safetyStop() {
     safetyModeActivated = true;
+    LogService::getInstance().log(SAFETY_MODE_ENGAGED);
+
     stop();
 }
 
 void StateManager::disengageSafetyMode() {
     safetyModeActivated = false;
-    
+    LogService::getInstance().log(SAFETY_MODE_DISENGAGED);
+
     currentControllerPtr->resume();
 }
 

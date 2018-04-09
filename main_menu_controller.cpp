@@ -1,4 +1,5 @@
 #include "display_service.h"
+#include "log_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
 #include "string.h"
@@ -48,6 +49,9 @@ void MainMenuController::displayNavMenu() {
             StateManager::getInstance().changeState(Diagnostic);
             break;
         case 5:
+            LogService::getInstance().log(MANUAL_RESTART);
+            LogService::getInstance().flush();
+
             asm volatile ("  jmp 0");
             break;
     }

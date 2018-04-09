@@ -5,6 +5,7 @@
 #include "conveyor_motor.h"
 #include "display_service.h"
 #include "keypad_service.h"
+#include "log_service.h"
 #include "meal.h"
 #include "route.h"
 #include "route_service.h"
@@ -53,6 +54,7 @@ bool MealService::isMealDistributed(int mealId) {
 }
 
 void MealService::startDistribution() {
+    LogService::getInstance().log(MEAL_DISTRIBUTION_START, currentMealPtr->name);
     routeServicePtr->start();
 }
 
@@ -161,6 +163,8 @@ void MealService::completeDistribution() {
     if (!isMealDistributed(currentMealPtr->id)) {
         distributedMealIds.push_back(currentMealPtr->id);
     }
+
+    LogService::getInstance().log(MEAL_DISTRIBUTION_END, currentMealPtr->name);
 }
 
 void MealService::displayMealDistributionScreen() {

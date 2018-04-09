@@ -3,6 +3,7 @@
 #include "config.h"
 #include "constants.h"
 #include "location_service.h"
+#include "log_service.h"
 #include "route.h"
 #include "rail_motor.h"
 #include "route_service.h"
@@ -26,6 +27,8 @@ void RouteService::start() {
     } else {
         RailMotor::getInstance().moveBackward();
     }
+
+    LogService::getInstance().log(ROUTE_START, currentRoutePtr->id);
 }
 
 void RouteService::stop() {
@@ -62,6 +65,10 @@ void RouteService::refreshLocation() {
     
     // char message[] = "* active point: ";
     // Serial.println(strcat(message, activeRailPointPtr->name));
+
+    if (isCompleted()) {
+        LogService::getInstance().log(ROUTE_END, currentRoutePtr->id);
+    }
 }
 
 bool RouteService::isCompleted() {

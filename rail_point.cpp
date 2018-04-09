@@ -39,7 +39,7 @@ RailPoint getDockPoint(vector<RailPoint> railPoints) {
     return *iterator;
 }
 
-int getRailPointIndexFromRfid(vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction) {
+int getRailPointIndexFromRfid(vector<RailPoint> railPoints, const char * rfidUid, MovingDirection direction) {
     vector<RailPoint>::iterator iterator = find_if (railPoints.begin(), railPoints.end(), [&](RailPoint & point) {
         return (strcmp(point.rfidUid, rfidUid) == 0 && 
                 (

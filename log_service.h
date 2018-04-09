@@ -16,8 +16,11 @@ struct LogEvent {
 class LogService {
     public:
         static LogService & getInstance();
-        void log(FeederEvent eventType, char * info);
+        void log(FeederEvent eventType, char * info = NULL);
+        void log(FeederEvent eventType, const char * info);
+        void log(FeederEvent eventType, int info);
         void flush();
+        int getBufferSize();
 
     private:
         vector<LogEvent> eventsBuffer;
@@ -25,6 +28,7 @@ class LogService {
 
         LogService();
 
+        void writeToFile(char * logLine);
         void timestampToDate(char * date, DateTime timestamp);
         void typeToText(char * line, FeederEvent type);
 

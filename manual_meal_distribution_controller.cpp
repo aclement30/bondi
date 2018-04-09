@@ -1,6 +1,7 @@
 #include "config.h"
 #include "display_service.h"
 #include "location_service.h"
+#include "log_service.h"
 #include "meal_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
@@ -96,6 +97,7 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
             mealServicePtr = NULL;
         }
 
+        LogService::getInstance().log(MANUAL_MEAL_SELECTION, AppConfig::getInstance().meals[selectedOption - 1].name);
         Serial.println("* meal selected");
         delay(250);
 
