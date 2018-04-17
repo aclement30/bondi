@@ -30,6 +30,9 @@ void setup() {
     Serial.begin(9600);   // open serial over USB
     Serial.println(F("Démarrage en cours"));
 
+    pinMode(10, OUTPUT);
+    digitalWrite(10, HIGH);
+
     LogService::getInstance().log(STARTUP);
 
     // Init SPI bus

@@ -10,19 +10,19 @@ FileService::FileService() {
 }
 
 bool FileService::validateSDCard() {
-    // Serial.println(F("Start SD card check"));
+    Serial.println(F("Start SD card check"));
     
     // Check if a SD card is present
     Sd2Card card;
     if (!card.init(SPI_HALF_SPEED, SD_CARD_CS)) {
-        // Serial.println(F("No valid SD card found!"));
+        Serial.println(F("No valid SD card found!"));
         return false;
     }
 
-    // Serial.println(F("SD card found"));
+    Serial.println(F("SD card found"));
 
     if (!SD.begin(SD_CARD_CS)) {
-        // Serial.println(F("SD card initialization failed!"));
+        Serial.println(F("SD card initialization failed!"));
         return false;
     }
 

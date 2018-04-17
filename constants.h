@@ -7,9 +7,9 @@ enum PinConfig {
     // INPUTS
     SAFETY_SENSOR_FRONT = 37,
     SAFETY_SENSOR_BACK = 36,
-    SD_CARD_CS = 8,
-    RFID_RSA_PIN = 10,
-    RFID_RST_PIN = 9,
+    SD_CARD_CS = 7,
+    RFID_RSA_PIN = 9,
+    RFID_RST_PIN = 8,
 
     // OUTPUTS
     GREEN_LIGHT = 22,
@@ -81,6 +81,6 @@ enum FeederEvent {
 const char PROGMEM FILE_MEAL_SEQUENCES[] = "MEAL_SEQ.CSV";
 const char PROGMEM FILE_POINTS[] = "POINTS.CSV";
 const char PROGMEM FILE_MEALS[] = "MEALS.CSV";
-const char PROGMEM FILE_LOGS[] = "LOGS.TXT";
+const char PROGMEM FILE_LOGS[] = "LOGS/SYSTEM.LOG";
 
 #endif
