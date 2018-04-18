@@ -50,6 +50,7 @@ void setup() {
     AppConfig::getInstance().railPoints = config.railPoints;
     AppConfig::getInstance().routes = config.routes;
     AppConfig::getInstance().meals = config.meals;
+    AppConfig::getInstance().configVersion = config.version;
 
     Serial.println(F("Configuration initiale"));
 

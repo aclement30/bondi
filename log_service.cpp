@@ -1,6 +1,7 @@
 #include <ArduinoSTL.h>
 #include <RTClib.h>
 #include "constants.h"
+#include "config.h"
 #include "file_service.h"
 #include "log_service.h"
 #include "string.h"
@@ -43,6 +44,22 @@ void LogService::log(FeederEvent eventType, int info) {
     writeToFile(line);
 }
 
+void LogService::logDistribution(int mealId, char * startTime, char * endTime, char * missingSequences, int safetyStops) {
+    char filename[30];
+    getDistributionLogFilename(filename);
+
+    // Create CSV log file if it does not already exists
+    createDistributionLogFile(filename);
+
+    char line[120];
+    sprintf(line, "%s;%d;%d;%s;%s;%s;%d", getString(APP_VERSION), AppConfig::getInstance().configVersion, mealId, startTime, endTime, missingSequences, safetyStops);
+
+    FileService fileService = FileService();
+    File logFile = fileService.openFile(filename, FILE_WRITE);
+    logFile.println(line);
+    logFile.close();
+}
+
 void LogService::flush() {
     // FileService fileService = FileService();
     // File logFile = fileService.openFile(getString(FILE_LOGS), FILE_WRITE);
@@ -67,6 +84,15 @@ void LogService::flush() {
     // eventsBuffer.clear();
 }
 
+void LogService::getTime(char * time) {
+    DateTime today = rtc.now();
+    int hour = today.hour();
+    int minute = today.minute();
+    int second = today.second();
+
+    sprintf(time, "%02d:%02d:%02d", hour, minute, second);
+}
+
 int LogService::getBufferSize() {
     return eventsBuffer.size();
 }
@@ -75,6 +101,7 @@ int LogService::getBufferSize() {
 
 LogService::LogService() : rtc(RTC_DS1307()) {
     rtc.begin();
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
 
 void LogService::writeToFile(char * logLine) {
@@ -95,7 +122,7 @@ void LogService::timestampToDate(char * date, DateTime timestamp) {
   int minute = timestamp.minute();
   int second = timestamp.second();
 
-  sprintf(date, "%d-%d-%d %02d:%02d:%02d", year, month, day, hour, minute, second);
+  sprintf(date, "%d-%02d-%02dT%02d:%02d:%02d-05:00", year, month, day, hour, minute, second);
 }
 
 void LogService::typeToText(char * line, FeederEvent type) {
@@ -128,4 +155,26 @@ void LogService::typeToText(char * line, FeederEvent type) {
     };
 
     strcat(line, getString(textTypes[type]));
+}
+
+void LogService::getDistributionLogFilename(char * filename) {
+    DateTime today = rtc.now();
+    int year = today.year();
+    int month = today.month();
+    int day = today.day();
+
+    sprintf(filename, "%s/%d-%02d-%02d.CSV", getString(PATH_DISTRIB_LOGS), year, month, day);
+}
+
+void LogService::createDistributionLogFile(char * filename) {
+    FileService fileService = FileService();
+
+    // Skip if file already exists
+    if (fileService.fileExists(filename)) return;
+
+    const static char header[] PROGMEM = "appVersion;configVersion;mealId;startTime;endTime;missingSequences;safetyStops";
+
+    File logFile = fileService.openFile(filename, FILE_WRITE);
+    logFile.println(getString(header));
+    logFile.close();
 }

@@ -19,6 +19,7 @@ class AppConfig {
         vector<RailPoint> railPoints;
         vector<Route> routes;
         vector<Meal> meals;
+        int configVersion;
 
     private:
         AppConfig();
@@ -29,6 +30,7 @@ struct Config {
     vector<RailPoint> railPoints;
     vector<Route> routes;
     vector<Meal> meals;
+    int version;
 };
 
 enum ConfigurationSource {
@@ -40,6 +42,7 @@ vector<RailPoint> loadRailPoints(const char * filename);
 vector<Meal> loadMeals(const char * filename);
 vector<MealSequence> loadStaticMealSequences(int mealId);
 vector<MealSequence> loadMealSequences(const char * filename, int mealId);
+int loadConfigVersion(const char * filename);
 
 void displaySDCardErrorScreen();
 void displayConfigurationErrorScreen();

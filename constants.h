@@ -81,6 +81,10 @@ enum FeederEvent {
 const char PROGMEM FILE_MEAL_SEQUENCES[] = "MEAL_SEQ.CSV";
 const char PROGMEM FILE_POINTS[] = "POINTS.CSV";
 const char PROGMEM FILE_MEALS[] = "MEALS.CSV";
+const char PROGMEM FILE_CONFIG_VERSION[] = "VERSION.CFG";
 const char PROGMEM FILE_LOGS[] = "LOGS/SYSTEM.LOG";
+const char PROGMEM PATH_DISTRIB_LOGS[] = "LOGS/DISTRIB";
+
+const char PROGMEM APP_VERSION[] = "0.0.1";
 
 #endif

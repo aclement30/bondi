@@ -78,6 +78,10 @@ File FileService::openFile(const char * filename, uint8_t mode) {
     return SD.open(filename, mode);
 }
 
+bool FileService::fileExists(const char * filename) {
+    return SD.exists(filename);
+}
+
 bool FileService::readLine(File & file, char * line, size_t maxLen) {
   for (size_t n = 0; n < maxLen; n++) {
     int c = file.read();

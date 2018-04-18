@@ -19,7 +19,9 @@ class LogService {
         void log(FeederEvent eventType, char * info = NULL);
         void log(FeederEvent eventType, const char * info);
         void log(FeederEvent eventType, int info);
+        void logDistribution(int mealId, char * startTime, char * endTime, char * missingSequences, int safetyStops);
         void flush();
+        void getTime(char * time);
         int getBufferSize();
 
     private:
@@ -31,6 +33,8 @@ class LogService {
         void writeToFile(char * logLine);
         void timestampToDate(char * date, DateTime timestamp);
         void typeToText(char * line, FeederEvent type);
+        void getDistributionLogFilename(char * filename);
+        void createDistributionLogFile(char * filename);
 
         void operator = (LogService const&); // Don't implement
 };

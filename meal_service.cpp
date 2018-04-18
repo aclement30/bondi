@@ -54,6 +54,7 @@ bool MealService::isMealDistributed(int mealId) {
 }
 
 void MealService::startDistribution() {
+    LogService::getInstance().getTime(startTime);
     LogService::getInstance().log(MEAL_DISTRIBUTION_START, currentMealPtr->name);
     routeServicePtr->start();
 }
@@ -155,6 +156,8 @@ void MealService::refreshCurrentSequence() {
 }
 
 void MealService::completeDistribution() {
+    LogService::getInstance().getTime(endTime);
+
     // Make sure all feed conveyors are stopped
     stopFeeding();
     routeServicePtr->stop();
@@ -165,6 +168,7 @@ void MealService::completeDistribution() {
     }
 
     LogService::getInstance().log(MEAL_DISTRIBUTION_END, currentMealPtr->name);
+    LogService::getInstance().logDistribution(currentMealPtr->id, startTime, endTime, missingSequences, safetyStops);
 }
 
 void MealService::displayMealDistributionScreen() {

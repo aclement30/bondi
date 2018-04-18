@@ -158,6 +158,29 @@ std::vector<MealSequence> loadMealSequences(const char * filename, int mealId) {
     return mealSequences;
 }
 
+int loadConfigVersion(const char * filename) {
+    FileService fileService = FileService();
+    File file = fileService.openFile(filename);
+    if (!file) {
+        Serial.println(F("Erreur configuration: le fichier de version ne peut être ouvert!"));
+        return 0;
+    }
+
+    char line[8];
+    FileService::readLine(file, line, sizeof(line));
+    file.close();
+
+    // Remove line returns
+    int length = strlen(line);
+    if (line[length-1] == '\r') {
+        line[length-1]  = '\0';
+    }
+    
+    int configVersion = atoi(line);
+
+    return configVersion;
+}
+
 void displaySDCardErrorScreen() {
     const static char okButtonText[] PROGMEM = "Redemarrer";
     const static char errorMsg1[] PROGMEM = "Carte SD invalide";
@@ -223,7 +246,8 @@ Config loadStaticConfiguration() {
     Config config = {
         railPoints,
         routes,
-        meals
+        meals,
+        1,
     };
 
     return config;
@@ -249,6 +273,7 @@ Config loadSDCardConfiguration() {
     };
     config.railPoints = loadRailPoints(getString(FILE_POINTS));
     config.meals = loadMeals(getString(FILE_MEALS));
+    config.version = loadConfigVersion(getString(FILE_CONFIG_VERSION));
 
     return config;
 }

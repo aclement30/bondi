@@ -35,9 +35,13 @@ class MealService {
         RouteService * routeServicePtr;
         vector<int> distributedMealIds;
         vector<MealSequence> mealSequences;
+        char * startTime;
+        char * endTime;
         int currentPointId = 0;
         int lastPointId = 0;
         int sequencesCount = 0;
+        char * missingSequences = "";
+        int safetyStops = 0;
 
         void refreshCurrentSequence();
         void completeDistribution();
