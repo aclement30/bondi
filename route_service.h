@@ -22,6 +22,7 @@ class RouteService {
 
     private:
         char lastRfidUid[20] = {};
+        int checkpointsCount = 0;
 };
 
 #endif

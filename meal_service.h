@@ -26,25 +26,23 @@ class MealService {
         void startDistribution();
         void distributeMeal();
         void stopFeeding();
-        void resetDistributedMeals();
         void displayMealDistributionScreen();
         void displayMealCompletionScreen();
         bool isDistributionCompleted();
 
     private:
         RouteService * routeServicePtr;
-        vector<int> distributedMealIds;
         vector<MealSequence> mealSequences;
-        char * startTime;
-        char * endTime;
+        vector<int> completedSequenceIndexes;
+        time_t startTime;
+        time_t endTime;
         int currentPointId = 0;
         int lastPointId = 0;
         int sequencesCount = 0;
-        char * missingSequences = "";
-        int safetyStops = 0;
 
         void refreshCurrentSequence();
         void completeDistribution();
+        void getMissingSequences(char * missingSequences);
         void displaySequenceInfo(const char * name, int feed1Flow, int feed2Flow);
 };
 

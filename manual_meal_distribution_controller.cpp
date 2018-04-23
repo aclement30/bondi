@@ -68,6 +68,7 @@ bool ManualMealDistributionController::hasCurrentMeal() {
 void ManualMealDistributionController::displayMealSelectionScreen() {
     const static char title[] PROGMEM = "SELECTION REPAS";
     vector<string> menuOptions;
+    
     for(int n = 0; n < AppConfig::getInstance().meals.size(); n++) {
         char mealName[15];
         strcpy(mealName, AppConfig::getInstance().meals[n].name);

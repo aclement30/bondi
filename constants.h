@@ -10,7 +10,10 @@ enum PinConfig {
     SD_CARD_CS = 7,
     RFID_RSA_PIN = 9,
     RFID_RST_PIN = 8,
-
+    RTC_CE_PIN = 6,
+    RTC_IO_PIN = 5,
+    RTC_SCLK_PIN = 4,
+    
     // OUTPUTS
     GREEN_LIGHT = 22,
     RED_LIGHT = 24,

@@ -72,6 +72,8 @@ void RailMotor::stop() {
 void RailMotor::inverseMovingDirection() {
     MovingDirection previousState = StateManager::getInstance().getMovingDirection();
     
+    Serial.println(F("Moteur principal: inversion direction"));
+
     stop();
 
     if (previousState == MOVING_FORWARD) {

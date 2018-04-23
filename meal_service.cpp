@@ -54,7 +54,8 @@ bool MealService::isMealDistributed(int mealId) {
 }
 
 void MealService::startDistribution() {
-    LogService::getInstance().getTime(startTime);
+    startTime = LogService::getInstance().getTime();
+
     LogService::getInstance().log(MEAL_DISTRIBUTION_START, currentMealPtr->name);
     routeServicePtr->start();
 }
@@ -114,15 +115,9 @@ void MealService::stopFeeding() {
     Serial.println(F("Arrêt des convoyeurs"));
 }
 
-// TODO: Execute daily
-void MealService::resetDistributedMeals() {
-    distributedMealIds.clear();
-    
-    Serial.println(F("Réinitialisation des repas distribués"));
-}
-
 bool MealService::isDistributionCompleted() {
-    return sequencesCount > mealSequences.size();
+    // Distribution is completed when the last sequence is the last of the meal OR the route is completed (failsafe)
+    return currentSequencePtr == NULL && completedSequenceIndexes.size() > 1 && (completedSequenceIndexes.back() == (mealSequences.size() - 1) || routeServicePtr->isCompleted());
 }
 
 // PRIVATE
@@ -143,32 +138,44 @@ void MealService::refreshCurrentSequence() {
 
     sequencesCount++;
 
-    // All sequences have been done, complete distribution
-    if (isDistributionCompleted()) {
-        return;
-    }
+    // // All sequences have been done, complete distribution
+    // if (isDistributionCompleted()) {
+    //     return;
+    // }
     
     // Find corresponding meal sequence for active point
     int sequenceIndex = MealSequence::getSequenceIndex(mealSequences, routeServicePtr->activeRailPointPtr);
-    if (sequenceIndex != -1) {
+    if (sequenceIndex != -1 && find(completedSequenceIndexes.begin(), completedSequenceIndexes.end(), sequenceIndex) == completedSequenceIndexes.end()) {
+        completedSequenceIndexes.push_back(sequenceIndex);
         currentSequencePtr = new MealSequence(mealSequences.at(sequenceIndex));
     }
 }
 
 void MealService::completeDistribution() {
-    LogService::getInstance().getTime(endTime);
+    endTime = LogService::getInstance().getTime();
 
     // Make sure all feed conveyors are stopped
     stopFeeding();
     routeServicePtr->stop();
 
-    // Only save distribued meal ID if distributedMealIds doesn't already contains it
-    if (!isMealDistributed(currentMealPtr->id)) {
-        distributedMealIds.push_back(currentMealPtr->id);
-    }
+    char missingSequences[100] = "";
+    getMissingSequences(missingSequences);
 
     LogService::getInstance().log(MEAL_DISTRIBUTION_END, currentMealPtr->name);
-    LogService::getInstance().logDistribution(currentMealPtr->id, startTime, endTime, missingSequences, safetyStops);
+    LogService::getInstance().logDistribution(currentMealPtr->id, startTime, endTime, missingSequences);
+}
+
+void MealService::getMissingSequences(char * missingSequences) {
+    for(int n = 0; n < mealSequences.size(); n++) {
+        if (find(completedSequenceIndexes.begin(), completedSequenceIndexes.end(), n) == completedSequenceIndexes.end()) {
+            // Meal sequence not found in completed sequences list
+            if (strlen(missingSequences) > 0) {
+                strcpy(missingSequences, ",");
+            }
+
+            sprintf(missingSequences, "%d", n);
+        }
+    }
 }
 
 void MealService::displayMealDistributionScreen() {

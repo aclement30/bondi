@@ -69,11 +69,11 @@ void loop() {
     // Serial.println("* main motor");
     // mainMotor.loop();
     
-    if (LogService::getInstance().getBufferSize() >= 5) {
-        Serial.println(F("* writing logs to SD card"));
-        delay(250);
-        LogService::getInstance().flush();
-    }
+    // if (LogService::getInstance().getBufferSize() >= 5) {
+    //     Serial.println(F("* writing logs to SD card"));
+    //     delay(250);
+    //     LogService::getInstance().flush();
+    // }
 
     Serial.println(F("* handle"));
 

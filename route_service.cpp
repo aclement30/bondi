@@ -39,13 +39,15 @@ void RouteService::refreshLocation() {
     char uid[20];
     bool hasRfidUid = LocationService::getInstance().readRfidUid(uid);
 
-    // If UID is empty, it means no new RFID tag has been scanned, so we keep the active one
+    // If UID is empty or equals to last one, it means no new RFID tag has been scanned, so we keep the active one
     if (!hasRfidUid || strcmp(uid, lastRfidUid) == 0) {
         return;
     }
 
     Serial.print(F("* new RFID uid: "));
     Serial.println(uid);
+
+    checkpointsCount += 1;
     strcpy(lastRfidUid, uid);
 
     MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
@@ -63,6 +65,10 @@ void RouteService::refreshLocation() {
 
     activeRailPointPtr = new RailPoint(AppConfig::getInstance().railPoints.at(pointIndex));
     
+    if (activeRailPointPtr->isReverse()) {
+        RailMotor::getInstance().inverseMovingDirection();
+    }
+
     // char message[] = "* active point: ";
     // Serial.println(strcat(message, activeRailPointPtr->name));
 
@@ -72,5 +78,5 @@ void RouteService::refreshLocation() {
 }
 
 bool RouteService::isCompleted() {
-    return activeRailPointPtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPointId;
+    return checkpointsCount > 1 && activeRailPointPtr != NULL && activeRailPointPtr->id == currentRoutePtr->endPointId;
 }

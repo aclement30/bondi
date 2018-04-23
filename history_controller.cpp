@@ -1,7 +1,9 @@
 #include "config.h"
 #include "display_service.h"
 #include "list_menu.h"
+#include "log_service.h"
 #include "meal_service.h"
+#include "meal_distribution.h"
 #include "meal.h"
 #include "state_manager.h"
 #include "string.h"
@@ -22,25 +24,34 @@ void HistoryController::escape() {
 // PRIVATE
 
 void HistoryController::displayHistoryScreen() {
-    const static char title[] PROGMEM = "SELECTION REPAS";
+    const static char title[] PROGMEM = "HISTORIQUE";
     vector<string> menuItems;
-    for(int n = 0; n < AppConfig::getInstance().meals.size(); n++) {
-        Meal & meal = AppConfig::getInstance().meals[n];
+
+    vector<MealDistribution> distributedMeals = LogService::getInstance().getDistributionHistory();
+
+    for(int n = 0; n < distributedMeals.size(); n++) {
+        MealDistribution & distributedMeal = distributedMeals[n];
+
+        int mealIndex = getMealIndexById(AppConfig::getInstance().meals, distributedMeal.id);
+        if (mealIndex == -1) continue;
+
+        Meal & meal = AppConfig::getInstance().meals[mealIndex];
+
         char mealName[19];
 
-        int hour = meal.startMoment / 60;
-        const char *hourPrefix = hour >= 10 ? "" : "0";
-        int minutes = meal.startMoment % 60;
-        const char *minutesPrefix = minutes >= 10 ? "" : "0";
+        tmElements_t startTime;
+        breakTime(distributedMeal.startTime, startTime);
         
-        // Add meal start hour
-        sprintf(mealName, "%s%d:%s%d ", hourPrefix, hour, minutesPrefix, minutes);
+        // Add meal start time
+        sprintf(mealName, "%02d:%02d ", startTime.Hour, startTime.Minute);
 
         // Add meal name
         strcat(mealName, meal.name);
+        strncat(mealName, "              ", 18 - strlen(mealName));
 
-        if (MealService::isMealDistributed(meal.id)) {
-            mealName[18] = '*';
+        // Show (!) when there are missing sequences for distributed meal
+        if (strlen(distributedMeal.missingSequences) > 1) {
+            mealName[17] = '!';
         }
 
         menuItems.push_back(string(mealName));
