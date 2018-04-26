@@ -50,7 +50,6 @@ void MainMenuController::displayNavMenu() {
             break;
         case 5:
             LogService::getInstance().log(MANUAL_RESTART);
-            LogService::getInstance().flush();
 
             asm volatile ("  jmp 0");
             break;

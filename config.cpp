@@ -285,3 +285,57 @@ Config loadConfiguration() {
 
     return loadSDCardConfiguration();
 }
+
+ConfigurationError validateConfiguration(Config config) {
+    // Check if there is a dock point
+    if (!dockPointExists(config.railPoints) {
+        return CONFIG_NO_DOCK_POINT;
+    }
+
+    for (const auto & railPoint : config.railPoints) {
+        int pointsWithSameIds = count_if(config.railPoints.begin(), config.railPoints.end(), [&](RailPoint & listPoint) {
+            return listPoint.id == railPoint->id;
+        });
+
+        if (pointsWithSameIds > 1) {
+            return CONFIG_DUPLICATE_RAIL_POINT_ID;
+        }
+
+        int pointsWithSameRfidUid = count_if(config.railPoints.begin(), config.railPoints.end(), [&](RailPoint & listPoint) {
+            return strcmp(listPoint.rfidUid, railPoint->rfidUid) == 0;
+        });
+
+        if (pointsWithSameRfidUid > 1) {
+            return CONFIG_DUPLICATE_RAIL_POINT_RFID_UID;
+        }
+    }
+
+    for (const auto & meal : config.meals) {
+        int mealsWithSameIds = count_if(config.meals.begin(), config.meals.end(), [&](Meal & listMeal) {
+            return listMeal.id == meal->id;
+        });
+
+        if (mealsWithSameIds > 1) {
+            return CONFIG_DUPLICATE_MEAL_ID;
+        }
+
+        int mealsWithSameStartMoment = count_if(config.meals.begin(), config.meals.end(), [&](Meal & listMeal) {
+            return listMeal.startMoment == meal->startMoment;
+        });
+
+        if (mealsWithSameStartMoment > 1) {
+            return CONFIG_DUPLICATE_MEAL_START_MOMENT;
+        }
+
+        if (meal.startMoment > 1440) {
+            return CONFIG_INVALID_MEAL_START_MOMENT;
+        }
+
+        int routeIndex = getRouteIndexById(config.routes, meal.routeid);
+        if (routeIndex == -1) {
+            return CONFIG_UNKNOWN_MEAL_ROUTE_ID;
+        }
+    }
+
+    // TODO: Validate meal sequence existing start/end points ID
+}

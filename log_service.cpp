@@ -51,7 +51,7 @@ void LogService::log(FeederEvent eventType, int info) {
     strcat(line, " ");
     typeToText(line, eventType);
     strcat(line, " ");
-    strcat(line, info);
+    sprintf(line, "%d", info);
 
     writeToFile(line);
 }
@@ -73,30 +73,6 @@ void LogService::logDistribution(int mealId, time_t startTime, time_t endTime, c
     File logFile = fileService.openFile(filename, FILE_WRITE);
     logFile.println(line);
     logFile.close();
-}
-
-void LogService::flush() {
-    // FileService fileService = FileService();
-    // File logFile = fileService.openFile(getString(FILE_LOGS), FILE_WRITE);
-    
-    // char line[120];
-    // for (auto const & event : eventsBuffer) {
-    //     timestampToDate(line, event.timestamp);
-    //     strcat(line, " ");
-    //     typeToText(line, event.type);
-    //     strcat(line, " ");
-    //     strcat(line, event.info);
-
-    //     // Write log line to file
-    //     logFile.println(line);
-    //     Serial.println(line);
-
-    //     // Clear line
-    //     line[0] = 0;
-    // }
-
-    // logFile.close();
-    // eventsBuffer.clear();
 }
 
 // Returns current UTC time
@@ -209,8 +185,11 @@ LogService::LogService() : rtc(DS1302RTC(RTC_CE_PIN, RTC_IO_PIN, RTC_SCLK_PIN)) 
 }
 
 void LogService::writeToFile(char * logLine) {
+    char filename[30];
+    getSystemLogFilename(filename);
+
     FileService fileService = FileService();
-    File logFile = fileService.openFile(getString(FILE_LOGS), FILE_WRITE);
+    File logFile = fileService.openFile(filename, FILE_WRITE);
 
     logFile.println(logLine);
 
@@ -254,6 +233,10 @@ void LogService::typeToText(char * line, FeederEvent type) {
     };
 
     strcat(line, getString(textTypes[type]));
+}
+
+void LogService::getSystemLogFilename(char * filename) {
+    sprintf(filename, "%s/%d%02d%02d.LOG", getString(PATH_SYSTEM_LOGS), year(), month(), day());
 }
 
 void LogService::getDistributionLogFilename(char * filename) {

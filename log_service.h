@@ -22,7 +22,6 @@ class LogService {
         void log(FeederEvent eventType, const char * info);
         void log(FeederEvent eventType, int info);
         void logDistribution(int mealId, time_t startTime, time_t endTime, char * missingSequences);
-        void flush();
         time_t getTime();
         vector<MealDistribution> getDistributionHistory();
         vector<int> getDistributedMealIds();
@@ -37,6 +36,7 @@ class LogService {
         void writeToFile(char * logLine);
         void timestamp(char * date);
         void typeToText(char * line, FeederEvent type);
+        void getSystemLogFilename(char * filename);
         void getDistributionLogFilename(char * filename);
         void createDistributionLogFile(char * filename);
 

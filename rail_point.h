@@ -27,5 +27,7 @@ struct RailPoint {
 RailPoint getRailPointById(vector<RailPoint> railPoints, int pointId);
 RailPoint getDockPoint(vector<RailPoint> railPoints);
 int getRailPointIndexFromRfid(vector<RailPoint> railPoints, const char *rfidUid, MovingDirection direction);
+bool railPointExists(vector<RailPoint> railPoints, int railPointId);
+bool dockPointExists(vector<RailPoint> railPoints);
 
 #endif

@@ -49,8 +49,8 @@ int MealService::getScheduledMealId(vector<Meal> & meals) {
 }
 
 bool MealService::isMealDistributed(int mealId) {
-    return false;
-    // return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
+    vector<int> distributedMealIds = LogService::getInstance().getDistributedMealIds();
+    return find(distributedMealIds.begin(), distributedMealIds.end(), mealId) != distributedMealIds.end();
 }
 
 void MealService::startDistribution() {

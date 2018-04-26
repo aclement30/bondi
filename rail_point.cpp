@@ -56,3 +56,19 @@ int getRailPointIndexFromRfid(vector<RailPoint> railPoints, const char * rfidUid
     
     return iterator - railPoints.begin();
 }
+
+bool railPointExists(vector<RailPoint> railPoints, int railPointId) {
+    vector<RailPoint>::iterator iterator = find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
+        return point.id == railPointId;
+    });
+
+    return iterator != railPoints.end();
+}
+
+bool dockPointExists(vector<RailPoint> railPoints) {
+    vector<RailPoint>::iterator iterator = find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
+        return point.isDock();
+    });
+
+    return iterator != railPoints.end();
+}
