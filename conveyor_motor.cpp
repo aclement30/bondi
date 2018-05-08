@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "constants.h"
 #include "conveyor_motor.h"
+#include "state_manager.h"
 
 ConveyorMotor::ConveyorMotor(PinConfig motorPwm, PinConfig motorReverse) {
     pwm = motorPwm;
@@ -13,13 +14,17 @@ void ConveyorMotor::setup() {
     pinMode(pwm, OUTPUT);
     pinMode(reverse, OUTPUT);
     // Set to LOW so no power is flowing through the output
-    digitalWrite(pwm, LOW);
+    analogWrite(pwm, 0);
     digitalWrite(reverse, LOW);
 
     Serial.println(F("Configuration du convoyeur"));
 }
 
 void ConveyorMotor::start(ConveyorSide side, int motorSpeed) {
+    if (StateManager::getInstance().isSafetyMode()) {
+        return;
+    }
+    
     if (side == CONVEYOR_SIDE_LEFT) {
         digitalWrite(reverse, HIGH);
     } else {

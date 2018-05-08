@@ -23,6 +23,18 @@ bool RailPoint::isReverse() {
     return id >= 100 && id < 200;
 }
 
+MovingDirection RailPoint::getMovingDirection() {
+    if (isDock()) {
+        return MOVING_IDLE;
+    }
+
+    if (isReverse()) {
+        return id % 2 == 0 ? MOVING_BACKWARD : MOVING_FORWARD;
+    }
+
+    return id % 2 == 0 ? MOVING_FORWARD : MOVING_BACKWARD;
+}
+
 RailPoint getRailPointById(vector<RailPoint> railPoints, int pointId) {
     vector<RailPoint>::iterator iterator = find_if (railPoints.begin(), railPoints.end(), [&](RailPoint &point) {
         return point.id == pointId;

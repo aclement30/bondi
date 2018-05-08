@@ -17,9 +17,6 @@
 #include "route_service.h"
 #include "safety_service.h"
 
-// Services
-SafetyService safetyService = SafetyService();
-
 void displayStartupScreen() {
     const static char startupString[] PROGMEM = "Demarrage en cours";
     DisplayService::getInstance().clearScreen();
@@ -63,21 +60,9 @@ void loop() {
   
     Serial.println(F("* loop"));
 
-    // Serial.println("* check safety");
-    safetyService.checkSafetyState();
-    
-    // Serial.println("* main motor");
-    // mainMotor.loop();
-    
-    // if (LogService::getInstance().getBufferSize() >= 5) {
-    //     Serial.println(F("* writing logs to SD card"));
-    //     delay(250);
-    //     LogService::getInstance().flush();
-    // }
-
-    Serial.println(F("* handle"));
-
-    // delay(250);
+    if (StateManager::getInstance().isSafetyMode()) {
+        StateManager::getInstance().getCurrentController()->safetyStop();
+    }
 
     if (KeypadService::getInstance().isEscapeKeyPressed()) {
         // Stop motor

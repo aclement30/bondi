@@ -23,6 +23,7 @@ class LogService {
         void log(FeederEvent eventType, int info);
         void logDistribution(int mealId, time_t startTime, time_t endTime, char * missingSequences);
         time_t getTime();
+        void getDateTime(char * date);
         vector<MealDistribution> getDistributionHistory();
         vector<int> getDistributedMealIds();
         // int getBufferSize();

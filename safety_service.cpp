@@ -8,29 +8,19 @@
 #include "string.h"
 #include "safety_service.h"
 
-SafetyService::SafetyService() {
-    pinMode(SAFETY_SENSOR_FRONT, INPUT);
-    pinMode(SAFETY_SENSOR_BACK, INPUT);
+SafetyService & SafetyService::getInstance() {
+    static SafetyService instance; // Guaranteed to be destroyed.
+                                    // Instantiated on first use.
+    return instance;
 }
 
-void SafetyService::checkSafetyState() {
-    bool safetyMode = StateManager::getInstance().isSafetyMode();
-
-    if (!safetyMode && isSafetyBarPressed()) {
-        Serial.println(F("Barre de sécurité enclenchée"));
-        LogService::getInstance().log(SAFETY_BAR_PRESSED);
-        
-        // Shutdown everything immediately
-        RailMotor::getInstance().stop();
-        StateManager::getInstance().safetyStop();
-        FrontConveyor::getInstance().stop();
-        BackConveyor::getInstance().stop();
-
-        displaySafetyStopWarning();
-    }
+void SafetyService::listenForTrigger() {
+    attachInterrupt(digitalPinToInterrupt(3), SafetyService::safetyBarInterrupt, FALLING);
 }
 
-// PRIVATE
+void SafetyService::stopListeningForTrigger() {
+    detachInterrupt(digitalPinToInterrupt(3));
+}
 
 void SafetyService::displaySafetyStopWarning() {
     const static char title[] PROGMEM = "(!) ARRET SECURITE";
@@ -40,19 +30,46 @@ void SafetyService::displaySafetyStopWarning() {
     DisplayService::getInstance().printTitle(getString(title));
     DisplayService::getInstance().addBorder();
     DisplayService::getInstance().printCenter(getString(continueBtn), 2);
-
-    bool canContinue = KeypadService::getInstance().waitForConfirmation();
-
-    if (canContinue) {
-        StateManager::getInstance().disengageSafetyMode();
-    } else {
-        StateManager::getInstance().getCurrentController()->escape();
-    }
 }
 
-bool SafetyService::isSafetyBarPressed() {
-    MovingDirection movingDirection = StateManager::getInstance().getMovingDirection();
+void SafetyService::displayAutoDisengagement() {
+    const static char title[] PROGMEM = "(!) ARRET SECURITE";
+    const static char message[] PROGMEM = "Desactivation auto";
 
-    return (movingDirection == MOVING_FORWARD && digitalRead(SAFETY_SENSOR_FRONT) == HIGH) 
-        || (movingDirection == MOVING_BACKWARD && digitalRead(SAFETY_SENSOR_BACK) == HIGH);
+    DisplayService::getInstance().clearScreen();
+    DisplayService::getInstance().printTitle(getString(title));
+    DisplayService::getInstance().addBorder();
+    DisplayService::getInstance().printCenter(getString(message), 2);
+}
+
+void SafetyService::displayMovingWarning() {
+    const static char title[] PROGMEM = "(!) ATTENTION";
+    const static char message1[] PROGMEM = "Le robot va se";
+    const static char message2[] PROGMEM = "mettre en mouvement";
+
+    DisplayService::getInstance().clearScreen();
+    DisplayService::getInstance().printTitle(getString(title));
+    DisplayService::getInstance().addBorder();
+    DisplayService::getInstance().printCenter(getString(message1), 2);
+    DisplayService::getInstance().printCenter(getString(message2), 3);
+
+    tone(SPEAKER, 500, 2000);
+    KeypadService::getInstance().waitForActivity(2000);
+    pinMode(SPEAKER, INPUT);
+}
+
+void SafetyService::safetyBarInterrupt() {
+    bool safetyMode = StateManager::getInstance().isSafetyMode();
+
+    if (!safetyMode) {
+        Serial.println(F("Barre de sécurité enclenchée"));
+        LogService::getInstance().log(SAFETY_BAR_PRESSED);
+        
+        // Shutdown everything immediately
+        RailMotor::getInstance().stop();
+        FrontConveyor::getInstance().stop();
+        BackConveyor::getInstance().stop();
+
+        StateManager::getInstance().safetyStop();
+    }
 }

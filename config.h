@@ -45,10 +45,13 @@ vector<MealSequence> loadMealSequences(const char * filename, int mealId);
 int loadConfigVersion(const char * filename);
 
 void displaySDCardErrorScreen();
-void displayConfigurationErrorScreen();
+void displayConfigFilesErrorScreen();
+void displayConfigurationErrorScreen(ConfigurationError configError);
 
 Config loadStaticConfiguration();
 Config loadSDCardConfiguration();
 Config loadConfiguration();
+
+ConfigurationError validateConfiguration(Config config);
 
 #endif

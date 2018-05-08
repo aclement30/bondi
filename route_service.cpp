@@ -22,13 +22,24 @@ RouteService::~RouteService() {
 void RouteService::start() {
     refreshLocation();
 
+    // If route was already started, keeps going in the same direction as before
+    if (activeRailPointPtr != NULL && !activeRailPointPtr->isDock()) {
+        if (activeRailPointPtr->getMovingDirection() == MOVING_FORWARD) {
+            RailMotor::getInstance().moveForward();
+        } else {
+            RailMotor::getInstance().moveBackward();
+        }
+
+        return;
+    }
+
+    LogService::getInstance().log(ROUTE_START, currentRoutePtr->id);
+
     if (currentRoutePtr->initialDirection == MOVING_FORWARD) {
         RailMotor::getInstance().moveForward();
     } else {
         RailMotor::getInstance().moveBackward();
     }
-
-    LogService::getInstance().log(ROUTE_START, currentRoutePtr->id);
 }
 
 void RouteService::stop() {

@@ -1,5 +1,6 @@
 #include <ArduinoSTL.h>
 #include <Keypad.h>
+#include "constants.h"
 
 #ifndef KEYPAD_SERVICE_H
 #define KEYPAD_SERVICE_H
@@ -28,6 +29,7 @@ class KeypadService {
         void waitForActivity(unsigned long milliseconds);
         int getKeyCode(char keyPressed);
         bool waitForConfirmation();
+        ConfirmationResponse waitForConfirmation(unsigned long timeout);
         bool isEscapeKeyPressed();
         void resetEscapeKey();
 

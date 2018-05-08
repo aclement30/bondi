@@ -51,7 +51,10 @@ void LogService::log(FeederEvent eventType, int info) {
     strcat(line, " ");
     typeToText(line, eventType);
     strcat(line, " ");
-    sprintf(line, "%d", info);
+    
+    char number[10];
+    sprintf(number, "%d", info);
+    strcat(line, number);
 
     writeToFile(line);
 }
@@ -78,6 +81,10 @@ void LogService::logDistribution(int mealId, time_t startTime, time_t endTime, c
 // Returns current UTC time
 time_t LogService::getTime() {
     return rtc.get();
+}
+
+void LogService::getDateTime(char * date) {
+    sprintf(date, "%d-%02d-%02d %02d:%02d:%02d", year(), month(), day(), hour(), minute(), second());
 }
 
 // int LogService::getBufferSize() {
@@ -179,7 +186,7 @@ vector<int> LogService::getDistributedMealIds() {
 LogService::LogService() : rtc(DS1302RTC(RTC_CE_PIN, RTC_IO_PIN, RTC_SCLK_PIN)) {
     setSyncProvider(rtc.get);
 
-    // time_t t = 1524331180;
+    // time_t t = 1525028530;
     // rtc.set(t);   // set the RTC and the system time to the received value
     // setTime(t);
 }
@@ -212,10 +219,11 @@ void LogService::typeToText(char * line, FeederEvent type) {
     const static char type5[] PROGMEM = "ROUTE_END";
     const static char type6[] PROGMEM = "SAFETY_BAR_PRESSED";
     const static char type7[] PROGMEM = "SAFETY_MODE_ENGAGED";
-    const static char type8[] PROGMEM = "SAFETY_MODE_DISENGAGED";
-    const static char type9[] PROGMEM = "MANUAL_CONTROL_START";
-    const static char type10[] PROGMEM = "MANUAL_CONTROL_END";
-    const static char type11[] PROGMEM = "MANUAL_RESTART";
+    const static char type8[] PROGMEM = "SAFETY_MODE_RETRY";
+    const static char type9[] PROGMEM = "SAFETY_MODE_DISENGAGED";
+    const static char type10[] PROGMEM = "MANUAL_CONTROL_START";
+    const static char type11[] PROGMEM = "MANUAL_CONTROL_END";
+    const static char type12[] PROGMEM = "MANUAL_RESTART";
 
     const char * const textTypes[] PROGMEM = {
         type0,
@@ -229,7 +237,8 @@ void LogService::typeToText(char * line, FeederEvent type) {
         type8,
         type9,
         type10,
-        type11
+        type11,
+        type12
     };
 
     strcat(line, getString(textTypes[type]));

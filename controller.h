@@ -8,6 +8,7 @@ class Controller {
             handle();
         };
         virtual void escape() {};
+        virtual void safetyStop() {};
         virtual ~Controller() = default;
 };
 

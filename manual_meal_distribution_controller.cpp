@@ -4,6 +4,7 @@
 #include "log_service.h"
 #include "meal_service.h"
 #include "navigation_menu.h"
+#include "safety_service.h"
 #include "state_manager.h"
 #include "string.h"
 #include "manual_meal_distribution_controller.h"
@@ -59,6 +60,12 @@ void ManualMealDistributionController::escape() {
     }
 }
 
+void ManualMealDistributionController::safetyStop() {
+    if (mealServicePtr != NULL) {
+        mealServicePtr->safetyStop();
+    }
+}
+
 // PRIVATE
 
 bool ManualMealDistributionController::hasCurrentMeal() {
@@ -99,16 +106,15 @@ void ManualMealDistributionController::displayMealSelectionScreen() {
         }
 
         LogService::getInstance().log(MANUAL_MEAL_SELECTION, AppConfig::getInstance().meals[selectedOption - 1].name);
-        Serial.println("* meal selected");
-        delay(250);
+        
+        // Display short warning notice before moving
+        SafetyService::getInstance().displayMovingWarning();
 
         int mealId = AppConfig::getInstance().meals[selectedOption - 1].id;
         mealServicePtr = new MealService(mealId);
         mealServicePtr->displayMealDistributionScreen();
         mealServicePtr->startDistribution();
-        
-        Serial.println("* meal service created");
-        delay(250);
+
         return;
     } else {
         StateManager::getInstance().changeState(ManualMenu);

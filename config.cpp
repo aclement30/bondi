@@ -198,7 +198,7 @@ void displaySDCardErrorScreen() {
     }
 }
 
-void displayConfigurationErrorScreen() {
+void displayConfigFilesErrorScreen() {
     const static char okButtonText[] PROGMEM = "Redemarrer";
     const static char errorMsg1[] PROGMEM = "Fichiers de config.";
     const static char errorMsg2[] PROGMEM = "manquants.";
@@ -207,6 +207,61 @@ void displayConfigurationErrorScreen() {
         getString(errorMsg1),
         getString(errorMsg2)
     };
+    
+    DisplayService::getInstance().showErrorScreen(errorMessage, getString(okButtonText));
+    bool restart = KeypadService::getInstance().waitForConfirmation();
+    if (restart) {
+        asm volatile ("  jmp 0");
+    }
+}
+
+void displayConfigurationErrorScreen(ConfigurationError configError) {
+    const static char okButtonText[] PROGMEM = "Redemarrer";
+    const static char errorMsgConfig[] PROGMEM = "Config. invalide";
+
+    vector<string> errorMessage = {
+        getString(errorMsgConfig),
+    };
+
+    const static char errorMsg1[] PROGMEM = "Dock introuvable";
+    const static char errorMsg2[] PROGMEM = "Conflit # point RFID";
+    const static char errorMsg3[] PROGMEM = "Conflit UID RFID";
+    const static char errorMsg4[] PROGMEM = "Conflit numero repas";
+    const static char errorMsg5[] PROGMEM = "Heure repas invalide";
+    const static char errorMsg6[] PROGMEM = "Conflit heures repas";
+    const static char errorMsg7[] PROGMEM = "Route repas inconnue";
+    const static char errorMsg8[] PROGMEM = "Debut groupe inconnu";
+    const static char errorMsg9[] PROGMEM = "Fin groupe inconnu";
+    
+    switch(configError) {
+        case CONFIG_NO_DOCK_POINT:
+            errorMessage.push_back(errorMsg1);
+            break;
+        case CONFIG_DUPLICATE_RAIL_POINT_ID:
+            errorMessage.push_back(errorMsg2);
+            break;
+        case CONFIG_DUPLICATE_RAIL_POINT_RFID_UID:
+            errorMessage.push_back(errorMsg3);
+            break;
+        case CONFIG_DUPLICATE_MEAL_ID:
+            errorMessage.push_back(errorMsg4);
+            break;
+        case CONFIG_INVALID_MEAL_START_MOMENT:
+            errorMessage.push_back(errorMsg5);
+            break;
+        case CONFIG_DUPLICATE_MEAL_START_MOMENT:
+            errorMessage.push_back(errorMsg6);
+            break;
+        case CONFIG_UNKNOWN_MEAL_ROUTE_ID:
+            errorMessage.push_back(errorMsg7);
+            break;
+        case CONFIG_UNKNOWN_MEAL_START_POINT:
+            errorMessage.push_back(errorMsg8);
+            break;
+        case CONFIG_UNKNOWN_MEAL_END_POIND:
+            errorMessage.push_back(errorMsg9);
+            break;
+    }
     
     DisplayService::getInstance().showErrorScreen(errorMessage, getString(okButtonText));
     bool restart = KeypadService::getInstance().waitForConfirmation();
@@ -263,7 +318,7 @@ Config loadSDCardConfiguration() {
     }
 
     if (!fileService.validateConfigFiles()) {
-        displayConfigurationErrorScreen();
+        displayConfigFilesErrorScreen();
         return config;
     }
 
@@ -283,18 +338,25 @@ Config loadConfiguration() {
         return loadStaticConfiguration();
     }
 
-    return loadSDCardConfiguration();
+    Config config = loadSDCardConfiguration();
+    ConfigurationError configError = validateConfiguration(config);
+    if (configError != CONFIG_VALID) {
+        displayConfigurationErrorScreen(configError);
+        return config;
+    }
+
+    return config;
 }
 
 ConfigurationError validateConfiguration(Config config) {
     // Check if there is a dock point
-    if (!dockPointExists(config.railPoints) {
+    if (!dockPointExists(config.railPoints)) {
         return CONFIG_NO_DOCK_POINT;
     }
 
     for (const auto & railPoint : config.railPoints) {
         int pointsWithSameIds = count_if(config.railPoints.begin(), config.railPoints.end(), [&](RailPoint & listPoint) {
-            return listPoint.id == railPoint->id;
+            return listPoint.id == railPoint.id;
         });
 
         if (pointsWithSameIds > 1) {
@@ -302,7 +364,7 @@ ConfigurationError validateConfiguration(Config config) {
         }
 
         int pointsWithSameRfidUid = count_if(config.railPoints.begin(), config.railPoints.end(), [&](RailPoint & listPoint) {
-            return strcmp(listPoint.rfidUid, railPoint->rfidUid) == 0;
+            return strcmp(listPoint.rfidUid, railPoint.rfidUid) == 0;
         });
 
         if (pointsWithSameRfidUid > 1) {
@@ -312,7 +374,7 @@ ConfigurationError validateConfiguration(Config config) {
 
     for (const auto & meal : config.meals) {
         int mealsWithSameIds = count_if(config.meals.begin(), config.meals.end(), [&](Meal & listMeal) {
-            return listMeal.id == meal->id;
+            return listMeal.id == meal.id;
         });
 
         if (mealsWithSameIds > 1) {
@@ -320,7 +382,7 @@ ConfigurationError validateConfiguration(Config config) {
         }
 
         int mealsWithSameStartMoment = count_if(config.meals.begin(), config.meals.end(), [&](Meal & listMeal) {
-            return listMeal.startMoment == meal->startMoment;
+            return listMeal.startMoment == meal.startMoment;
         });
 
         if (mealsWithSameStartMoment > 1) {
@@ -331,11 +393,22 @@ ConfigurationError validateConfiguration(Config config) {
             return CONFIG_INVALID_MEAL_START_MOMENT;
         }
 
-        int routeIndex = getRouteIndexById(config.routes, meal.routeid);
+        int routeIndex = getRouteIndexById(config.routes, meal.routeId);
         if (routeIndex == -1) {
             return CONFIG_UNKNOWN_MEAL_ROUTE_ID;
         }
+
+        vector<MealSequence> mealSequences = loadMealSequences(getString(FILE_MEAL_SEQUENCES), meal.id);
+        for (const auto & mealSequence : mealSequences) {
+            if (!railPointExists(config.railPoints, mealSequence.startPointId)) {
+                return CONFIG_UNKNOWN_MEAL_START_POINT;
+            }
+
+            if (!railPointExists(config.railPoints, mealSequence.endPointId)) {
+                return CONFIG_UNKNOWN_MEAL_END_POIND;
+            }
+        }
     }
 
-    // TODO: Validate meal sequence existing start/end points ID
+    return CONFIG_VALID;
 }

@@ -26,6 +26,7 @@ class MealService {
         void startDistribution();
         void distributeMeal();
         void stopFeeding();
+        void safetyStop();
         void displayMealDistributionScreen();
         void displayMealCompletionScreen();
         bool isDistributionCompleted();
@@ -39,6 +40,8 @@ class MealService {
         int currentPointId = 0;
         int lastPointId = 0;
         int sequencesCount = 0;
+        unsigned long lastSafetyTrigger = 0;
+        int unacknowledgedSafetyTriggers = 0;
 
         void refreshCurrentSequence();
         void completeDistribution();

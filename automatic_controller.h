@@ -15,7 +15,8 @@ class AutomaticController: public Controller {
         void handle();
         void resume();
         void escape();
-
+        void safetyStop();
+        
     private:
         MealService * mealServicePtr = NULL;
 

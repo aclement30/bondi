@@ -4,6 +4,7 @@
 #include "location_service.h"
 #include "meal_service.h"
 #include "navigation_menu.h"
+#include "safety_service.h"
 #include "state_manager.h"
 #include "string.h"
 #include "automatic_controller.h"
@@ -49,6 +50,9 @@ void AutomaticController::handle() {
             mealServicePtr = NULL;
         }
 
+        // Display short warning notice before moving
+        SafetyService::getInstance().displayMovingWarning();
+
         mealServicePtr = new MealService(scheduledMealId);
         mealServicePtr->displayMealDistributionScreen();
         mealServicePtr->startDistribution();
@@ -79,6 +83,12 @@ void AutomaticController::escape() {
 
     if (cancelDistribution) {
         StateManager::getInstance().changeState(MainMenu);
+    }
+}
+
+void AutomaticController::safetyStop() {
+    if (mealServicePtr != NULL) {
+        mealServicePtr->safetyStop();
     }
 }
 

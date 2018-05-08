@@ -21,7 +21,7 @@ class StateManager {
         void stop();
         bool isSafetyMode();
         void safetyStop();
-        void disengageSafetyMode();
+        void disengageSafetyMode(bool manualAction);
 
     private:
         Controller * currentControllerPtr = NULL;

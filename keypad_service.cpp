@@ -24,7 +24,7 @@ int KeypadService::getKeyPressed() {
 }
 
 void KeypadService::listenForEscape() {
-    attachInterrupt(digitalPinToInterrupt(2), KeypadService::keypadInterrupt, FALLING);
+    attachInterrupt(digitalPinToInterrupt(3), KeypadService::keypadInterrupt, FALLING);
 }
 
 void KeypadService::keypadInterrupt() {
@@ -77,7 +77,7 @@ int KeypadService::getKeyCode(char keyPressed) {
 
 bool KeypadService::waitForConfirmation() {
     waitForKey = true;
-    Serial.println(">");
+    Serial.println(F(">"));
     
     char keyPressed = keypad.waitForKey();
     waitForKey = false;
@@ -90,6 +90,34 @@ bool KeypadService::waitForConfirmation() {
         return false;
     } else {
         return waitForConfirmation();
+    }
+}
+
+ConfirmationResponse KeypadService::waitForConfirmation(unsigned long timeout) {
+    waitForKey = true;
+    Serial.println(F(">"));
+    
+    unsigned long startTime = millis();
+    unsigned long endTime = startTime + timeout;
+
+    char keyPressed = keypad.getKey();
+    while (millis() < endTime && keyPressed == NO_KEY) {
+        keyPressed = keypad.getKey();
+    }
+    waitForKey = false;
+
+    if (millis() >= endTime && keyPressed == NO_KEY) {
+        return CONFIRMATION_TIMEOUT;
+    }
+
+    Serial.println(keyPressed);
+
+    if (keyPressed == KeypadService::EnterKeyChar) {
+        return CONFIRMATION_ACKNOWLEDGED;
+    } else if (keyPressed == KeypadService::EscapeKeyChar) {
+        return CONFIRMATION_DENIED;
+    } else {
+        return waitForConfirmation(timeout);
     }
 }
 
@@ -117,5 +145,5 @@ char KeypadService::keymap[numRows][numCols] = {
 };
 
 //Code that shows the the keypad connections to the arduino terminals
-byte KeypadService::rowPins[numRows] = {23, 25, 27, 2}; //Rows 0 to 3
-byte KeypadService::colPins[numCols] = {3, 29, 31, 33}; //Columns 0 to 3
+byte KeypadService::rowPins[numRows] = {26, 28, 30, 3}; //Rows 0 to 3
+byte KeypadService::colPins[numCols] = {32, 34, 36, 38}; //Columns 0 to 3

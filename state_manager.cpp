@@ -3,6 +3,7 @@
 #include "automatic_controller.h"
 #include "diagnostic_controller.h"
 #include "history_controller.h"
+#include "keypad_service.h"
 #include "log_service.h"
 #include "main_menu_controller.h"
 #include "manual_control_controller.h"
@@ -10,6 +11,7 @@
 #include "manual_menu_controller.h"
 #include "off_controller.h"
 #include "state_manager.h"
+#include "safety_service.h"
 
 using namespace std;
 
@@ -101,15 +103,29 @@ bool StateManager::isSafetyMode() {
 }
 
 void StateManager::safetyStop() {
+    Serial.println(F("* StateManager::safetyStopp"));
+    delay(250);
+
     safetyModeActivated = true;
     LogService::getInstance().log(SAFETY_MODE_ENGAGED);
 
     stop();
 }
 
-void StateManager::disengageSafetyMode() {
+void StateManager::disengageSafetyMode(bool manualAction) {
     safetyModeActivated = false;
-    LogService::getInstance().log(SAFETY_MODE_DISENGAGED);
+
+    if (manualAction) {
+        LogService::getInstance().log(SAFETY_MODE_DISENGAGED);
+    } else {
+        LogService::getInstance().log(SAFETY_MODE_RETRY);
+
+        SafetyService::getInstance().displayAutoDisengagement();
+        KeypadService::getInstance().waitForActivity(2000);
+    }
+
+    // Display short warning notice before moving
+    SafetyService::getInstance().displayMovingWarning();
 
     currentControllerPtr->resume();
 }

@@ -10,6 +10,7 @@
 #include "route.h"
 #include "route_service.h"
 #include "meal_service.h"
+#include "safety_service.h"
 #include "state_manager.h"
 #include "string.h"
 
@@ -56,11 +57,17 @@ bool MealService::isMealDistributed(int mealId) {
 void MealService::startDistribution() {
     startTime = LogService::getInstance().getTime();
 
+    SafetyService::getInstance().listenForTrigger();
+
     LogService::getInstance().log(MEAL_DISTRIBUTION_START, currentMealPtr->name);
     routeServicePtr->start();
 }
 
 void MealService::distributeMeal() {
+    if (StateManager::getInstance().isSafetyMode()) {
+        return;
+    }
+    
     routeServicePtr->refreshLocation();
 
     Serial.println("* distributeMeal");
@@ -115,6 +122,43 @@ void MealService::stopFeeding() {
     Serial.println(F("Arrêt des convoyeurs"));
 }
 
+void MealService::safetyStop() {
+    SafetyService::getInstance().displaySafetyStopWarning();
+
+    unsigned long currentTime = millis();
+    if (lastSafetyTrigger < currentTime - SAFETY_STOP_RESET_INTERVAL) {
+        // When last safety trigger was before reset interval, automatically resets unacknowledged counter
+        // This prevents a meal distribution complete unwanted stop after 3 unrelated occurences
+        unacknowledgedSafetyTriggers = 0;
+    }
+
+    lastSafetyTrigger = currentTime;
+    
+    if (unacknowledgedSafetyTriggers < 3) {
+        // Wait 30 seconds for confirmation/escape, then disengage safety mode if no answer
+        ConfirmationResponse canContinue = KeypadService::getInstance().waitForConfirmation(SAFETY_STOP_RETRY_DELAY);
+
+        if (canContinue == CONFIRMATION_TIMEOUT) {
+            unacknowledgedSafetyTriggers += 1;
+        }
+
+        if (canContinue != CONFIRMATION_DENIED) {
+            StateManager::getInstance().disengageSafetyMode(false);
+        } else {
+            StateManager::getInstance().getCurrentController()->escape();
+        }
+    } else {
+        // Wait until someone acknowledge the safety stop and allows distribution to resume
+        bool canContinue = KeypadService::getInstance().waitForConfirmation();
+
+        if (canContinue) {
+            StateManager::getInstance().disengageSafetyMode(true);
+        } else {
+            StateManager::getInstance().getCurrentController()->escape();
+        }
+    }
+}
+
 bool MealService::isDistributionCompleted() {
     // Distribution is completed when the last sequence is the last of the meal OR the route is completed (failsafe)
     return currentSequencePtr == NULL && completedSequenceIndexes.size() > 1 && (completedSequenceIndexes.back() == (mealSequences.size() - 1) || routeServicePtr->isCompleted());
@@ -157,6 +201,8 @@ void MealService::completeDistribution() {
     // Make sure all feed conveyors are stopped
     stopFeeding();
     routeServicePtr->stop();
+
+    SafetyService::getInstance().stopListeningForTrigger();
 
     char missingSequences[100] = "";
     getMissingSequences(missingSequences);

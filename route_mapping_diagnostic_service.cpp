@@ -6,6 +6,7 @@
 #include "navigation_menu.h"
 #include "route.h"
 #include "route_service.h"
+#include "safety_service.h"
 #include "string.h"
 #include "route_mapping_diagnostic_service.h"
 
@@ -37,6 +38,9 @@ void RouteMappingDiagnosticService::startDiagnostic() {
         cancelled = true;
         return;
     }
+
+    // Display short warning notice before moving
+    SafetyService::getInstance().displayMovingWarning();
 
     displayDiagnosticScreen();
 

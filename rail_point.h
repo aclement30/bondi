@@ -21,6 +21,7 @@ struct RailPoint {
 
     bool isDock();
     bool isReverse();
+    MovingDirection getMovingDirection();
 };
 
 // TODO: Refactor these functions as static methods in RailPoint class
