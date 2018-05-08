@@ -1,12 +1,11 @@
 #include <ArduinoSTL.h>
-#include <DS1302RTC.h>
-#include <Time.h>
 #include "constants.h"
 #include "config.h"
 #include "file_service.h"
 #include "log_service.h"
 #include "meal_distribution.h"
 #include "string.h"
+#include "time_service.h"
 
 using namespace std;
 
@@ -19,7 +18,7 @@ LogService & LogService::getInstance() {
 void LogService::log(FeederEvent eventType, char * info) {
     char line[150];
 
-    timestamp(line);
+    TimeService::getInstance().timestamp(line);
     strcat(line, " ");
     typeToText(line, eventType);
     if (info != NULL) {
@@ -33,7 +32,7 @@ void LogService::log(FeederEvent eventType, char * info) {
 void LogService::log(FeederEvent eventType, const char * info) {
     char line[150];
 
-    timestamp(line);
+    TimeService::getInstance().timestamp(line);
     strcat(line, " ");
     typeToText(line, eventType);
     if (info != NULL) {
@@ -47,7 +46,7 @@ void LogService::log(FeederEvent eventType, const char * info) {
 void LogService::log(FeederEvent eventType, int info) {
     char line[150];
     
-    timestamp(line);
+    TimeService::getInstance().timestamp(line);
     strcat(line, " ");
     typeToText(line, eventType);
     strcat(line, " ");
@@ -77,19 +76,6 @@ void LogService::logDistribution(int mealId, time_t startTime, time_t endTime, c
     logFile.println(line);
     logFile.close();
 }
-
-// Returns current UTC time
-time_t LogService::getTime() {
-    return rtc.get();
-}
-
-void LogService::getDateTime(char * date) {
-    sprintf(date, "%d-%02d-%02d %02d:%02d:%02d", year(), month(), day(), hour(), minute(), second());
-}
-
-// int LogService::getBufferSize() {
-//     return eventsBuffer.size();
-// }
 
 // Returns list of distributed meal for the current day
 vector<MealDistribution> LogService::getDistributionHistory() {
@@ -183,13 +169,7 @@ vector<int> LogService::getDistributedMealIds() {
 
 // PRIVATE
 
-LogService::LogService() : rtc(DS1302RTC(RTC_CE_PIN, RTC_IO_PIN, RTC_SCLK_PIN)) {
-    setSyncProvider(rtc.get);
-
-    // time_t t = 1525028530;
-    // rtc.set(t);   // set the RTC and the system time to the received value
-    // setTime(t);
-}
+LogService::LogService() {}
 
 void LogService::writeToFile(char * logLine) {
     char filename[30];
@@ -204,10 +184,6 @@ void LogService::writeToFile(char * logLine) {
     Serial.println(logLine);
 
     logFile.close();
-}
-
-void LogService::timestamp(char * date) {
-    sprintf(date, "%d-%02d-%02dT%02d:%02d:%02dZ", year(), month(), day(), hour(), minute(), second());
 }
 
 void LogService::typeToText(char * line, FeederEvent type) {

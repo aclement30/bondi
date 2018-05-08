@@ -12,6 +12,7 @@
 #include "meal_service.h"
 #include "safety_service.h"
 #include "state_manager.h"
+#include "time_service.h"
 #include "string.h"
 
 using namespace std;
@@ -35,8 +36,11 @@ MealService::~MealService() {
 
 int MealService::getScheduledMealId(vector<Meal> & meals) {
     // Search meals scheduled within the last hour inclusively
-    int minMoment = ((hour() - 1) * 60) + minute();
-    int maxMoment = (hour() * 60) + minute();
+    int maxMoment = TimeService::getInstance().getLocalMoment();
+    int minMoment = maxMoment - 60;
+    if (minMoment < 0) {
+        minMoment = 0;
+    }
 
     vector<Meal>::iterator iterator = find_if (meals.begin(), meals.end(), [&](const Meal & meal) {
         return meal.startMoment > minMoment && meal.startMoment <= maxMoment && !isMealDistributed(meal.id);
@@ -55,7 +59,7 @@ bool MealService::isMealDistributed(int mealId) {
 }
 
 void MealService::startDistribution() {
-    startTime = LogService::getInstance().getTime();
+    startTime = TimeService::getInstance().getTime();
 
     SafetyService::getInstance().listenForTrigger();
 
@@ -196,7 +200,7 @@ void MealService::refreshCurrentSequence() {
 }
 
 void MealService::completeDistribution() {
-    endTime = LogService::getInstance().getTime();
+    endTime = TimeService::getInstance().getTime();
 
     // Make sure all feed conveyors are stopped
     stopFeeding();

@@ -1,8 +1,7 @@
 #include <ArduinoSTL.h>
-#include <DS1302RTC.h>
-#include <Time.h>
 #include "constants.h"
 #include "meal_distribution.h"
+#include "time_service.h"
 
 #ifndef LOG_SERVICE_H
 #define LOG_SERVICE_H
@@ -29,13 +28,9 @@ class LogService {
         // int getBufferSize();
 
     private:
-        // vector<LogEvent> eventsBuffer;
-        DS1302RTC rtc;
-
         LogService();
 
         void writeToFile(char * logLine);
-        void timestamp(char * date);
         void typeToText(char * line, FeederEvent type);
         void getSystemLogFilename(char * filename);
         void getDistributionLogFilename(char * filename);

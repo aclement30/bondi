@@ -1,9 +1,9 @@
 #include "diagnostic_service.h"
 #include "display_service.h"
 #include "keypad_service.h"
-#include "log_service.h"
 #include "navigation_menu.h"
 #include "string.h"
+#include "time_service.h"
 #include "time_diagnostic_service.h"
 
 using namespace std;
@@ -29,7 +29,7 @@ string TimeDiagnosticService::getTitle() {
 
 void TimeDiagnosticService::displayDiagnosticScreen() {
     char dateTime[50];
-    LogService::getInstance().getDateTime(dateTime);
+    TimeService::getInstance().getLocalDateTime(dateTime);
 
     DisplayService::getInstance().clearScreen();
     DisplayService::getInstance().printTitle(getTitle());
