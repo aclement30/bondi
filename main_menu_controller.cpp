@@ -19,14 +19,16 @@ void MainMenuController::displayNavMenu() {
     const static char menuItem2[] PROGMEM = "Mode MANUEL";
     const static char menuItem3[] PROGMEM = "Historique";
     const static char menuItem4[] PROGMEM = "Diagnostic";
-    const static char menuItem5[] PROGMEM = "Redemarrage";
+    const static char menuItem5[] PROGMEM = "Configuration";
+    const static char menuItem6[] PROGMEM = "Redemarrage";
 
     vector<string> menuOptions = {
         getString(menuItem1),
         getString(menuItem2),
         getString(menuItem3),
         getString(menuItem4),
-        getString(menuItem5)
+        getString(menuItem5),
+        getString(menuItem6)
     };
 
     NavigationMenu menu;
@@ -49,6 +51,9 @@ void MainMenuController::displayNavMenu() {
             StateManager::getInstance().changeState(Diagnostic);
             break;
         case 5:
+            StateManager::getInstance().changeState(SettingsMenu);
+            break;
+        case 6:
             LogService::getInstance().log(MANUAL_RESTART);
 
             asm volatile ("  jmp 0");

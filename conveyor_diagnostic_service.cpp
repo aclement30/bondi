@@ -39,7 +39,7 @@ void ConveyorDiagnosticService::startDiagnostic() {
     conveyorMotor.stop();
     displaySide(CONVEYOR_IDLE);
 
-    Serial.println(F("* start diagnostic"));
+    // Serial.println(F("* start diagnostic"));
 }
 
 void ConveyorDiagnosticService::continueDiagnostic() {

@@ -58,6 +58,7 @@ class DisplayService {
         void printCenter(string text, int row);
         void print(string text, int row);
         void print(const char *text, int row);
+        void write(char letter);
         void addBorder(int row = 1);
         void addScrollArrow(int row, ArrowType type);
         void clearScreen();
@@ -66,6 +67,8 @@ class DisplayService {
         static string getCenteredText(string &text);
         static int getLeftPadding(string text);
         void clearLine(int row);
+        void showCursor(int row, int column = 0);
+        void hideCursor();
 
     private:
         DisplayService();

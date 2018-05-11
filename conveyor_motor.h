@@ -9,13 +9,16 @@ class ConveyorMotor {
         PinConfig pwm;
         PinConfig reverse;
         ConveyorSide feedingSide;
-        int speed;
 
         ConveyorMotor(PinConfig motorPwm, PinConfig motorReverse);
 
         void setup();
         void start(ConveyorSide side, int motorSpeed);
         void stop();
+        int getSpeed();
+    
+    private:
+        int speed;
 };
 
 class FrontConveyor: public ConveyorMotor {

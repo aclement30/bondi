@@ -16,8 +16,6 @@ void ConveyorMotor::setup() {
     // Set to LOW so no power is flowing through the output
     analogWrite(pwm, 0);
     digitalWrite(reverse, LOW);
-
-    Serial.println(F("Configuration du convoyeur"));
 }
 
 void ConveyorMotor::start(ConveyorSide side, int motorSpeed) {
@@ -47,6 +45,10 @@ void ConveyorMotor::stop() {
 
     feedingSide = CONVEYOR_IDLE;
     speed = 0;
+}
+
+int ConveyorMotor::getSpeed() {
+    return speed;
 }
 
 // FRONT CONVEYOR

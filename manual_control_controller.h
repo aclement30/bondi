@@ -11,7 +11,11 @@ class ManualControlController: public Controller {
         void escape();
 
     private:
-        void displayManualControlScreen();
+        void displayManualControlScreen(bool showInvite = true);
+        void handleCommand(int key);
+        void displayInvite();
+        void displayMovingDirection(MovingDirection direction);
+        void displayConveyorsState(bool frontConveyorMoving, bool backConveyorMoving);
 };
 
 #endif

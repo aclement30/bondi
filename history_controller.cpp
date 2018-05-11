@@ -7,6 +7,7 @@
 #include "meal.h"
 #include "state_manager.h"
 #include "string.h"
+#include "time_service.h"
 #include "history_controller.h"
 
 using namespace std;
@@ -39,8 +40,10 @@ void HistoryController::displayHistoryScreen() {
 
         char mealName[19];
 
+        time_t localTime = TimeService::getInstance().getLocalTimeFromUTC(distributedMeal.startTime);
+
         tmElements_t startTime;
-        breakTime(distributedMeal.startTime, startTime);
+        breakTime(localTime, startTime);
         
         // Add meal start time
         sprintf(mealName, "%02d:%02d ", startTime.Hour, startTime.Minute);

@@ -10,7 +10,7 @@ FileService::FileService() {
 }
 
 bool FileService::validateSDCard() {
-    Serial.println(F("Start SD card check"));
+    // Serial.println(F("Start SD card check"));
     
     // Check if a SD card is present
     Sd2Card card;
@@ -19,7 +19,7 @@ bool FileService::validateSDCard() {
         return false;
     }
 
-    Serial.println(F("SD card found"));
+    // Serial.println(F("SD card found"));
 
     if (!SD.begin(SD_CARD_CS)) {
         Serial.println(F("SD card initialization failed!"));

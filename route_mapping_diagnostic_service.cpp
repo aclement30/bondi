@@ -73,7 +73,7 @@ void RouteMappingDiagnosticService::continueDiagnostic() {
         displayCurrentRoute(routeId);
         routeServicePtr->start();
     } else {
-        Serial.println(F("* complete diagnostic"));
+        // Serial.println(F("* complete diagnostic"));
         completed = true;
         currentRouteIndex = 0;
     }

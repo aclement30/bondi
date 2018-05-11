@@ -38,7 +38,9 @@ enum MachineState {
     ManualMealDistribution,
     ManualControl,
     History,
-    Diagnostic
+    Diagnostic,
+    SettingsMenu,
+    TimeSetting
 };
 
 enum MovingDirection {
@@ -112,10 +114,10 @@ const char PROGMEM PATH_SYSTEM_LOGS[] = "LOGS/SYSTEM";
 
 const char PROGMEM APP_VERSION[] = "0.0.1";
 
-const unsigned long EDT_OFFSET = -4;
-const unsigned long EST_OFFSET = -5;
+const signed long EDT_OFFSET = -4;
+const signed long EST_OFFSET = -5;
 
-const unsigned long TIMEZONE_OFFSETS[20][2] = {
+const signed long TIMEZONE_OFFSETS[20][2] = {
     { 1520751600, EDT_OFFSET }, // 2018-03-11
     { 1541314800, EST_OFFSET }, // 2018-11-04
     { 1552201200, EDT_OFFSET }, // 2019-03-10

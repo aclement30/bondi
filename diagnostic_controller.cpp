@@ -7,7 +7,6 @@
 #include "keypad_service.h"
 #include "navigation_menu.h"
 #include "state_manager.h"
-#include "time_diagnostic_service.h"
 #include "string.h"
 #include "diagnostic_controller.h"
 
@@ -64,15 +63,13 @@ void DiagnosticController::displayNavMenu() {
     const static char menuItem3[] PROGMEM = "Test conv. av";
     const static char menuItem4[] PROGMEM = "Test conv. arr";
     const static char menuItem5[] PROGMEM = "Test lect. RFID";
-    const static char menuItem6[] PROGMEM = "Date & heure";
 
     vector<string> menuOptions = {
         getString(menuItem1),
         getString(menuItem2),
         getString(menuItem3),
         getString(menuItem4),
-        getString(menuItem5),
-        getString(menuItem6)
+        getString(menuItem5)
     };
 
     NavigationMenu menu;
@@ -104,10 +101,6 @@ void DiagnosticController::displayNavMenu() {
         }
         case 5:
             diagnosticPtr = new RfidReaderDiagnosticService();
-            diagnosticPtr->startDiagnostic();
-            break;
-        case 6:
-            diagnosticPtr = new TimeDiagnosticService();
             diagnosticPtr->startDiagnostic();
             break;
         case -1:

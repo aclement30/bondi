@@ -1,5 +1,6 @@
 #include <ArduinoSTL.h>
 #include <Keypad.h>
+#include "display_service.h"
 #include "keypad_service.h"
 
 KeypadService & KeypadService::getInstance() {
@@ -10,7 +11,7 @@ KeypadService & KeypadService::getInstance() {
 
 int KeypadService::waitForSelection() {
     waitForKey = true;
-    Serial.println(">");
+    // Serial.println(">");
     
     char keyPressed = keypad.waitForKey();
     waitForKey = false;
@@ -31,9 +32,9 @@ void KeypadService::keypadInterrupt() {
     if (KeypadService::getInstance().waitForKey) return;
 
     int keyCode = KeypadService::getInstance().getKeyPressed();
-
+    
     if (keyCode == KeypadService::EscapeKey) {
-        Serial.println(F("[ESC]"));
+        // Serial.println(F("[ESC]"));
         KeypadService::getInstance().escKeyPressed = true;
     }
 }
@@ -43,7 +44,7 @@ void KeypadService::waitForActivity(unsigned long milliseconds) {
     unsigned long startTime = millis();
     unsigned long endTime = startTime + milliseconds;
 
-    Serial.println(F("(wait)"));
+    // Serial.println(F("(wait)"));
     
     char keyPressed = keypad.getKey();
     while (millis() < endTime && !escKeyPressed && keyPressed == NO_KEY) {
@@ -71,18 +72,22 @@ int KeypadService::getKeyCode(char keyPressed) {
             return 100;
             break;
         default:
-            return keyPressed - 48;
+            int keyCode = keyPressed - 48;
+            if (keyCode < 0) {
+                keyCode = 0;
+            }
+            return keyCode;
     }
 }
 
 bool KeypadService::waitForConfirmation() {
     waitForKey = true;
-    Serial.println(F(">"));
+    // Serial.println(F(">"));
     
     char keyPressed = keypad.waitForKey();
     waitForKey = false;
     
-    Serial.println(keyPressed);
+    // Serial.println(keyPressed);
 
     if (keyPressed == KeypadService::EnterKeyChar) {
         return true;
@@ -95,7 +100,7 @@ bool KeypadService::waitForConfirmation() {
 
 ConfirmationResponse KeypadService::waitForConfirmation(unsigned long timeout) {
     waitForKey = true;
-    Serial.println(F(">"));
+    // Serial.println(F(">"));
     
     unsigned long startTime = millis();
     unsigned long endTime = startTime + timeout;
@@ -110,7 +115,7 @@ ConfirmationResponse KeypadService::waitForConfirmation(unsigned long timeout) {
         return CONFIRMATION_TIMEOUT;
     }
 
-    Serial.println(keyPressed);
+    // Serial.println(keyPressed);
 
     if (keyPressed == KeypadService::EnterKeyChar) {
         return CONFIRMATION_ACKNOWLEDGED;
@@ -128,6 +133,42 @@ bool KeypadService::isEscapeKeyPressed() {
 void KeypadService::resetEscapeKey() {
     escKeyPressed = false;
 }
+
+void KeypadService::queryNumericInput(char * input, int length) {
+    waitForKey = true;
+
+    while (strlen(input) < length && !escKeyPressed) {
+        char keyPressed = keypad.waitForKey();
+
+        if (validateDigit(keyPressed)) {
+            int n = strlen(input);
+            input[n] = keyPressed;
+            input[n+1] = '\0';
+
+            // Show digit on screen
+            DisplayService::getInstance().write(keyPressed);
+        } else if (keyPressed == KeypadService::EscapeKeyChar) {
+            return;
+        }
+    }
+
+    waitForKey = false;
+}
+
+// PRIVATE
+
+bool KeypadService::validateDigit(char key) {
+    char validDigits[10] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+    for (int n = 0; n < 10; n++) {
+        if (key == validDigits[n]) {
+            return true;
+            break;
+        }
+    }
+
+    return false;
+}
+
 
 int KeypadService::EnterKey = 13;
 int KeypadService::EscapeKey = 27;

@@ -53,12 +53,19 @@ void setup() {
 
     StateManager::getInstance().changeState(MainMenu);
     KeypadService::getInstance().listenForEscape();
+
+    // Initialize rail motor at stop position
+    RailMotor::getInstance().stop();
+
+    // Initialize conveyors motor at stop position
+    FrontConveyor::getInstance().stop();
+    BackConveyor::getInstance().stop();
 }
 
 void loop() {
     //wdt_reset();
   
-    Serial.println(F("* loop"));
+    // Serial.println(F("* loop"));
 
     if (StateManager::getInstance().isSafetyMode()) {
         StateManager::getInstance().getCurrentController()->safetyStop();

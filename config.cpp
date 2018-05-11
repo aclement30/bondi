@@ -20,7 +20,7 @@ AppConfig::AppConfig() {}
 std::vector<RailPoint> loadRailPoints(const char * filename) {
     std::vector<RailPoint> points;
     
-    Serial.println(F("* chargement de la configuration des points"));
+    // Serial.println(F("* chargement de la configuration des points"));
 
     FileService fileService = FileService();
     File file = fileService.openFile(filename);
@@ -62,7 +62,7 @@ std::vector<RailPoint> loadRailPoints(const char * filename) {
 std::vector<Meal> loadMeals(const char * filename) {
     std::vector<Meal> meals;
     
-    Serial.println(F("* chargement de la configuration des repas"));
+    // Serial.println(F("* chargement de la configuration des repas"));
 
     FileService fileService = FileService();
     File file = fileService.openFile(filename);
@@ -119,7 +119,7 @@ std::vector<MealSequence> loadMealSequences(const char * filename, int mealId) {
 
     std::vector<MealSequence> mealSequences;
 
-    Serial.println(F("* chargement de la configuration des séquences de repas"));
+    // Serial.println(F("* chargement de la configuration des séquences de repas"));
 
     FileService fileService = FileService();
     File file = fileService.openFile(filename);

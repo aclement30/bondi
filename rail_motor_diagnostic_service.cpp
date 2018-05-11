@@ -33,7 +33,7 @@ void RailMotorDiagnosticService::startDiagnostic() {
     displayDiagnosticScreen();
     displayDirection(MOVING_IDLE);
 
-    Serial.println(F("* start diagnostic"));
+    // Serial.println(F("* start diagnostic"));
 }
 
 void RailMotorDiagnosticService::continueDiagnostic() {

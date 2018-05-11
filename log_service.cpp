@@ -68,9 +68,6 @@ void LogService::logDistribution(int mealId, time_t startTime, time_t endTime, c
     char line[150];
     sprintf(line, "%s;%d;%d;%ld;%ld;%s", getString(APP_VERSION), AppConfig::getInstance().configVersion, mealId, startTime, endTime, missingSequences);
 
-    Serial.print("[LOG] (distribution) ");
-    Serial.println(line);
-
     FileService fileService = FileService();
     File logFile = fileService.openFile(filename, FILE_WRITE);
     logFile.println(line);
@@ -179,9 +176,6 @@ void LogService::writeToFile(char * logLine) {
     File logFile = fileService.openFile(filename, FILE_WRITE);
 
     logFile.println(logLine);
-
-    Serial.print("[LOG] ");
-    Serial.println(logLine);
 
     logFile.close();
 }

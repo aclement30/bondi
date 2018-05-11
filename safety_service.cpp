@@ -62,7 +62,7 @@ void SafetyService::safetyBarInterrupt() {
     bool safetyMode = StateManager::getInstance().isSafetyMode();
 
     if (!safetyMode) {
-        Serial.println(F("Barre de sécurité enclenchée"));
+        // Serial.println(F("Barre de sécurité enclenchée"));
         LogService::getInstance().log(SAFETY_BAR_PRESSED);
         
         // Shutdown everything immediately

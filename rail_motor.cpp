@@ -16,8 +16,8 @@ void RailMotor::moveForward() {
         return;
     }
 
-    digitalWrite(MAIN_MOTOR_OUT1, HIGH);
-    digitalWrite(MAIN_MOTOR_OUT2, LOW);
+    analogWrite(MAIN_MOTOR_OUT1, 255);
+    analogWrite(MAIN_MOTOR_OUT2, 0);
 
     Serial.println(F("Moteur principal: rotation avant"));
     setLight(GREEN, false);
@@ -29,8 +29,8 @@ void RailMotor::moveBackward() {
         return;
     }
 
-    digitalWrite(MAIN_MOTOR_OUT1, LOW);
-    digitalWrite(MAIN_MOTOR_OUT2, HIGH);
+    analogWrite(MAIN_MOTOR_OUT1, 0);
+    analogWrite(MAIN_MOTOR_OUT2, 255);
 
     Serial.println(F("Moteur principal: rotation arrière"));
     setLight(GREEN_BACKWARD, false);
@@ -42,8 +42,8 @@ void RailMotor::stop() {
         return;
     }
 
-    digitalWrite(MAIN_MOTOR_OUT1, HIGH);
-    digitalWrite(MAIN_MOTOR_OUT2, HIGH);
+    analogWrite(MAIN_MOTOR_OUT1, 0);
+    analogWrite(MAIN_MOTOR_OUT2, 0);
 
     Serial.println(F("Moteur principal: arrêt"));
     setLight(RED, false);
@@ -77,11 +77,11 @@ RailMotor::RailMotor() {
     pinMode(GREEN_BACKWARD_LIGHT, OUTPUT);
 
     // Set to LOW so no power is flowing through the output
-    digitalWrite(MAIN_MOTOR_OUT1, LOW);
-    digitalWrite(MAIN_MOTOR_OUT2, LOW);
+    analogWrite(MAIN_MOTOR_OUT1, 0);
+    analogWrite(MAIN_MOTOR_OUT2, 0);
 
     digitalWrite(GREEN_FORWARD_LIGHT, LOW);
-    digitalWrite(RED_LIGHT, LOW);
+    digitalWrite(RED_LIGHT, HIGH);
     digitalWrite(GREEN_BACKWARD_LIGHT, LOW);
 }
 

@@ -74,9 +74,6 @@ void MealService::distributeMeal() {
     
     routeServicePtr->refreshLocation();
 
-    Serial.println("* distributeMeal");
-    delay(250);
-
     refreshCurrentSequence();
 
     // All sequences have been done, complete distribution
@@ -99,7 +96,7 @@ void MealService::distributeMeal() {
 
         displaySequenceInfo(currentSequencePtr->name, currentSequencePtr->feed1Flow, currentSequencePtr->feed2Flow);
 
-        Serial.println(F("* start conveyor"));
+        // Serial.println(F("* start conveyor"));
         // delay(250);
 
         ConveyorSide feedingSide = ((StateManager::getInstance().getMovingDirection() == MOVING_FORWARD) ? CONVEYOR_SIDE_RIGHT : CONVEYOR_SIDE_LEFT);
@@ -110,7 +107,7 @@ void MealService::distributeMeal() {
             BackConveyor::getInstance().start(feedingSide, currentSequencePtr->feed2Flow);
         }
     } else {
-        Serial.println(F("* stop feeding"));
+        // Serial.println(F("* stop feeding"));
         // delay(250);
 
         // Make sure all feed conveyors are stopped

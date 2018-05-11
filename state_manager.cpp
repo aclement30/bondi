@@ -10,6 +10,8 @@
 #include "manual_meal_distribution_controller.h"
 #include "manual_menu_controller.h"
 #include "off_controller.h"
+#include "settings_menu_controller.h"
+#include "time_setting_controller.h"
 #include "state_manager.h"
 #include "safety_service.h"
 
@@ -39,42 +41,52 @@ void StateManager::changeState(MachineState newState) {
     switch(currentState) {
         case Off: {
             currentControllerPtr = new OffController();
-            Serial.println(F("MODE: ARRET"));
+            // Serial.println(F("MODE: ARRET"));
             break;
         }
         case MainMenu: {
             currentControllerPtr = new MainMenuController();
-            Serial.println(F("MENU PRINCIPAL"));
+            // Serial.println(F("MENU PRINCIPAL"));
             break;
         }
         case Automatic: {
             currentControllerPtr = new AutomaticController();
-            Serial.println(F("MODE: AUTO"));
+            // Serial.println(F("MODE: AUTO"));
             break;
         }
         case ManualMenu: {
             currentControllerPtr = new ManualMenuController();
-            Serial.println(F("MODE: MANUEL"));
+            // Serial.println(F("MODE: MANUEL"));
             break;
         }
         case ManualMealDistribution: {
             currentControllerPtr = new ManualMealDistributionController();
-            Serial.println(F("DISTRIBUTION MANUELLE"));
+            // Serial.println(F("DISTRIBUTION MANUELLE"));
             break;
         }
         case ManualControl: {
             currentControllerPtr = new ManualControlController();
-            Serial.println(F("CONTROLE MANUEL"));
+            // Serial.println(F("CONTROLE MANUEL"));
             break;
         }
         case History: {
             currentControllerPtr = new HistoryController();
-            Serial.println(F("HISTORIQUE"));
+            // Serial.println(F("HISTORIQUE"));
             break;
         }
         case Diagnostic: {
             currentControllerPtr = new DiagnosticController();
-            Serial.println(F("MODE: DIAGNOSTIC"));
+            // Serial.println(F("MODE: DIAGNOSTIC"));
+            break;
+        }
+        case SettingsMenu: {
+            currentControllerPtr = new SettingsMenuController();
+            // Serial.println(F("CONFIGURATION"));
+            break;
+        }
+        case TimeSetting: {
+            currentControllerPtr = new TimeSettingController();
+            // Serial.println(F("PARAM. DATE & HEURE"));
             break;
         }
     }
@@ -103,8 +115,8 @@ bool StateManager::isSafetyMode() {
 }
 
 void StateManager::safetyStop() {
-    Serial.println(F("* StateManager::safetyStopp"));
-    delay(250);
+    // Serial.println(F("* StateManager::safetyStopp"));
+    // delay(250);
 
     safetyModeActivated = true;
     LogService::getInstance().log(SAFETY_MODE_ENGAGED);

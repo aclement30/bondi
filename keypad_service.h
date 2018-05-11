@@ -32,6 +32,7 @@ class KeypadService {
         ConfirmationResponse waitForConfirmation(unsigned long timeout);
         bool isEscapeKeyPressed();
         void resetEscapeKey();
+        void queryNumericInput(char * input, int length);
 
     private:
         bool waitForKey = false;
@@ -44,6 +45,8 @@ class KeypadService {
             keypad(Keypad(makeKeymap(keymap), rowPins, colPins, numRows, numCols))
         {}
 
+        bool validateDigit(char key);
+        
         // C++ 03
         // ========
         // Don't forget to declare these two. You want to make sure they

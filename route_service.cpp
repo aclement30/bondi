@@ -55,8 +55,8 @@ void RouteService::refreshLocation() {
         return;
     }
 
-    Serial.print(F("* new RFID uid: "));
-    Serial.println(uid);
+    // Serial.print(F("* new RFID uid: "));
+    // Serial.println(uid);
 
     checkpointsCount += 1;
     strcpy(lastRfidUid, uid);

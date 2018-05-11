@@ -35,6 +35,10 @@ void DisplayService::print(const char *text, int row) {
     lcd.print(text);
 }
 
+void DisplayService::write(char letter) {
+    lcd.write(letter);
+}
+
 void DisplayService::addBorder(int row) {
     lcd.setCursor(0, row);
     lcd.print(BORDER_LINE);
@@ -90,6 +94,15 @@ int DisplayService::getLeftPadding(string text) {
 void DisplayService::clearLine(int row) {
     lcd.setCursor(0, row);
     lcd.print("                    ");
+}
+
+void DisplayService::showCursor(int row, int column) {
+    lcd.setCursor(column, row);
+    lcd.blink();
+}
+
+void DisplayService::hideCursor() {
+    lcd.noBlink();
 }
 
 // PRIVATE
